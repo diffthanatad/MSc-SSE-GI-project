@@ -1,0 +1,45 @@
+--- minisat-hack/core/Dimacs.h	2014-05-18 09:39:39.000000000 -0400
++++ ../../MAGPIE-repository/code/minisat-hack/core/Dimacs.h	2023-05-29 18:01:52.572179554 -0400
+@@ -65,6 +65,8 @@
+             }
+         } else if (*in == 'c' || *in == 'p')
+             skipLine(in);
++        else if (*in == '%')
++            break;
+         else{
+             cnt++;
+             readClause(in, S, lits);
+
+--- minisat-hack/core/Solver.h	2014-05-18 09:39:39.000000000 -0400
++++ ../../MAGPIE-repository/code/minisat-hack/core/Solver.h	2023-05-29 17:37:44.860102237 -0400
+@@ -108,7 +108,7 @@
+     void    checkGarbage();
+ 
+ 
+-    //FILE*               output;
++    FILE*               output;
+ 
+     // Extra results: (read-only member variable)
+     //
+
+
+--- minisat-hack/core/SolverTypes.h	2014-05-18 09:39:39.000000000 -0400
++++ ../../MAGPIE-repository/code/minisat-hack/core/SolverTypes.h	2023-05-29 17:25:41.500063606 -0400
+@@ -47,7 +47,7 @@
+     int     x;
+ 
+     // Use this as a constructor:
+-    friend Lit mkLit(Var var, bool sign = false);
++    friend Lit mkLit(Var var, bool sign);
+ 
+     bool operator == (Lit p) const { return x == p.x; }
+     bool operator != (Lit p) const { return x != p.x; }
+@@ -55,7 +55,7 @@
+ };
+ 
+ 
+-inline  Lit  mkLit     (Var var, bool sign) { Lit p; p.x = var + var + (int)sign; return p; }
++inline  Lit  mkLit     (Var var, bool sign = false) { Lit p; p.x = var + var + (int)sign; return p; }
+ inline  Lit  operator ~(Lit p)              { Lit q; q.x = p.x ^ 1; return q; }
+ inline  Lit  operator ^(Lit p, bool b)      { Lit q; q.x = p.x ^ (unsigned int)b; return q; }
+ inline  bool sign      (Lit p)              { return p.x & 1; }
