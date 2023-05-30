@@ -108,7 +108,7 @@ public:
     void    checkGarbage();
 
 
-    //FILE*               output;
+    FILE*               output;
 
     // Extra results: (read-only member variable)
     //
