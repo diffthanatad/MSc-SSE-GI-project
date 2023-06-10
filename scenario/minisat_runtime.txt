@@ -6,14 +6,14 @@ default_lengthout = 1e6
 path = code/minisat-hack
 target_files =
     core/Solver.cc
-fitness = perf_instructions
+fitness = time
 
 compile_cmd = ./compile.sh
 test_cmd = ./test.sh
 run_cmd = ./run.sh
 
 [search]
-max_steps = 30
+max_steps = 1000
 possible_edits =
     LineReplacement
     LineInsertion

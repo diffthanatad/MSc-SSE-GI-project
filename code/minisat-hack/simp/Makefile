@@ -1,4 +1,4 @@
-EXEC      = minisat_HACK_999ED_CSSC
+EXEC      = minisat
 DEPDIR    = mtl utils core
-MROOT = $(PWD)/..
+
 include $(MROOT)/mtl/template.mk
