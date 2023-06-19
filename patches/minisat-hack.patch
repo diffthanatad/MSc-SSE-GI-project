@@ -43,3 +43,11 @@
  inline  Lit  operator ~(Lit p)              { Lit q; q.x = p.x ^ 1; return q; }
  inline  Lit  operator ^(Lit p, bool b)      { Lit q; q.x = p.x ^ (unsigned int)b; return q; }
  inline  bool sign      (Lit p)              { return p.x & 1; }
+
+--- original-minisat/simp/Makefile	2014-05-18 14:39:38
++++ minisat-hack/simp/Makefile	2023-06-19 19:21:10
+@@ -1,4 +1,3 @@
+ EXEC      = minisat_HACK_999ED_CSSC
+ DEPDIR    = mtl utils core
+-MROOT = $(PWD)/..
+ include $(MROOT)/mtl/template.mk
