@@ -1,0 +1,29 @@
+#!/bin/sh
+
+ARGV=$@
+
+my_test() {
+    FILENAME=$1
+    EXPECTED=$2
+    ../simp/minisat $FILENAME $ARGV > /dev/null
+    RETURN=$?
+    if [ $RETURN -ne $((EXPECTED)) ]
+    then
+        echo "FAILED ON FILE:" $FILE NAME
+        echo "GOT:" $RETURN
+        echo "EXPECTED:" $EXPECTED
+        exit -1
+    fi
+}
+
+my_test ../../../data/circuit_fuzz/fuzz_100_29348.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_32582.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_19612.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_26964.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_3712.cnf 10
+
+my_test ../../../data/circuit_fuzz/fuzz_100_17835.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_3725.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_16511.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_6965.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_1340.cnf 20

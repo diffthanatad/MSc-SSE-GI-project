@@ -1,3 +1,3 @@
 #!/bin/sh
 
-MROOT=.. CFLAGS=-fpermissive make -C simp
+MROOT=.. CFLAGS='-fpermissive -03' make -C simp
