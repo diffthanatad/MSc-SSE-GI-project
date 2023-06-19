@@ -5,7 +5,7 @@ ARGV=$@
 my_test() {
     FILENAME=$1
     EXPECTED=$2
-    ./simp/minisat $FILENAME $ARGV > /dev/null
+    ./simp/minisat_HACK_999ED_CSSC $FILENAME $ARGV > /dev/null
     RETURN=$?
     if [ $RETURN -ne $((EXPECTED)) ]
     then
