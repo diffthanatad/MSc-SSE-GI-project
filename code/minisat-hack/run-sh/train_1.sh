@@ -9,6 +9,7 @@ my_test() {
     RETURN=$?
     if [ $RETURN -ne $((EXPECTED)) ]
     then
+	pwd
         echo "FAILED ON FILE:" $FILENAME
         echo "GOT:" $RETURN
         echo "EXPECTED:" $EXPECTED

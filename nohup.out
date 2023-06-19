@@ -1,0 +1,37 @@
+==== WARMUP ====
+WARM    RUN_CODE_ERROR        None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687202547/minisat-hack
+CMD: ['run-sh/train_1.sh']
+STATUS: SUCCESS
+RETURN_CODE: 255
+RUNTIME: 0.022860050201416016
+STDOUT:
+FAILED ON FILE: ../../data/circuit_fuzz/fuzz_100_25509.cnf
+GOT: 1
+EXPECTED: 10
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command failed with a nonzero exit code
+--> try to run it manually
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
