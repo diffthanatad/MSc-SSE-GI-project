@@ -1,0 +1,20 @@
+[magpie]
+default_timeout = 30
+default_lengthout = 1e6
+
+[software]
+path = code/minisat-hack
+target_files =
+    core/Solver.cc
+fitness = time
+
+compile_cmd = ./compile.sh
+test_cmd =
+run_cmd = run-sh/train_3.sh
+
+[search]
+max_steps = 1000
+possible_edits =
+    LineReplacement
+    LineInsertion
+    LineDeletion
