@@ -335,3 +335,535 @@ Traceback (most recent call last):
   File "/usr/local/lib/python3.10/subprocess.py", line 1863, in _execute_child
     raise child_exception_type(errno_num, err_msg, err_filename)
 PermissionError: [Errno 13] Permission denied: 'run-sh/train_10.sh'
+==== WARMUP ====
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205637/minisat-hack
+CMD: ['run-sh/train_1.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.041048049926758
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205674/minisat-hack
+CMD: ['run-sh/train_2.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.043518781661987
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205711/minisat-hack
+CMD: ['run-sh/train_3.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.04023027420044
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205748/minisat-hack
+CMD: ['run-sh/train_4.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.038097381591797
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    SUCCESS               29.0883                 
+==== WARMUP ====
+WARM    SUCCESS               28.6821                 
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205837/minisat-hack
+CMD: ['run-sh/train_1.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.124366998672485
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    SUCCESS               28.7043                 
+INITIAL SUCCESS               28.7043                 
+==== START: FirstImprovement ====
+1       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205874/minisat-hack
+CMD: ['run-sh/train_2.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.12207841873169
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+2       SUCCESS               29.099 (101.38%) [1 edit(s)] 
+3       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+4       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205911/minisat-hack
+CMD: ['run-sh/train_3.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.100632190704346
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+5       SUCCESS               29.0032 (101.04%) [1 edit(s)] 
+6       SUCCESS               29.2145 (101.78%) [1 edit(s)] 
+7       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+8       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+9       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+10      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205948/minisat-hack
+CMD: ['run-sh/train_4.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.116811513900757
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+11      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+==== WARMUP ====
+12      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+13      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+14      SUCCESS              *28.6963 (99.97%) [1 edit(s)] 
+15      SUCCESS               28.7043 (100.0%) [0 edit(s)] 
+WARM    SUCCESS               28.7003                 
+16      RUN_TIMEOUT           None  [2 edit(s)]       
+17      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+18      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687205985/minisat-hack
+CMD: ['run-sh/train_5.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.16679620742798
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+19      RUN_TIMEOUT           None  [2 edit(s)]       
+20      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687206055/minisat-hack
+CMD: ['run-sh/train_6.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.204943895339966
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+21      RUN_TIMEOUT           None  [2 edit(s)]       
+22      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+23      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687206098/minisat-hack
+CMD: ['run-sh/train_7.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.17548108100891
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+24      RUN_TIMEOUT           None  [2 edit(s)]       
+25      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687206139/minisat-hack
+CMD: ['run-sh/train_8.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.17446804046631
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    RUN_CODE_ERROR        None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687206183/minisat-hack
+CMD: ['run-sh/train_9.sh']
+STATUS: SUCCESS
+RETURN_CODE: 255
+RUNTIME: 0.032677412033081055
+STDOUT:
+FAILED ON FILE: ../../../data/circuit_fuzz/fuzz_100_19666.cnf
+GOT: 127
+EXPECTED: 10
+
+STDERR:
+run-sh/train_9.sh: line 8: ./simp/minminisat_HACK_999ED_CSSCisat: No such file or directory
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command failed with a nonzero exit code
+--> try to run it manually
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+26      RUN_TIMEOUT           None  [2 edit(s)]       
+27      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+28      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+29      RUN_TIMEOUT           None  [2 edit(s)]       
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687206196/minisat-hack
+CMD: ['run-sh/train_10.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.173988342285156
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+30      SUCCESS               29.9684 (104.4%) [2 edit(s)] 
+31      SUCCESS               28.745 (100.14%) [2 edit(s)] 
+32      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+33      SUCCESS               29.2455 (101.89%) [2 edit(s)] 
+34      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+35      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+36      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+37      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+38      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+39      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+40      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+41      SUCCESS               28.8222 (100.41%) [2 edit(s)] 
+42      SUCCESS               29.2762 (101.99%) [2 edit(s)] 
+43      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+44      SUCCESS               29.0437 (101.18%) [2 edit(s)] 
+45      COMPILE_CODE_ERROR    None  [2 edit(s)]       

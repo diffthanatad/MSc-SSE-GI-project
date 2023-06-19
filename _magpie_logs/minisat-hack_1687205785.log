@@ -1,0 +1,198 @@
+2023-06-19 21:16:25,716	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = 
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = run-sh/train_5.sh
+run_timeout = 
+run_lengthout = 
+fitness = time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	LineReplacement
+	LineInsertion
+	LineDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 1000
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-06-19 21:16:25,716	[INFO]	==== WARMUP ====
+2023-06-19 21:17:01,486	[INFO]	WARM    SUCCESS               29.0883                 
+2023-06-19 21:17:33,321	[INFO]	WARM    SUCCESS               28.6821                 
+2023-06-19 21:18:05,567	[INFO]	WARM    SUCCESS               28.7043                 
+2023-06-19 21:18:05,568	[INFO]	INITIAL SUCCESS               28.7043                 
+2023-06-19 21:18:05,568	[INFO]	==== START: FirstImprovement ====
+2023-06-19 21:18:05,984	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 762))
+2023-06-19 21:18:05,984	[INFO]	1       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:18:38,330	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 975), ('core/Solver.cc', 'line', 862))
+2023-06-19 21:18:38,330	[INFO]	2       SUCCESS               29.099 (101.38%) [1 edit(s)] 
+2023-06-19 21:18:38,731	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 113), ('core/Solver.cc', 'line', 892))
+2023-06-19 21:18:38,732	[INFO]	3       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:18:39,127	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 796), ('core/Solver.cc', 'line', 853))
+2023-06-19 21:18:39,127	[INFO]	4       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:19:11,208	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 264))
+2023-06-19 21:19:11,208	[INFO]	5       SUCCESS               29.0032 (101.04%) [1 edit(s)] 
+2023-06-19 21:19:43,598	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 742), ('core/Solver.cc', 'line', 608))
+2023-06-19 21:19:43,598	[INFO]	6       SUCCESS               29.2145 (101.78%) [1 edit(s)] 
+2023-06-19 21:19:44,002	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 521), ('core/Solver.cc', 'line', 535))
+2023-06-19 21:19:44,003	[INFO]	7       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:19:44,413	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 414), ('core/Solver.cc', 'line', 511))
+2023-06-19 21:19:44,413	[INFO]	8       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:19:44,816	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 411), ('core/Solver.cc', 'line', 345))
+2023-06-19 21:19:44,817	[INFO]	9       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:19:45,233	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 80), ('core/Solver.cc', 'line', 719))
+2023-06-19 21:19:45,233	[INFO]	10      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:19:45,636	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 956), ('core/Solver.cc', 'line', 482))
+2023-06-19 21:19:45,637	[INFO]	11      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:19:45,985	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 254), ('core/Solver.cc', 'line', 111))
+2023-06-19 21:19:45,986	[INFO]	12      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:19:46,390	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 372))
+2023-06-19 21:19:46,390	[INFO]	13      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-19 21:20:18,511	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61))
+2023-06-19 21:20:18,511	[INFO]	14      SUCCESS              *28.6963 (99.97%) [1 edit(s)] 
+2023-06-19 21:20:18,519	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -903,6 +903,7 @@
+     }
+ 
+     if (verbosity >= 1)
++static DoubleOption  opt_garbage_frac      (_cat, "gc-frac",     "The fraction of wasted memory allowed before a garbage collection is triggered",  0.20, DoubleRange(0, false, HUGE_VAL, false));
+         printf("c ===============================================================================\n");
+ 
+ 
+
+2023-06-19 21:20:18,526	[DEBUG]	
+2023-06-19 21:20:18,526	[INFO]	15      SUCCESS               28.7043 (100.0%) [0 edit(s)] 
+2023-06-19 21:20:52,139	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 492), ('core/Solver.cc', 'line', 1033))
+2023-06-19 21:20:52,139	[INFO]	16      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-06-19 21:20:53,134	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 969), ('core/Solver.cc', 'line', 626))
+2023-06-19 21:20:53,134	[INFO]	17      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:20:53,531	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 226), ('core/Solver.cc', 'line', 494))
+2023-06-19 21:20:53,531	[INFO]	18      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:21:28,155	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 255))
+2023-06-19 21:21:28,156	[INFO]	19      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-06-19 21:21:29,151	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 944), ('core/Solver.cc', 'line', 723))
+2023-06-19 21:21:29,152	[INFO]	20      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:22:04,127	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 483), ('core/Solver.cc', 'line', 738))
+2023-06-19 21:22:04,128	[INFO]	21      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-06-19 21:22:04,544	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 113), ('core/Solver.cc', 'line', 1021))
+2023-06-19 21:22:04,544	[INFO]	22      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:22:05,604	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 198), ('core/Solver.cc', 'line', 393))
+2023-06-19 21:22:05,604	[INFO]	23      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:22:41,119	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 971))
+2023-06-19 21:22:41,120	[INFO]	24      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-06-19 21:22:42,140	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 446))
+2023-06-19 21:22:42,141	[INFO]	25      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:23:17,029	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 10), ('core/Solver.cc', 'line', 641))
+2023-06-19 21:23:17,030	[INFO]	26      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-06-19 21:23:17,722	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 1001))
+2023-06-19 21:23:17,722	[INFO]	27      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:23:18,512	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 490), ('core/Solver.cc', 'line', 678))
+2023-06-19 21:23:18,512	[INFO]	28      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:23:54,663	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 884), ('core/Solver.cc', 'line', 813))
+2023-06-19 21:23:54,663	[INFO]	29      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-06-19 21:24:28,339	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 680), ('core/Solver.cc', 'line', 762))
+2023-06-19 21:24:28,339	[INFO]	30      SUCCESS               29.9684 (104.4%) [2 edit(s)] 
+2023-06-19 21:25:00,239	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 1012))
+2023-06-19 21:25:00,239	[INFO]	31      SUCCESS               28.745 (100.14%) [2 edit(s)] 
+2023-06-19 21:25:00,349	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 19), ('core/Solver.cc', 'line', 760))
+2023-06-19 21:25:00,349	[INFO]	32      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:25:32,776	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 638), ('core/Solver.cc', 'line', 77))
+2023-06-19 21:25:32,777	[INFO]	33      SUCCESS               29.2455 (101.89%) [2 edit(s)] 
+2023-06-19 21:25:33,193	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 551), ('core/Solver.cc', 'line', 376))
+2023-06-19 21:25:33,194	[INFO]	34      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:25:33,564	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 623))
+2023-06-19 21:25:33,564	[INFO]	35      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:25:33,963	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 438), ('core/Solver.cc', 'line', 993))
+2023-06-19 21:25:33,964	[INFO]	36      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:25:34,374	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 926))
+2023-06-19 21:25:34,374	[INFO]	37      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:25:34,777	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 87), ('core/Solver.cc', 'line', 418))
+2023-06-19 21:25:34,777	[INFO]	38      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:25:35,183	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 189), ('core/Solver.cc', 'line', 566))
+2023-06-19 21:25:35,184	[INFO]	39      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:25:35,590	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineReplacement(('core/Solver.cc', 'line', 873), ('core/Solver.cc', 'line', 913))
+2023-06-19 21:25:35,590	[INFO]	40      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:26:07,595	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 1005))
+2023-06-19 21:26:07,595	[INFO]	41      SUCCESS               28.8222 (100.41%) [2 edit(s)] 
+2023-06-19 21:26:40,029	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 739), ('core/Solver.cc', 'line', 539))
+2023-06-19 21:26:40,029	[INFO]	42      SUCCESS               29.2762 (101.99%) [2 edit(s)] 
+2023-06-19 21:26:40,435	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 1022), ('core/Solver.cc', 'line', 868))
+2023-06-19 21:26:40,436	[INFO]	43      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-19 21:27:12,653	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 510), ('core/Solver.cc', 'line', 843))
+2023-06-19 21:27:12,654	[INFO]	44      SUCCESS               29.0437 (101.18%) [2 edit(s)] 
+2023-06-19 21:27:13,064	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineInsertion(('core/Solver.cc', '_inter_line', 594), ('core/Solver.cc', 'line', 88))
+2023-06-19 21:27:13,065	[INFO]	45      COMPILE_CODE_ERROR    None  [2 edit(s)]       
