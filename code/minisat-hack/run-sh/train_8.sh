@@ -16,14 +16,14 @@ my_test() {
     fi
 }
 
-my_test ../../data/circuit_fuzz/fuzz_100_360.cnf 10
-my_test ../../data/circuit_fuzz/fuzz_100_12028.cnf 10
-my_test ../../data/circuit_fuzz/fuzz_100_818.cnf 10
-my_test ../../data/circuit_fuzz/fuzz_100_16353.cnf 10
-my_test ../../data/circuit_fuzz/fuzz_100_8354.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_360.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_12028.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_818.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_16353.cnf 10
+my_test ../../../data/circuit_fuzz/fuzz_100_8354.cnf 10
 
-my_test ../../data/circuit_fuzz/fuzz_100_16377.cnf 20
-my_test ../../data/circuit_fuzz/fuzz_100_14069.cnf 20
-my_test ../../data/circuit_fuzz/fuzz_100_25094.cnf 20
-my_test ../../data/circuit_fuzz/fuzz_100_6173.cnf 20
-my_test ../../data/circuit_fuzz/fuzz_100_31943.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_16377.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_14069.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_25094.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_6173.cnf 20
+my_test ../../../data/circuit_fuzz/fuzz_100_31943.cnf 20
