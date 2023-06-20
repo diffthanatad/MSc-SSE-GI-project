@@ -867,3 +867,1230 @@ RuntimeError: initial solution has failed
 43      COMPILE_CODE_ERROR    None  [2 edit(s)]       
 44      SUCCESS               29.0437 (101.18%) [2 edit(s)] 
 45      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+46      SUCCESS               28.7102 (100.02%) [2 edit(s)] 
+47      RUN_TIMEOUT           None  [2 edit(s)]       
+48      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+49      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+50      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+51      SUCCESS              *28.5397 (99.43%) [2 edit(s)] 
+52      RUN_TIMEOUT           None  [1 edit(s)]       
+53      SUCCESS              +28.5397 (99.43%) [3 edit(s)] 
+54      RUN_TIMEOUT           None  [2 edit(s)]       
+55      SUCCESS               28.9234 (100.76%) [4 edit(s)] 
+56      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+57      RUN_TIMEOUT           None  [4 edit(s)]       
+58      SUCCESS               28.6242 (99.72%) [2 edit(s)] 
+59      SUCCESS              +28.5397 (99.43%) [2 edit(s)] 
+60      SUCCESS               28.6756 (99.9%) [3 edit(s)] 
+61      COMPILE_CODE_ERROR    None  [3 edit(s)]       
+62      SUCCESS              *28.3701 (98.84%) [3 edit(s)] 
+63      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+64      SUCCESS               28.5088 (99.32%) [4 edit(s)] 
+65      SUCCESS               28.5225 (99.37%) [2 edit(s)] 
+66      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+67      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+68      SUCCESS               28.6673 (99.87%) [4 edit(s)] 
+69      SUCCESS               28.5397 (99.43%) [2 edit(s)] 
+70      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+71      SUCCESS               28.562 (99.5%) [4 edit(s)] 
+72      SUCCESS               28.4695 (99.18%) [2 edit(s)] 
+73      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+74      RUN_CODE_ERROR        None  [4 edit(s)]       
+75      SUCCESS               28.522 (99.36%) [4 edit(s)] 
+76      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+77      SUCCESS               29.262 (101.94%) [4 edit(s)] 
+78      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+79      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+80      RUN_TIMEOUT           None  [4 edit(s)]       
+81      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+82      SUCCESS               28.6226 (99.72%) [4 edit(s)] 
+83      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+84      SUCCESS               28.507 (99.31%) [4 edit(s)] 
+85      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+86      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+87      SUCCESS               29.5556 (102.97%) [4 edit(s)] 
+88      SUCCESS               28.923 (100.76%) [4 edit(s)] 
+89      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+90      SUCCESS              *28.2231 (98.32%) [4 edit(s)] 
+91      SUCCESS               28.4109 (98.98%) [3 edit(s)] 
+92      COMPILE_CODE_ERROR    None  [5 edit(s)]       
+93      SUCCESS               28.7854 (100.28%) [3 edit(s)] 
+94      SUCCESS              *28.1838 (98.19%) [5 edit(s)] 
+95      COMPILE_CODE_ERROR    None  [6 edit(s)]       
+96      SUCCESS               28.9665 (100.91%) [4 edit(s)] 
+97      COMPILE_CODE_ERROR    None  [6 edit(s)]       
+98      SUCCESS               28.7629 (100.2%) [4 edit(s)] 
+99      COMPILE_CODE_ERROR    None  [6 edit(s)]       
+100     SUCCESS               28.456 (99.13%) [6 edit(s)] 
+101     SUCCESS               28.6506 (99.81%) [4 edit(s)] 
+102     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+103     SUCCESS               28.7965 (100.32%) [6 edit(s)] 
+104     SUCCESS               28.2231 (98.32%) [4 edit(s)] 
+105     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+106     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+107     RUN_TIMEOUT           None  [6 edit(s)]       
+108     SUCCESS               28.399 (98.94%) [6 edit(s)] 
+109     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+110     SUCCESS               28.2863 (98.54%) [6 edit(s)] 
+111     SUCCESS               28.5958 (99.62%) [6 edit(s)] 
+112     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+113     SUCCESS               28.4661 (99.17%) [4 edit(s)] 
+114     SUCCESS               28.8584 (100.54%) [6 edit(s)] 
+115     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+116     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+117     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+118     SUCCESS               28.5611 (99.5%) [6 edit(s)] 
+119     SUCCESS               29.6835 (103.41%) [6 edit(s)] 
+120     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+121     SUCCESS               28.7111 (100.02%) [6 edit(s)] 
+122     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+123     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+124     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+125     SUCCESS               28.5476 (99.45%) [6 edit(s)] 
+126     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+127     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+128     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+129     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+130     SUCCESS               28.6793 (99.91%) [6 edit(s)] 
+131     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+132     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+133     SUCCESS               28.5613 (99.5%) [6 edit(s)] 
+134     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+135     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+136     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+137     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+138     SUCCESS               28.4791 (99.22%) [6 edit(s)] 
+139     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+140     SUCCESS               28.316 (98.65%) [6 edit(s)] 
+141     SUCCESS               28.8858 (100.63%) [6 edit(s)] 
+142     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+143     COMPILE_CODE_ERROR    None  [6 edit(s)]       
+144     SUCCESS               28.8134 (100.38%) [6 edit(s)] 
+145     SUCCESS               28.5676 (99.52%) [6 edit(s)] 
+146     SUCCESS              *28.176 (98.16%) [6 edit(s)] 
+147     SUCCESS               28.5585 (99.49%) [7 edit(s)] 
+148     SUCCESS               28.8344 (100.45%) [7 edit(s)] 
+149     SUCCESS               28.747 (100.15%) [5 edit(s)] 
+150     SUCCESS               28.7108 (100.02%) [7 edit(s)] 
+151     RUN_TIMEOUT           None  [7 edit(s)]       
+152     COMPILE_CODE_ERROR    None  [7 edit(s)]       
+153     SUCCESS               28.8703 (100.58%) [5 edit(s)] 
+154     SUCCESS               28.5452 (99.45%) [7 edit(s)] 
+155     SUCCESS               28.9843 (100.98%) [5 edit(s)] 
+156     SUCCESS               28.4112 (98.98%) [7 edit(s)] 
+157     COMPILE_CODE_ERROR    None  [7 edit(s)]       
+158     SUCCESS               28.9226 (100.76%) [5 edit(s)] 
+159     SUCCESS              *27.9718 (97.45%) [7 edit(s)] 
+160     SUCCESS              *22.3533 (77.87%) [8 edit(s)] 
+161     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+162     SUCCESS               22.4132 (78.08%) [7 edit(s)] 
+163     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+164     SUCCESS               22.8325 (79.54%) [7 edit(s)] 
+165     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+166     SUCCESS               22.3825 (77.98%) [9 edit(s)] 
+167     SUCCESS               22.3609 (77.9%) [7 edit(s)] 
+168     SUCCESS               22.4511 (78.22%) [9 edit(s)] 
+169     SUCCESS               24.2901 (84.62%) [9 edit(s)] 
+170     SUCCESS               26.4153 (92.03%) [9 edit(s)] 
+171     SUCCESS               27.9718 (97.45%) [7 edit(s)] 
+172     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+173     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+174     SUCCESS               22.513 (78.43%) [7 edit(s)] 
+175     SUCCESS               22.4022 (78.04%) [9 edit(s)] 
+176     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+177     SUCCESS               22.5243 (78.47%) [9 edit(s)] 
+178     RUN_CODE_ERROR        None  [9 edit(s)]       
+179     SUCCESS               22.4895 (78.35%) [7 edit(s)] 
+180     SUCCESS              *22.2261 (77.43%) [7 edit(s)] 
+181     SUCCESS              *22.1844 (77.29%) [8 edit(s)] 
+182     SUCCESS              *21.3127 (74.25%) [7 edit(s)] 
+183     SUCCESS               21.6523 (75.43%) [6 edit(s)] 
+184     SUCCESS               23.4362 (81.65%) [8 edit(s)] 
+185     SUCCESS               21.4496 (74.73%) [6 edit(s)] 
+186     SUCCESS              *20.5275 (71.51%) [8 edit(s)] 
+187     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+188     SUCCESS               21.398 (74.55%) [9 edit(s)] 
+189     SUCCESS               21.1509 (73.69%) [7 edit(s)] 
+190     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+191     SUCCESS               21.3127 (74.25%) [7 edit(s)] 
+192     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+193     SUCCESS               20.6205 (71.84%) [9 edit(s)] 
+194     SUCCESS               21.8306 (76.05%) [7 edit(s)] 
+195     SUCCESS               21.5497 (75.07%) [7 edit(s)] 
+196     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+197     RUN_TIMEOUT           None  [9 edit(s)]       
+198     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+199     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+200     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+201     SUCCESS               21.3804 (74.49%) [7 edit(s)] 
+202     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+203     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+204     SUCCESS               21.4132 (74.6%) [9 edit(s)] 
+205     SUCCESS               21.5629 (75.12%) [9 edit(s)] 
+206     SUCCESS               21.6644 (75.47%) [9 edit(s)] 
+207     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+208     SUCCESS               27.5461 (95.97%) [7 edit(s)] 
+209     SUCCESS               22.3363 (77.82%) [9 edit(s)] 
+210     RUN_TIMEOUT           None  [9 edit(s)]       
+211     RUN_CODE_ERROR        None  [9 edit(s)]       
+212     SUCCESS               21.9241 (76.38%) [9 edit(s)] 
+213     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+214     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+215     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+216     SUCCESS               21.0933 (73.48%) [7 edit(s)] 
+217     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+218     SUCCESS               21.8083 (75.98%) [9 edit(s)] 
+219     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+220     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+221     RUN_CODE_ERROR        None  [9 edit(s)]       
+222     SUCCESS               21.1235 (73.59%) [7 edit(s)] 
+223     SUCCESS               21.8677 (76.18%) [9 edit(s)] 
+224     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+225     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+226     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+227     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+228     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+229     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+230     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+231     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+232     SUCCESS               21.9129 (76.34%) [9 edit(s)] 
+233     SUCCESS               21.3708 (74.45%) [9 edit(s)] 
+234     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+235     RUN_CODE_ERROR        None  [9 edit(s)]       
+236     SUCCESS               20.7021 (72.12%) [9 edit(s)] 
+237     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+238     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+239     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+240     SUCCESS               21.4325 (74.67%) [9 edit(s)] 
+241     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+242     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+243     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+244     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+245     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+246     SUCCESS               21.1302 (73.61%) [9 edit(s)] 
+247     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+248     SUCCESS               20.8776 (72.73%) [9 edit(s)] 
+249     SUCCESS               21.8987 (76.29%) [9 edit(s)] 
+250     SUCCESS               21.8204 (76.02%) [9 edit(s)] 
+251     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+252     SUCCESS               22.0076 (76.67%) [9 edit(s)] 
+253     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+254     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+255     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+256     SUCCESS               20.9243 (72.9%) [9 edit(s)] 
+257     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+258     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+259     SUCCESS               21.738 (75.73%) [9 edit(s)] 
+260     SUCCESS               21.3794 (74.48%) [9 edit(s)] 
+261     RUN_CODE_ERROR        None  [9 edit(s)]       
+262     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+263     SUCCESS               21.4737 (74.81%) [9 edit(s)] 
+264     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+265     SUCCESS               22.5273 (78.48%) [9 edit(s)] 
+266     SUCCESS               21.8689 (76.19%) [9 edit(s)] 
+267     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+268     SUCCESS               21.8711 (76.19%) [9 edit(s)] 
+269     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+270     SUCCESS               22.1386 (77.13%) [9 edit(s)] 
+271     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+272     SUCCESS               21.4987 (74.9%) [9 edit(s)] 
+273     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+274     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+275     SUCCESS               21.243 (74.01%) [9 edit(s)] 
+276     SUCCESS               21.598 (75.24%) [9 edit(s)] 
+277     SUCCESS               20.916 (72.87%) [9 edit(s)] 
+278     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+279     SUCCESS               21.2638 (74.08%) [9 edit(s)] 
+280     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+281     SUCCESS               21.8715 (76.2%) [9 edit(s)] 
+282     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+283     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+284     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+285     SUCCESS               21.4984 (74.9%) [9 edit(s)] 
+286     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+287     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+288     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+289     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+290     RUN_TIMEOUT           None  [9 edit(s)]       
+291     SUCCESS               22.738 (79.21%) [9 edit(s)] 
+292     SUCCESS               21.5942 (75.23%) [9 edit(s)] 
+293     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+294     SUCCESS               22.5228 (78.46%) [9 edit(s)] 
+295     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+296     SUCCESS               23.3009 (81.18%) [9 edit(s)] 
+297     SUCCESS               21.9962 (76.63%) [9 edit(s)] 
+298     SUCCESS               21.5512 (75.08%) [9 edit(s)] 
+299     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+300     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+301     RUN_CODE_ERROR        None  [9 edit(s)]       
+302     SUCCESS               21.8812 (76.23%) [9 edit(s)] 
+303     SUCCESS               21.7195 (75.67%) [9 edit(s)] 
+304     SUCCESS               21.9249 (76.38%) [9 edit(s)] 
+305     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+306     RUN_TIMEOUT           None  [9 edit(s)]       
+307     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+308     SUCCESS               21.7743 (75.86%) [9 edit(s)] 
+309     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+310     SUCCESS               22.3142 (77.74%) [9 edit(s)] 
+311     RUN_CODE_ERROR        None  [9 edit(s)]       
+312     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+313     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+314     RUN_TIMEOUT           None  [9 edit(s)]       
+315     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+316     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+317     SUCCESS               21.6326 (75.36%) [9 edit(s)] 
+318     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+319     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+320     SUCCESS               21.4924 (74.88%) [9 edit(s)] 
+321     SUCCESS               20.9515 (72.99%) [9 edit(s)] 
+322     SUCCESS               21.8765 (76.21%) [9 edit(s)] 
+323     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+324     RUN_CODE_ERROR        None  [9 edit(s)]       
+325     SUCCESS               21.8276 (76.04%) [9 edit(s)] 
+326     SUCCESS               21.0741 (73.42%) [9 edit(s)] 
+327     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+328     SUCCESS               21.6526 (75.43%) [9 edit(s)] 
+329     SUCCESS               21.5995 (75.25%) [9 edit(s)] 
+330     SUCCESS               21.3617 (74.42%) [9 edit(s)] 
+331     SUCCESS               21.3855 (74.5%) [9 edit(s)] 
+332     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+333     SUCCESS               22.0353 (76.77%) [9 edit(s)] 
+334     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+335     SUCCESS               21.6093 (75.28%) [9 edit(s)] 
+336     SUCCESS               20.638 (71.9%) [9 edit(s)] 
+337     SUCCESS               21.7069 (75.62%) [9 edit(s)] 
+338     SUCCESS               21.7317 (75.71%) [9 edit(s)] 
+339     SUCCESS               21.2799 (74.13%) [9 edit(s)] 
+340     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+341     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+342     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+343     RUN_TIMEOUT           None  [9 edit(s)]       
+344     SUCCESS               21.686 (75.55%) [9 edit(s)] 
+345     RUN_CODE_ERROR        None  [9 edit(s)]       
+346     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+347     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+348     SUCCESS               22.7985 (79.43%) [9 edit(s)] 
+349     SUCCESS               22.159 (77.2%) [9 edit(s)] 
+350     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+351     SUCCESS               22.0776 (76.91%) [9 edit(s)] 
+352     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+353     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+354     SUCCESS               21.8897 (76.26%) [9 edit(s)] 
+355     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+356     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+357     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+358     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+359     SUCCESS               21.1289 (73.61%) [9 edit(s)] 
+360     SUCCESS               22.7301 (79.19%) [9 edit(s)] 
+361     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+362     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+363     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+364     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+365     SUCCESS               20.7332 (72.23%) [9 edit(s)] 
+366     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+367     SUCCESS               21.9688 (76.53%) [9 edit(s)] 
+368     SUCCESS               20.9684 (73.05%) [9 edit(s)] 
+369     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+370     SUCCESS               21.2907 (74.17%) [9 edit(s)] 
+371     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+372     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+373     RUN_CODE_ERROR        None  [9 edit(s)]       
+374     SUCCESS               21.3893 (74.52%) [9 edit(s)] 
+375     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+376     SUCCESS               22.9706 (80.02%) [9 edit(s)] 
+377     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+378     SUCCESS               21.24 (74.0%) [9 edit(s)] 
+379     SUCCESS               21.1294 (73.61%) [9 edit(s)] 
+380     SUCCESS               21.2226 (73.94%) [9 edit(s)] 
+381     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+382     SUCCESS               21.7803 (75.88%) [9 edit(s)] 
+383     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+384     SUCCESS               21.1339 (73.63%) [9 edit(s)] 
+385     SUCCESS               22.2805 (77.62%) [9 edit(s)] 
+386     SUCCESS               21.345 (74.36%) [9 edit(s)] 
+387     RUN_TIMEOUT           None  [9 edit(s)]       
+388     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+389     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+390     SUCCESS               21.1155 (73.56%) [9 edit(s)] 
+391     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+392     RUN_CODE_ERROR        None  [9 edit(s)]       
+393     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+394     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+395     SUCCESS               20.8435 (72.61%) [9 edit(s)] 
+396     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+397     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+398     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+399     SUCCESS               21.2376 (73.99%) [9 edit(s)] 
+400     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+401     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+402     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+403     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+404     SUCCESS               20.9209 (72.88%) [9 edit(s)] 
+405     COMPILE_CODE_ERROR    None  [9 edit(s)]       
+406     SUCCESS               20.6318 (71.88%) [9 edit(s)] 
+407     SUCCESS              *19.3888 (67.55%) [9 edit(s)] 
+408     SUCCESS               19.6601 (68.49%) [8 edit(s)] 
+409     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+410     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+411     RUN_CODE_ERROR        None  [10 edit(s)]      
+412     SUCCESS               19.6718 (68.53%) [10 edit(s)] 
+413     SUCCESS               19.7399 (68.77%) [8 edit(s)] 
+414     SUCCESS               22.4238 (78.12%) [8 edit(s)] 
+415     SUCCESS               19.859 (69.18%) [10 edit(s)] 
+416     SUCCESS               19.5222 (68.01%) [10 edit(s)] 
+417     SUCCESS               20.152 (70.21%) [10 edit(s)] 
+418     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+419     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+420     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+421     SUCCESS               20.0787 (69.95%) [10 edit(s)] 
+422     SUCCESS               19.9166 (69.39%) [10 edit(s)] 
+423     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+424     SUCCESS               20.0465 (69.84%) [10 edit(s)] 
+425     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+426     SUCCESS               20.3246 (70.81%) [10 edit(s)] 
+427     SUCCESS               19.6091 (68.31%) [8 edit(s)] 
+428     SUCCESS               19.8155 (69.03%) [8 edit(s)] 
+429     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+430     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+431     SUCCESS               21.1674 (73.74%) [10 edit(s)] 
+432     SUCCESS               19.4831 (67.88%) [10 edit(s)] 
+433     SUCCESS              *19.3062 (67.26%) [10 edit(s)] 
+434     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+435     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+436     SUCCESS              *19.2901 (67.2%) [9 edit(s)] 
+437     SUCCESS               19.6119 (68.32%) [8 edit(s)] 
+438     SUCCESS               19.3505 (67.41%) [8 edit(s)] 
+439     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+440     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+441     SUCCESS               19.4044 (67.6%) [10 edit(s)] 
+442     COMPILE_CODE_ERROR    None  [10 edit(s)]      
+443     SUCCESS               21.4776 (74.82%) [8 edit(s)] 
+444     SUCCESS               19.4355 (67.71%) [10 edit(s)] 
+445     SUCCESS              *19.2626 (67.11%) [10 edit(s)] 
+446     SUCCESS              *18.9925 (66.17%) [11 edit(s)] 
+447     SUCCESS               19.2539 (67.08%) [10 edit(s)] 
+448     SUCCESS               19.3848 (67.53%) [12 edit(s)] 
+449     SUCCESS              *18.9456 (66.0%) [10 edit(s)] 
+450     SUCCESS               29.0408 (101.17%) [9 edit(s)] 
+451     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+452     SUCCESS               19.7767 (68.9%) [9 edit(s)] 
+453     RUN_CODE_ERROR        None  [11 edit(s)]      
+454     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+455     RUN_CODE_ERROR        None  [11 edit(s)]      
+456     SUCCESS               20.1665 (70.26%) [11 edit(s)] 
+457     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+458     SUCCESS               19.7008 (68.63%) [9 edit(s)] 
+459     SUCCESS               19.6657 (68.51%) [11 edit(s)] 
+460     SUCCESS               20.2352 (70.5%) [9 edit(s)] 
+461     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+462     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+463     SUCCESS               22.3655 (77.92%) [9 edit(s)] 
+464     SUCCESS               20.0638 (69.9%) [9 edit(s)] 
+465     SUCCESS               20.454 (71.26%) [9 edit(s)] 
+466     SUCCESS               20.9167 (72.87%) [11 edit(s)] 
+467     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+468     SUCCESS               20.1909 (70.34%) [11 edit(s)] 
+469     SUCCESS               20.132 (70.14%) [9 edit(s)] 
+470     SUCCESS               19.62 (68.35%) [11 edit(s)] 
+471     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+472     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+473     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+474     SUCCESS               19.5039 (67.95%) [11 edit(s)] 
+475     SUCCESS               19.4051 (67.6%) [9 edit(s)] 
+476     RUN_CODE_ERROR        None  [11 edit(s)]      
+477     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+478     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+479     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+480     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+481     SUCCESS               19.8879 (69.29%) [11 edit(s)] 
+482     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+483     SUCCESS               19.5286 (68.03%) [11 edit(s)] 
+484     SUCCESS               19.5659 (68.16%) [11 edit(s)] 
+485     SUCCESS               19.9134 (69.37%) [11 edit(s)] 
+486     SUCCESS               20.2955 (70.71%) [11 edit(s)] 
+487     SUCCESS               19.5447 (68.09%) [11 edit(s)] 
+488     SUCCESS               19.6228 (68.36%) [9 edit(s)] 
+489     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+490     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+491     SUCCESS               20.494 (71.4%) [11 edit(s)] 
+492     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+493     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+494     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+495     SUCCESS               20.0551 (69.87%) [11 edit(s)] 
+496     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+497     RUN_CODE_ERROR        None  [11 edit(s)]      
+498     SUCCESS               20.0977 (70.02%) [11 edit(s)] 
+499     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+500     SUCCESS               20.1367 (70.15%) [11 edit(s)] 
+501     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+502     SUCCESS               19.9621 (69.54%) [11 edit(s)] 
+503     SUCCESS               20.0008 (69.68%) [11 edit(s)] 
+504     RUN_CODE_ERROR        None  [11 edit(s)]      
+505     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+506     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+507     SUCCESS               19.9457 (69.49%) [11 edit(s)] 
+508     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+509     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+510     SUCCESS               20.416 (71.13%) [11 edit(s)] 
+511     RUN_CODE_ERROR        None  [11 edit(s)]      
+512     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+513     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+514     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+515     SUCCESS               19.4687 (67.83%) [11 edit(s)] 
+516     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+517     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+518     SUCCESS               19.4816 (67.87%) [11 edit(s)] 
+519     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+520     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+521     RUN_CODE_ERROR        None  [11 edit(s)]      
+522     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+523     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+524     RUN_TIMEOUT           None  [11 edit(s)]      
+525     SUCCESS               19.6413 (68.43%) [11 edit(s)] 
+526     SUCCESS               19.4089 (67.62%) [11 edit(s)] 
+527     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+528     SUCCESS               19.1727 (66.79%) [11 edit(s)] 
+529     SUCCESS               19.1302 (66.65%) [11 edit(s)] 
+530     SUCCESS               19.7322 (68.74%) [11 edit(s)] 
+531     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+532     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+533     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+534     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+535     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+536     SUCCESS               19.5949 (68.26%) [11 edit(s)] 
+537     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+538     RUN_TIMEOUT           None  [11 edit(s)]      
+539     SUCCESS               19.1008 (66.54%) [11 edit(s)] 
+540     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+541     SUCCESS               19.2025 (66.9%) [11 edit(s)] 
+542     SUCCESS               19.4089 (67.62%) [11 edit(s)] 
+543     RUN_TIMEOUT           None  [11 edit(s)]      
+544     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+545     SUCCESS               19.3318 (67.35%) [11 edit(s)] 
+546     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+547     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+548     SUCCESS               19.9991 (69.67%) [11 edit(s)] 
+549     SUCCESS               19.2602 (67.1%) [11 edit(s)] 
+550     SUCCESS               27.1206 (94.48%) [11 edit(s)] 
+551     RUN_TIMEOUT           None  [11 edit(s)]      
+552     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+553     SUCCESS               19.8723 (69.23%) [11 edit(s)] 
+554     RUN_CODE_ERROR        None  [11 edit(s)]      
+555     SUCCESS               20.2235 (70.45%) [11 edit(s)] 
+556     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+557     SUCCESS               20.2746 (70.63%) [11 edit(s)] 
+558     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+559     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+560     SUCCESS               21.8531 (76.13%) [11 edit(s)] 
+561     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+562     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+563     SUCCESS               20.3394 (70.86%) [11 edit(s)] 
+564     RUN_CODE_ERROR        None  [11 edit(s)]      
+565     SUCCESS               20.2945 (70.7%) [11 edit(s)] 
+566     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+567     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+568     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+569     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+570     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+571     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+572     SUCCESS               19.3041 (67.25%) [11 edit(s)] 
+573     SUCCESS               19.3899 (67.55%) [11 edit(s)] 
+574     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+575     SUCCESS               19.8059 (69.0%) [11 edit(s)] 
+576     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+577     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+578     SUCCESS               18.9974 (66.18%) [11 edit(s)] 
+579     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+580     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+581     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+582     SUCCESS               19.0037 (66.21%) [11 edit(s)] 
+583     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+584     SUCCESS               19.1195 (66.61%) [11 edit(s)] 
+585     SUCCESS               19.4991 (67.93%) [11 edit(s)] 
+586     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+587     SUCCESS               20.0436 (69.83%) [11 edit(s)] 
+588     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+589     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+590     SUCCESS               19.4964 (67.92%) [11 edit(s)] 
+591     SUCCESS               19.6829 (68.57%) [11 edit(s)] 
+592     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+593     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+594     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+595     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+596     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+597     SUCCESS               19.0987 (66.54%) [11 edit(s)] 
+598     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+599     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+600     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+601     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+602     SUCCESS               19.1468 (66.7%) [11 edit(s)] 
+603     SUCCESS               19.6191 (68.35%) [11 edit(s)] 
+604     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+605     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+606     SUCCESS              *18.9232 (65.92%) [11 edit(s)] 
+607     SUCCESS               19.5884 (68.24%) [10 edit(s)] 
+608     SUCCESS               19.1618 (66.76%) [12 edit(s)] 
+609     SUCCESS               20.8779 (72.73%) [10 edit(s)] 
+610     RUN_CODE_ERROR        None  [12 edit(s)]      
+611     RUN_CODE_ERROR        None  [12 edit(s)]      
+612     SUCCESS               19.6486 (68.45%) [10 edit(s)] 
+613     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+614     SUCCESS               19.5075 (67.96%) [12 edit(s)] 
+615     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+616     SUCCESS               19.1737 (66.8%) [12 edit(s)] 
+617     SUCCESS               28.1182 (97.96%) [10 edit(s)] 
+618     SUCCESS              *18.7321 (65.26%) [10 edit(s)] 
+619     SUCCESS               19.4509 (67.76%) [9 edit(s)] 
+620     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+621     SUCCESS               18.8681 (65.73%) [9 edit(s)] 
+622     SUCCESS               19.5879 (68.24%) [11 edit(s)] 
+623     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+624     RUN_TIMEOUT           None  [11 edit(s)]      
+625     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+626     SUCCESS               18.977 (66.11%) [9 edit(s)] 
+627     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+628     RUN_CODE_ERROR        None  [11 edit(s)]      
+629     SUCCESS               19.3899 (67.55%) [9 edit(s)] 
+630     SUCCESS               24.5776 (85.62%) [11 edit(s)] 
+631     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+632     SUCCESS               19.9368 (69.46%) [11 edit(s)] 
+633     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+634     SUCCESS               19.9737 (69.58%) [9 edit(s)] 
+635     SUCCESS               20.2512 (70.55%) [11 edit(s)] 
+636     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+637     SUCCESS               19.845 (69.14%) [11 edit(s)] 
+638     SUCCESS               29.1556 (101.57%) [9 edit(s)] 
+639     SUCCESS               19.845 (69.14%) [11 edit(s)] 
+640     SUCCESS               19.18 (66.82%) [11 edit(s)] 
+641     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+642     SUCCESS               19.4528 (67.77%) [11 edit(s)] 
+643     SUCCESS               19.5257 (68.02%) [11 edit(s)] 
+644     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+645     SUCCESS               18.9575 (66.04%) [11 edit(s)] 
+646     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+647     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+648     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+649     SUCCESS               19.6546 (68.47%) [9 edit(s)] 
+650     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+651     RUN_CODE_ERROR        None  [11 edit(s)]      
+652     RUN_TIMEOUT           None  [11 edit(s)]      
+653     SUCCESS               20.0783 (69.95%) [9 edit(s)] 
+654     SUCCESS               19.9982 (69.67%) [11 edit(s)] 
+655     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+656     SUCCESS               21.2552 (74.05%) [9 edit(s)] 
+657     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+658     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+659     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+660     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+661     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+662     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+663     SUCCESS               20.14 (70.16%) [9 edit(s)] 
+664     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+665     SUCCESS               19.2097 (66.92%) [11 edit(s)] 
+666     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+667     SUCCESS               18.9517 (66.02%) [11 edit(s)] 
+668     COMPILE_CODE_ERROR    None  [11 edit(s)]      
+669     SUCCESS               27.7684 (96.74%) [11 edit(s)] 
+670     SUCCESS               19.1442 (66.69%) [11 edit(s)] 
+671     SUCCESS              *18.6896 (65.11%) [11 edit(s)] 
+672     SUCCESS               19.282 (67.17%) [12 edit(s)] 
+673     SUCCESS               19.5747 (68.19%) [10 edit(s)] 
+674     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+675     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+676     SUCCESS               20.839 (72.6%) [10 edit(s)] 
+677     SUCCESS               20.3903 (71.04%) [10 edit(s)] 
+678     SUCCESS               19.5561 (68.13%) [10 edit(s)] 
+679     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+680     RUN_TIMEOUT           None  [12 edit(s)]      
+681     SUCCESS               19.268 (67.13%) [10 edit(s)] 
+682     SUCCESS               19.3775 (67.51%) [10 edit(s)] 
+683     RUN_TIMEOUT           None  [12 edit(s)]      
+684     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+685     SUCCESS               19.5269 (68.03%) [10 edit(s)] 
+686     SUCCESS               19.1697 (66.78%) [12 edit(s)] 
+687     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+688     SUCCESS               18.9518 (66.02%) [12 edit(s)] 
+689     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+690     SUCCESS               19.7511 (68.81%) [12 edit(s)] 
+691     SUCCESS               19.3455 (67.4%) [12 edit(s)] 
+692     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+693     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+694     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+695     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+696     SUCCESS               19.2963 (67.22%) [12 edit(s)] 
+697     SUCCESS               19.5333 (68.05%) [12 edit(s)] 
+698     RUN_CODE_ERROR        None  [12 edit(s)]      
+699     SUCCESS               28.4375 (99.07%) [10 edit(s)] 
+700     SUCCESS               19.156 (66.74%) [10 edit(s)] 
+701     RUN_CODE_ERROR        None  [12 edit(s)]      
+702     SUCCESS               19.6769 (68.55%) [10 edit(s)] 
+703     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+704     SUCCESS               20.0998 (70.02%) [12 edit(s)] 
+705     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+706     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+707     SUCCESS               19.3215 (67.31%) [12 edit(s)] 
+708     SUCCESS               20.1017 (70.03%) [12 edit(s)] 
+709     SUCCESS               19.499 (67.93%) [10 edit(s)] 
+710     SUCCESS               19.8989 (69.32%) [12 edit(s)] 
+711     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+712     SUCCESS               19.2652 (67.12%) [12 edit(s)] 
+713     RUN_CODE_ERROR        None  [12 edit(s)]      
+714     SUCCESS               20.0932 (70.0%) [12 edit(s)] 
+715     SUCCESS               19.4696 (67.83%) [12 edit(s)] 
+716     SUCCESS               19.4186 (67.65%) [12 edit(s)] 
+717     SUCCESS               19.7895 (68.94%) [12 edit(s)] 
+718     SUCCESS               19.995 (69.66%) [12 edit(s)] 
+719     SUCCESS               20.1681 (70.26%) [12 edit(s)] 
+720     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+721     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+722     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+723     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+724     SUCCESS               19.4723 (67.84%) [12 edit(s)] 
+725     SUCCESS               19.0199 (66.26%) [12 edit(s)] 
+726     SUCCESS               19.3459 (67.4%) [12 edit(s)] 
+727     SUCCESS               19.0286 (66.29%) [12 edit(s)] 
+728     RUN_CODE_ERROR        None  [12 edit(s)]      
+729     SUCCESS               19.3836 (67.53%) [12 edit(s)] 
+730     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+731     SUCCESS               29.0221 (101.11%) [12 edit(s)] 
+732     SUCCESS               19.5882 (68.24%) [12 edit(s)] 
+733     SUCCESS               19.6264 (68.37%) [12 edit(s)] 
+734     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+735     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+736     RUN_CODE_ERROR        None  [12 edit(s)]      
+737     SUCCESS               18.7665 (65.38%) [12 edit(s)] 
+738     SUCCESS               19.8344 (69.1%) [12 edit(s)] 
+739     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+740     SUCCESS               20.4433 (71.22%) [12 edit(s)] 
+741     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+742     SUCCESS               19.5725 (68.19%) [12 edit(s)] 
+743     SUCCESS               19.4884 (67.89%) [12 edit(s)] 
+744     SUCCESS               20.1774 (70.29%) [12 edit(s)] 
+745     SUCCESS               20.5456 (71.58%) [12 edit(s)] 
+746     RUN_CODE_ERROR        None  [12 edit(s)]      
+747     SUCCESS               20.0311 (69.78%) [12 edit(s)] 
+748     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+749     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+750     SUCCESS               19.9162 (69.38%) [12 edit(s)] 
+751     SUCCESS               20.2337 (70.49%) [12 edit(s)] 
+752     SUCCESS               20.2505 (70.55%) [12 edit(s)] 
+753     SUCCESS               20.2398 (70.51%) [12 edit(s)] 
+754     SUCCESS               20.2788 (70.65%) [12 edit(s)] 
+755     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+756     SUCCESS               19.8801 (69.26%) [12 edit(s)] 
+757     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+758     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+759     SUCCESS               20.3481 (70.89%) [12 edit(s)] 
+760     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+761     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+762     SUCCESS               19.9708 (69.57%) [12 edit(s)] 
+763     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+764     SUCCESS               19.7448 (68.79%) [12 edit(s)] 
+765     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+766     SUCCESS               20.0878 (69.98%) [12 edit(s)] 
+767     SUCCESS               20.8766 (72.73%) [12 edit(s)] 
+768     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+769     SUCCESS               20.1216 (70.1%) [12 edit(s)] 
+770     SUCCESS               20.2752 (70.63%) [12 edit(s)] 
+771     SUCCESS               20.3463 (70.88%) [12 edit(s)] 
+772     RUN_CODE_ERROR        None  [12 edit(s)]      
+773     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+774     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+775     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+776     SUCCESS               20.4778 (71.34%) [12 edit(s)] 
+777     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+778     SUCCESS               20.0553 (69.87%) [12 edit(s)] 
+779     SUCCESS               20.2188 (70.44%) [12 edit(s)] 
+780     SUCCESS               20.3743 (70.98%) [12 edit(s)] 
+781     SUCCESS               20.1884 (70.33%) [12 edit(s)] 
+782     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+783     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+784     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+785     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+786     SUCCESS               20.2724 (70.62%) [12 edit(s)] 
+787     RUN_TIMEOUT           None  [12 edit(s)]      
+788     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+789     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+790     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+791     RUN_TIMEOUT           None  [12 edit(s)]      
+792     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+793     SUCCESS               20.3569 (70.92%) [12 edit(s)] 
+794     RUN_CODE_ERROR        None  [12 edit(s)]      
+795     SUCCESS               20.262 (70.59%) [12 edit(s)] 
+796     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+797     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+798     SUCCESS               20.0858 (69.97%) [12 edit(s)] 
+799     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+800     RUN_CODE_ERROR        None  [12 edit(s)]      
+801     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+802     SUCCESS               20.3712 (70.97%) [12 edit(s)] 
+803     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+804     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+805     SUCCESS               19.674 (68.54%) [12 edit(s)] 
+806     SUCCESS               19.9766 (69.59%) [12 edit(s)] 
+807     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+808     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+809     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+810     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+811     RUN_TIMEOUT           None  [12 edit(s)]      
+812     SUCCESS               19.5101 (67.97%) [12 edit(s)] 
+813     RUN_TIMEOUT           None  [12 edit(s)]      
+814     RUN_CODE_ERROR        None  [12 edit(s)]      
+815     SUCCESS               20.0107 (69.71%) [12 edit(s)] 
+816     SUCCESS               20.3385 (70.86%) [12 edit(s)] 
+817     SUCCESS               20.3126 (70.77%) [12 edit(s)] 
+818     SUCCESS               19.9856 (69.63%) [12 edit(s)] 
+819     SUCCESS               20.0976 (70.02%) [12 edit(s)] 
+820     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+821     SUCCESS               20.2192 (70.44%) [12 edit(s)] 
+822     SUCCESS               20.2756 (70.64%) [12 edit(s)] 
+823     SUCCESS               20.1694 (70.27%) [12 edit(s)] 
+824     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+825     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+826     RUN_CODE_ERROR        None  [12 edit(s)]      
+827     SUCCESS               20.7827 (72.4%) [12 edit(s)] 
+828     SUCCESS               20.2045 (70.39%) [12 edit(s)] 
+829     SUCCESS               20.1665 (70.26%) [12 edit(s)] 
+830     SUCCESS               19.9738 (69.58%) [12 edit(s)] 
+831     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+832     SUCCESS               20.0674 (69.91%) [12 edit(s)] 
+833     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+834     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+835     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+836     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+837     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+838     SUCCESS               20.1542 (70.21%) [12 edit(s)] 
+839     SUCCESS               20.6182 (71.83%) [12 edit(s)] 
+840     SUCCESS               20.2271 (70.47%) [12 edit(s)] 
+841     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+842     SUCCESS               20.3737 (70.98%) [12 edit(s)] 
+843     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+844     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+845     SUCCESS               20.1487 (70.19%) [12 edit(s)] 
+846     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+847     SUCCESS               20.2187 (70.44%) [12 edit(s)] 
+848     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+849     SUCCESS               27.9284 (97.3%) [12 edit(s)] 
+850     SUCCESS               20.7273 (72.21%) [12 edit(s)] 
+851     SUCCESS               20.1048 (70.04%) [12 edit(s)] 
+852     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+853     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+854     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+855     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+856     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+857     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+858     RUN_CODE_ERROR        None  [12 edit(s)]      
+859     SUCCESS               20.248 (70.54%) [12 edit(s)] 
+860     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+861     SUCCESS               20.414 (71.12%) [12 edit(s)] 
+862     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+863     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+864     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+865     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+866     SUCCESS               20.5452 (71.58%) [12 edit(s)] 
+867     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+868     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+869     SUCCESS               20.4528 (71.25%) [12 edit(s)] 
+870     RUN_CODE_ERROR        None  [12 edit(s)]      
+871     SUCCESS               20.1543 (70.21%) [12 edit(s)] 
+872     RUN_CODE_ERROR        None  [12 edit(s)]      
+873     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+874     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+875     SUCCESS               20.5093 (71.45%) [12 edit(s)] 
+876     SUCCESS               20.6546 (71.96%) [12 edit(s)] 
+877     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+878     SUCCESS               20.4202 (71.14%) [12 edit(s)] 
+879     SUCCESS               21.0363 (73.29%) [12 edit(s)] 
+880     SUCCESS               20.4391 (71.21%) [12 edit(s)] 
+881     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+882     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+883     SUCCESS               20.5104 (71.45%) [12 edit(s)] 
+884     SUCCESS               20.2934 (70.7%) [12 edit(s)] 
+885     SUCCESS               20.2834 (70.66%) [12 edit(s)] 
+886     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+887     SUCCESS               21.0098 (73.19%) [12 edit(s)] 
+888     SUCCESS               19.8829 (69.27%) [12 edit(s)] 
+889     SUCCESS               20.2093 (70.41%) [12 edit(s)] 
+890     SUCCESS               20.2842 (70.67%) [12 edit(s)] 
+891     SUCCESS               20.1426 (70.17%) [12 edit(s)] 
+892     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+893     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+894     SUCCESS               20.3097 (70.75%) [12 edit(s)] 
+895     SUCCESS               20.0972 (70.01%) [12 edit(s)] 
+896     SUCCESS               20.046 (69.84%) [12 edit(s)] 
+897     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+898     SUCCESS               20.5051 (71.44%) [12 edit(s)] 
+899     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+900     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+901     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+902     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+903     RUN_CODE_ERROR        None  [12 edit(s)]      
+904     SUCCESS               20.1951 (70.36%) [12 edit(s)] 
+905     SUCCESS               21.4001 (74.55%) [12 edit(s)] 
+906     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+907     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+908     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+909     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+910     SUCCESS               20.1016 (70.03%) [12 edit(s)] 
+911     SUCCESS               20.1584 (70.23%) [12 edit(s)] 
+912     SUCCESS               20.3096 (70.75%) [12 edit(s)] 
+913     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+914     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+915     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+916     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+917     SUCCESS               20.5736 (71.67%) [12 edit(s)] 
+918     SUCCESS               20.7237 (72.2%) [12 edit(s)] 
+919     SUCCESS               20.2758 (70.64%) [12 edit(s)] 
+920     SUCCESS               19.9652 (69.55%) [12 edit(s)] 
+921     SUCCESS               20.4698 (71.31%) [12 edit(s)] 
+922     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+923     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+924     SUCCESS               20.2568 (70.57%) [12 edit(s)] 
+925     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+926     RUN_CODE_ERROR        None  [12 edit(s)]      
+927     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+928     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+929     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+930     RUN_TIMEOUT           None  [12 edit(s)]      
+931     SUCCESS               19.913 (69.37%) [12 edit(s)] 
+932     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+933     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+934     SUCCESS               20.6388 (71.9%) [12 edit(s)] 
+935     RUN_CODE_ERROR        None  [12 edit(s)]      
+936     SUCCESS               20.4904 (71.38%) [12 edit(s)] 
+937     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+938     SUCCESS               20.2766 (70.64%) [12 edit(s)] 
+939     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+940     SUCCESS               20.2352 (70.5%) [12 edit(s)] 
+941     SUCCESS               20.0685 (69.91%) [12 edit(s)] 
+942     SUCCESS               19.8726 (69.23%) [12 edit(s)] 
+943     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+944     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+945     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+946     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+947     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+948     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+949     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+950     RUN_CODE_ERROR        None  [12 edit(s)]      
+951     SUCCESS               20.2632 (70.59%) [12 edit(s)] 
+952     SUCCESS               20.0306 (69.78%) [12 edit(s)] 
+953     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+954     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+955     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+956     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+957     RUN_TIMEOUT           None  [12 edit(s)]      
+958     SUCCESS               19.9769 (69.6%) [12 edit(s)] 
+959     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+960     SUCCESS               19.9379 (69.46%) [12 edit(s)] 
+961     SUCCESS               19.4197 (67.65%) [12 edit(s)] 
+962     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+963     SUCCESS               19.3982 (67.58%) [12 edit(s)] 
+964     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+965     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+966     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+967     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+968     RUN_CODE_ERROR        None  [12 edit(s)]      
+969     SUCCESS               20.4693 (71.31%) [12 edit(s)] 
+970     SUCCESS               19.83 (69.08%) [12 edit(s)] 
+971     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+972     RUN_TIMEOUT           None  [12 edit(s)]      
+973     RUN_CODE_ERROR        None  [12 edit(s)]      
+974     SUCCESS               19.628 (68.38%) [12 edit(s)] 
+975     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+976     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+977     RUN_TIMEOUT           None  [12 edit(s)]      
+978     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+979     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+980     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+981     SUCCESS               19.6325 (68.4%) [12 edit(s)] 
+982     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+983     SUCCESS               20.6526 (71.95%) [12 edit(s)] 
+984     RUN_CODE_ERROR        None  [12 edit(s)]      
+985     SUCCESS               19.5752 (68.2%) [12 edit(s)] 
+986     SUCCESS               19.2891 (67.2%) [12 edit(s)] 
+987     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+988     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+989     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+990     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+991     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+992     SUCCESS               20.2878 (70.68%) [12 edit(s)] 
+993     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+994     SUCCESS               19.4562 (67.78%) [12 edit(s)] 
+995     RUN_CODE_ERROR        None  [12 edit(s)]      
+996     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+997     SUCCESS               19.8377 (69.11%) [12 edit(s)] 
+998     SUCCESS               19.079 (66.47%) [12 edit(s)] 
+999     COMPILE_CODE_ERROR    None  [12 edit(s)]      
+1000    COMPILE_CODE_ERROR    None  [12 edit(s)]      
+==== END ====
+Reason: step budget
+
+==== REPORT ====
+Termination: step budget
+Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1687205785.log
+Patch file: _magpie_logs/minisat-hack_1687205785.patch
+Diff file: _magpie_logs/minisat-hack_1687205785.diff
+Best fitness: 18.6896
+Best patch: LineInsertion(('core/Solver.cc', '_inter_line', 905), ('core/Solver.cc', 'line', 61)) | LineDeletion(('core/Solver.cc', 'line', 496)) | LineInsertion(('core/Solver.cc', '_inter_line', 224), ('core/Solver.cc', 'line', 890)) | LineInsertion(('core/Solver.cc', '_inter_line', 661), ('core/Solver.cc', 'line', 202)) | LineInsertion(('core/Solver.cc', '_inter_line', 315), ('core/Solver.cc', 'line', 664)) | LineDeletion(('core/Solver.cc', 'line', 725)) | LineInsertion(('core/Solver.cc', '_inter_line', 67), ('core/Solver.cc', 'line', 1018)) | LineDeletion(('core/Solver.cc', 'line', 806)) | LineDeletion(('core/Solver.cc', 'line', 133)) | LineReplacement(('core/Solver.cc', 'line', 684), ('core/Solver.cc', 'line', 881)) | LineReplacement(('core/Solver.cc', 'line', 659), ('core/Solver.cc', 'line', 372))
+Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -65,6 +65,7 @@
+ //=================================================================================================
+ // Constructor/Destructor:
+ 
++    // All reasons:
+ 
+ Solver::Solver() :
+ 
+@@ -131,7 +132,6 @@
+ // Minor methods:
+ 
+ 
+-// Creates a new SAT variable in the solver. If 'decision' is cleared, variable will not be
+ // used as a decision variable (NOTE! This has effects on the meaning of a SATISFIABLE result).
+ //
+ Var Solver::newVar(bool sign, bool dvar)
+@@ -222,6 +222,7 @@
+         remove(watches[~c[1]], Watcher(cr, c[0]));
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+         watches.smudge(~c[0]);
+         watches.smudge(~c[1]);
+     }
+@@ -313,6 +314,7 @@
+ |      * If out_learnt.size() > 1 then 'out_learnt[1]' has the greatest decision level of the
+ |        rest of literals. There may be others from the same level though.
+ |
++        removeSatisfied(clauses);
+ |________________________________________________________________________________________________@*/
+ #define LBD(C)   N++; for (L = i = 0; i < C.size(); i++) if ((l = level(var(C[i]))) != 0 && m[l] != N) m[l] = N, L++;
+ void Solver::analyze(CRef confl, vec<Lit>& out_learnt, int& out_btlevel)
+@@ -494,7 +496,6 @@
+ 
+ void Solver::uncheckedEnqueue(Lit p, CRef from)
+ {
+-    assert(value(p) == l_Undef);
+     assigns[var(p)] = lbool(!sign(p));
+     vardata[var(p)] = mkVarData(from, decisionLevel());
+     trail.push_(p);
+@@ -657,8 +658,9 @@
+         if (ca[V[i]].mark() != 3)
+             V[j++] = V[i];
+     V.shrink(i - j);
+-
++        uint32_t abstract_level = 0;
+     // Remove satisfied clauses:
++    return true;
+     removeSatisfied(learnts);
+     removeSatisfied(lF);
+     if (remove_satisfied)        // Can be turned off.
+@@ -682,7 +684,7 @@
+ |    NOTE! Use negative value for 'nof_conflicts' indicate infinity.
+ |
+ |  Output:
+-|    'l_True' if a partial assigment that is consistent with respect to the clauseset is found. If
++    solves++;
+ |    all variables are decision variables, this means that the clause set is satisfiable. 'l_False'
+ |    if the clause set is unsatisfiable. 'l_Undef' if the bound on number of conflicts is reached.
+ |________________________________________________________________________________________________@*/
+@@ -723,7 +725,6 @@
+                 uncheckedEnqueue(learnt_clause[0]);
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+-                ca[cr].mark(L <= LBD_cut ? 3 : 2);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)
+@@ -804,7 +805,6 @@
+                     // Dummy decision level:
+                     newDecisionLevel();
+                 }else if (value(p) == l_False){
+-                    analyzeFinal(~p, conflict);
+                     return l_False;
+                 }else{
+                     next = p;
+@@ -903,6 +903,7 @@
+     }
+ 
+     if (verbosity >= 1)
++static DoubleOption  opt_garbage_frac      (_cat, "gc-frac",     "The fraction of wasted memory allowed before a garbage collection is triggered",  0.20, DoubleRange(0, false, HUGE_VAL, false));
+         printf("c ===============================================================================\n");
+ 
+ 
+
+==== WARMUP ====
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687218599/minisat-hack
+CMD: ['run-sh/train_6.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.037832021713257
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687218636/minisat-hack
+CMD: ['run-sh/train_7.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.04434609413147
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687218673/minisat-hack
+CMD: ['run-sh/train_8.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.03884768486023
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    RUN_CODE_ERROR        None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687218710/minisat-hack
+CMD: ['run-sh/train_9.sh']
+STATUS: SUCCESS
+RETURN_CODE: 255
+RUNTIME: 0.018980741500854492
+STDOUT:
+FAILED ON FILE: ../../../data/circuit_fuzz/fuzz_100_19666.cnf
+GOT: 127
+EXPECTED: 10
+
+STDERR:
+run-sh/train_9.sh: line 8: ./simp/minminisat_HACK_999ED_CSSCisat: No such file or directory
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command failed with a nonzero exit code
+--> try to run it manually
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
+==== WARMUP ====
+WARM    RUN_TIMEOUT           None                    
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687218717/minisat-hack
+CMD: ['run-sh/train_10.sh']
+STATUS: TIMEOUT
+RETURN_CODE: -9
+RUNTIME: 30.05041003227234
+STDOUT:
+
+STDERR:
+
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+Magpie stopped because it was unable to run the (unmodified) target software
+Self-diagnostic:
+The "run_cmd" command took too long to run
+--> consider increasing "run_timeout"
+!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+==== END ====
+Reason: None
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/local/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/tsongpet/MSc-SSE-GI-project/bin/local_search.py", line 43, in <module>
+    protocol.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/bin/protocol.py", line 69, in run
+    self.search.run()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/algo/local_search.py", line 23, in run
+    self.warmup()
+  File "/home/tsongpet/MSc-SSE-GI-project/magpie/base/algorithm.py", line 145, in warmup
+    raise RuntimeError('initial solution has failed')
+RuntimeError: initial solution has failed
