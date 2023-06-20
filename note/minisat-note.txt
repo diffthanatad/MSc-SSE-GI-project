@@ -13,15 +13,42 @@ real	1m8.018s
 user	1m7.779s
 sys	0m0.226s
 
-FAILED ON FILE: data/fuzz_100_19666.cnf
-GOT: 127
-EXPECTED: 10
+train_3.sh
+real	1m1.965s
+user	1m1.821s
+sys	0m0.140s
+
+train_4.sh
+real	1m31.413s
+user	1m31.114s
+sys	0m0.282s
+
+train_5.sh
+real	0m28.821s
+user	0m28.661s
+sys	0m0.157s
+
+train_6.sh
+real	0m39.008s
+user	0m38.853s
+sys	0m0.147s
+
+train_7.sh
+real	0m35.668s
+user	0m35.514s
+sys	0m0.149s
+
+train_8.sh
+real	0m36.451s
+user	0m36.303s
+sys	0m0.141s
+
 train_9.sh
-
-real	0m0.001s
-user	0m0.000s
-sys	0m0.001s
-
 real	0m27.966s
 user	0m27.808s
 sys	0m0.157s
+
+train_10.sh
+real	1m11.140s
+user	1m10.989s
+sys	0m0.140s
