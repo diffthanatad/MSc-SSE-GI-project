@@ -1,0 +1,27 @@
+MiniSAT Compile Time
+real	0m6.915s
+user	0m6.443s
+sys	0m0.471s
+
+train_1.sh
+real	1m7.825s
+user	1m7.564s
+sys	0m0.249s
+
+train_2.sh
+real	1m8.018s
+user	1m7.779s
+sys	0m0.226s
+
+FAILED ON FILE: data/fuzz_100_19666.cnf
+GOT: 127
+EXPECTED: 10
+train_9.sh
+
+real	0m0.001s
+user	0m0.000s
+sys	0m0.001s
+
+real	0m27.966s
+user	0m27.808s
+sys	0m0.157s
