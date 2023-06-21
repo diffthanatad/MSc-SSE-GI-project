@@ -1,0 +1,166 @@
+2023-06-21 10:18:31,558	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = 
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 12
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = run-sh/train_1.sh
+run_timeout = 73
+run_lengthout = 
+fitness = time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	LineReplacement
+	LineInsertion
+	LineDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 1000
+max_time = 4737
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-06-21 10:18:31,559	[INFO]	==== WARMUP ====
+2023-06-21 10:18:44,152	[INFO]	WARM    COMPILE_TIMEOUT       None                    
+2023-06-21 10:18:44,152	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-06-21 10:18:44,152	[INFO]	CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack
+2023-06-21 10:18:44,153	[INFO]	CMD: ['./compile.sh']
+2023-06-21 10:18:44,153	[INFO]	STATUS: TIMEOUT
+2023-06-21 10:18:44,153	[INFO]	RETURN_CODE: -9
+2023-06-21 10:18:44,153	[INFO]	RUNTIME: 12.277219295501709
+2023-06-21 10:18:44,153	[INFO]	STDOUT:
+make: Entering directory `/home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp'
+Making dependencies
+make: Leaving directory `/home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp'
+make: Entering directory `/home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp'
+Compiling: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/SimpSolver.o
+Compiling: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/Main.o
+Compiling: utils/System.o
+Compiling: utils/Options.o
+C
+2023-06-21 10:18:44,153	[INFO]	STDERR:
+In file included from ../core/Solver.h:29,
+                 from ../simp/SimpSolver.h:25,
+                 from /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/SimpSolver.cc:30:
+../utils/Options.h:285:29: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  285 |             fprintf(stderr, "%4"PRIi64, range.begin);
+      |                             ^
+../utils/Options.h:291:29: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  291 |             fprintf(stderr, "%4"PRIi64, range.end);
+      |                             ^
+../utils/Options.h:293:25: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  293 |         fprintf(stderr, "] (default: %"PRIi64")\n", value);
+      |                         ^
+In file included from /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/Main.cc:37:
+../utils/Options.h:285:29: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  285 |             fprintf(stderr, "%4"PRIi64, range.begin);
+      |                             ^
+../utils/Options.h:291:29: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  291 |             fprintf(stderr, "%4"PRIi64, range.end);
+      |                             ^
+../utils/Options.h:293:25: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  293 |         fprintf(stderr, "] (default: %"PRIi64")\n", value);
+      |                         ^
+/home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/Main.cc:50:12: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+   50 |     printf("c restarts              : %"PRIu64"\n", solver.starts);
+      |            ^
+/home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/Main.cc:51:12: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+   51 |     printf("c conflicts             : %-12"PRIu64"   (%.0f /sec)\n", solver.conflicts   , solver.conflicts   /cpu_time);
+      |            ^
+/home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/Main.cc:52:12: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+   52 |     printf("c decisions             : %-12"PRIu64"   (%4.2f %% random) (%.0f /sec)\n", solver.decisions, (float)solver.rnd_decisions*100 / (float)solver.decisions, solver.decisions   /cpu_time);
+      |            ^
+/home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/Main.cc:53:12: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+   53 |     printf("c propagations          : %-12"PRIu64"   (%.0f /sec)\n", solver.propagations, solver.propagations/cpu_time);
+      |            ^
+/home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1687339106/minisat-hack/simp/Main.cc:54:12: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+   54 |     printf("c conflict literals     : %-12"PRIu64"   (%4.2f %% deleted)\n", solver.tot_literals, (solver.max_literals - solver.tot_literals)*100 / (double)solver.max_literals);
+      |            ^
+In file included from ../utils/Options.cc:21:
+../utils/Options.h:285:29: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  285 |             fprintf(stderr, "%4"PRIi64, range.begin);
+      |                             ^
+../utils/Options.h:291:29: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  291 |             fprintf(stderr, "%4"PRIi64, range.end);
+      |                             ^
+../utils/Options.h:293:25: warning: invalid suffix on literal; C++11 requires a space between literal and string macro [-Wliteral-suffix]
+  293 |         fprintf(stderr, "] (default: %"PRIi64")\n", value);
+      |                         ^
+I
+2023-06-21 10:18:44,153	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-06-21 10:18:44,153	[INFO]	Magpie stopped because it was unable to run the (unmodified) target software
+2023-06-21 10:18:44,154	[INFO]	Self-diagnostic:
+2023-06-21 10:18:44,154	[INFO]	The "compile_cmd" command took too long to run
+2023-06-21 10:18:44,154	[INFO]	--> consider increasing "compile_timeout"
+2023-06-21 10:18:44,154	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-06-21 10:18:44,154	[INFO]	==== END ====
+2023-06-21 10:18:44,154	[INFO]	Reason: None

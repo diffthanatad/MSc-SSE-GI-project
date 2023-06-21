@@ -1,0 +1,131 @@
+2023-06-21 10:20:28,883	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = 
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 20
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = run-sh/train_1.sh
+run_timeout = 73
+run_lengthout = 
+fitness = time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	LineReplacement
+	LineInsertion
+	LineDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 1000
+max_time = 4737
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-06-21 10:20:28,883	[INFO]	==== WARMUP ====
+2023-06-21 10:21:44,490	[INFO]	WARM    SUCCESS               67.7497                 
+2023-06-21 10:22:54,564	[INFO]	WARM    SUCCESS               66.8829                 
+2023-06-21 10:24:04,007	[INFO]	WARM    SUCCESS               66.2375                 
+2023-06-21 10:24:04,008	[INFO]	INITIAL SUCCESS               66.2375                 
+2023-06-21 10:24:04,008	[INFO]	==== START: FirstImprovement ====
+2023-06-21 10:25:14,922	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 511), ('core/Solver.cc', 'line', 329))
+2023-06-21 10:25:14,923	[INFO]	1       SUCCESS               67.5832 (102.03%) [1 edit(s)] 
+2023-06-21 10:25:15,339	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 993), ('core/Solver.cc', 'line', 125))
+2023-06-21 10:25:15,340	[INFO]	2       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-21 10:26:25,824	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 400))
+2023-06-21 10:26:25,824	[INFO]	3       SUCCESS               67.3504 (101.68%) [1 edit(s)] 
+2023-06-21 10:27:36,496	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 864), ('core/Solver.cc', 'line', 891))
+2023-06-21 10:27:36,496	[INFO]	4       SUCCESS               67.5046 (101.91%) [1 edit(s)] 
+2023-06-21 10:27:36,840	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 240))
+2023-06-21 10:27:36,840	[INFO]	5       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-21 10:27:37,233	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 124), ('core/Solver.cc', 'line', 577))
+2023-06-21 10:27:37,233	[INFO]	6       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-21 10:27:37,619	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 91), ('core/Solver.cc', 'line', 483))
+2023-06-21 10:27:37,620	[INFO]	7       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-21 10:28:48,313	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 131))
+2023-06-21 10:28:48,314	[INFO]	8       SUCCESS               67.3661 (101.7%) [1 edit(s)] 
+2023-06-21 10:29:58,728	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 195), ('core/Solver.cc', 'line', 184))
+2023-06-21 10:29:58,729	[INFO]	9       SUCCESS               67.2705 (101.56%) [1 edit(s)] 
+2023-06-21 10:29:59,149	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 777), ('core/Solver.cc', 'line', 376))
+2023-06-21 10:29:59,149	[INFO]	10      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-21 10:29:59,550	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 523), ('core/Solver.cc', 'line', 460))
+2023-06-21 10:29:59,550	[INFO]	11      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-21 10:30:10,651	[INFO]	==== END ====
+2023-06-21 10:30:10,651	[INFO]	Reason: keyboard interrupt
+2023-06-21 10:30:10,651	[INFO]	
+2023-06-21 10:30:10,651	[INFO]	==== REPORT ====
+2023-06-21 10:30:10,651	[INFO]	Termination: keyboard interrupt
+2023-06-21 10:30:10,651	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1687339228.log
+2023-06-21 10:30:10,658	[INFO]	Patch file: _magpie_logs/minisat-hack_1687339228.patch
+2023-06-21 10:30:10,659	[INFO]	Diff file: _magpie_logs/minisat-hack_1687339228.diff
+2023-06-21 10:30:10,659	[INFO]	Best fitness: 66.2375
+2023-06-21 10:30:10,659	[INFO]	Best patch: 
+2023-06-21 10:30:10,659	[INFO]	Diff:
+
