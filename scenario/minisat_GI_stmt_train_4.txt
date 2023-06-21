@@ -9,13 +9,13 @@ target_files =
 fitness = time
 
 compile_cmd = ./compile.sh
-compile_timeout = 12
-run_cmd = run-sh/train_4.sh
-run_timeout = 96
+compile_timeout = 11
+run_cmd = perf stat run-sh/train_4.sh
+run_timeout = 137
 
 [search]
 max_steps = 1000
-max_time = 4737
+max_time = 117000
 possible_edits =
     LineReplacement
     LineInsertion
