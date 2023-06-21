@@ -1,5 +1,5 @@
 [magpie]
-default_timeout = 97000
+default_timeout = 30
 default_lengthout = 1e6
 
 [software]
@@ -9,11 +9,13 @@ target_files =
 fitness = time
 
 compile_cmd = ./compile.sh
-test_cmd =
+compile_timeout = 12
 run_cmd = run-sh/train_10.sh
+run_timeout = 76
 
 [search]
 max_steps = 1000
+max_time = 4737
 possible_edits =
     LineReplacement
     LineInsertion
