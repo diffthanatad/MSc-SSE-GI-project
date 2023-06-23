@@ -6,16 +6,16 @@ default_lengthout = 1e6
 path = code/minisat-hack
 target_files =
     core/Solver.cc
-fitness = time
+fitness = perf_time
 
 compile_cmd = ./compile.sh
 compile_timeout = 11
 run_cmd = perf stat run-sh/train_4.sh
-run_timeout = 137
+run_timeout = 101
 
 [search]
 max_steps = 1000
-max_time = 117000
+max_time = 86400
 possible_edits =
     LineReplacement
     LineInsertion
