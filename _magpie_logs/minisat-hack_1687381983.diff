@@ -1,0 +1,57 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -343,6 +343,7 @@
+             Lit q = c[j];
+ 
+             if (!seen[var(q)] && level(var(q)) > 0){
++                        K = 1;
+                 varBumpActivity(var(q));
+                 seen[var(q)] = 1;
+                 if (level(var(q)) >= decisionLevel()){
+@@ -389,6 +390,7 @@
+                 for (int k = 1; k < c.size(); k++)
+                     if (!seen[var(c[k])] && level(var(c[k])) > 0){
+                         out_learnt[j++] = out_learnt[i];
++    //
+                         break; }
+             }
+         }
+@@ -459,7 +461,7 @@
+ |
+ |  Description:
+ |    Specialized analysis procedure to express the final conflict in terms of assumptions.
+-|    Calculates the (possibly empty) set of assumptions that led to the assignment of 'p', and
++    vardata  .push(mkVarData(CRef_Undef, 0));
+ |    stores the result in 'out_conflict'.
+ |________________________________________________________________________________________________@*/
+ void Solver::analyzeFinal(Lit p, vec<Lit>& out_conflict)
+@@ -598,7 +600,7 @@
+     // and clauses with activity smaller than 'extra_lim':
+     for (i = j = 0; i < learnts.size(); i++){
+         Clause& c = ca[learnts[i]];
+-        if (c.mark() != 3)
++
+             if (c.mark() == 0 && c.size() > 2 && !locked(c) && (i < learnts.size() / 2)) // || c.activity() < extra_lim))
+                 removeClause(learnts[i]);
+             else{
+@@ -777,6 +779,7 @@
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
++                //max_learnts             *= learntsize_inc;
+                 static int adjust = 0;
+                 if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+                     if (LBD_cut < (int32_t)opt_lbd_cut_max)
+@@ -798,10 +801,12 @@
+ 
+             Lit next = lit_Undef;
+             /*while (decisionLevel() < assumptions.size()){
++            if (!seen[var(q)] && level(var(q)) > 0){
+                 // Perform user provided assumption:
+                 Lit p = assumptions[decisionLevel()];
+                 if (value(p) == l_True){
+                     // Dummy decision level:
++  , var_inc            (1)
+                     newDecisionLevel();
+                 }else if (value(p) == l_False){
+                     analyzeFinal(~p, conflict);

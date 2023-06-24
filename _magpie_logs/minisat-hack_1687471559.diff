@@ -1,0 +1,42 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -13,6 +13,7 @@
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
++    starts++;
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
+ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+@@ -590,7 +591,6 @@
+ };
+ void Solver::reduceDB()
+ {
+-    int     i, j;
+     //double  extra_lim = cla_inc / learnts.size();    // Remove any clause below this activity
+ 
+     sort(learnts, reduceDB_lt(ca));
+@@ -678,7 +678,6 @@
+ |  search : (nof_conflicts : int) (params : const SearchParams&)  ->  [lbool]
+ |
+ |  Description:
+-|    Search for a model the specified number of conflicts.
+ |    NOTE! Use negative value for 'nof_conflicts' indicate infinity.
+ |
+ |  Output:
+@@ -773,7 +772,6 @@
+                 return l_False;
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+-                cp = conflicts + (int32_t)opt_cp_increase;
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -798,7 +796,6 @@
+ 
+             Lit next = lit_Undef;
+             /*while (decisionLevel() < assumptions.size()){
+-                // Perform user provided assumption:
+                 Lit p = assumptions[decisionLevel()];
+                 if (value(p) == l_True){
+                     // Dummy decision level:

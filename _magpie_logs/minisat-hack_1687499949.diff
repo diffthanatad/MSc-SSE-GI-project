@@ -1,0 +1,35 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -79,7 +79,6 @@
+   , ccmin_mode       (opt_ccmin_mode)
+   , phase_saving     (opt_phase_saving)
+   , rnd_pol          (false)
+-  , rnd_init_act     (opt_rnd_init_act)
+   , garbage_frac     (opt_garbage_frac)
+   , restart_first    (opt_restart_first)
+   , restart_inc      (opt_restart_inc)
+@@ -269,7 +268,6 @@
+         trail.shrink(trail.size() - trail_lim[level]);
+         trail_lim.shrink(trail_lim.size() - level);
+     } }
+-
+ 
+ //=================================================================================================
+ // Major methods:
+@@ -530,7 +528,7 @@
+             if (value(blocker) == l_True){
+                 *j++ = *i++; continue; }
+ 
+-            // Make sure the false literal is data[1]:
++    // Generate conflict clause:
+             CRef     cr        = i->cref;
+             Clause&  c         = ca[cr];
+             Lit      false_lit = ~p;
+@@ -739,7 +737,6 @@
+               fprintf(output, "0\n");
+             }*/
+ 
+-            varDecayActivity();
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){

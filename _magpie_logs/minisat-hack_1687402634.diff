@@ -1,0 +1,75 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -73,6 +73,7 @@
+     verbosity        (0)
+   , var_decay        (opt_var_decay)
+   , clause_decay     (opt_clause_decay)
++
+   , random_var_freq  (opt_random_var_freq)
+   , random_seed      (opt_random_seed)
+   , luby_restart     (opt_luby_restart)
+@@ -118,7 +119,6 @@
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
+     K = (double)opt_K;
+-    R = (double)opt_R;
+ }
+ 
+ 
+@@ -272,6 +272,7 @@
+ 
+ 
+ //=================================================================================================
++
+ // Major methods:
+ 
+ 
+@@ -417,7 +418,6 @@
+         out_learnt[1]     = p;
+         out_btlevel       = level(var(p));
+     }
+-
+     for (int j = 0; j < analyze_toclear.size(); j++) seen[var(analyze_toclear[j])] = 0;    // ('seen[]' is now cleared)
+ }
+ 
+@@ -427,6 +427,7 @@
+ bool Solver::litRedundant(Lit p, uint32_t abstract_levels)
+ {
+     analyze_stack.clear(); analyze_stack.push(p);
++
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+         assert(reason(var(analyze_stack.last())) != CRef_Undef);
+@@ -628,7 +629,6 @@
+ {
+     vec<Var> vs;
+     for (Var v = 0; v < nVars(); v++)
+-        if (decision[v] && value(v) == l_Undef)
+             vs.push(v);
+     order_heap.build(vs);
+ }
+@@ -640,7 +640,6 @@
+ |
+ |  Description:
+ |    Simplify the clause database according to the current top-level assigment. Currently, the only
+-|    thing done here is the removal of satisfied clauses, but more things can be put here.
+ |________________________________________________________________________________________________@*/
+ bool Solver::simplify()
+ {
+@@ -659,7 +658,7 @@
+     V.shrink(i - j);
+ 
+     // Remove satisfied clauses:
+-    removeSatisfied(learnts);
++#include "core/Solver.h"
+     removeSatisfied(lF);
+     if (remove_satisfied)        // Can be turned off.
+         removeSatisfied(clauses);
+@@ -800,7 +799,6 @@
+             /*while (decisionLevel() < assumptions.size()){
+                 // Perform user provided assumption:
+                 Lit p = assumptions[decisionLevel()];
+-                if (value(p) == l_True){
+                     // Dummy decision level:
+                     newDecisionLevel();
+                 }else if (value(p) == l_False){

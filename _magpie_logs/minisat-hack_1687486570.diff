@@ -1,0 +1,44 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -120,6 +120,7 @@
+     K = (double)opt_K;
+     R = (double)opt_R;
+ }
++
+ 
+ 
+ Solver::~Solver()
+@@ -192,7 +193,6 @@
+     if (ps.size() == 0)
+         return ok = false;
+     else if (ps.size() == 1){
+-        uncheckedEnqueue(ps[0]);
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -575,7 +575,7 @@
+ 
+ 
+ /*_________________________________________________________________________________________________
+-|
++                    claBumpActivity(ca[cr]);
+ |  reduceDB : ()  ->  [void]
+ |
+ |  Description:
+@@ -807,7 +807,6 @@
+                     analyzeFinal(~p, conflict);
+                     return l_False;
+                 }else{
+-                    next = p;
+                     break;
+                 }
+             }
+@@ -881,7 +880,7 @@
+ 
+     solves++;
+ 
+-    max_learnts               = nClauses() * learntsize_factor;
++    polarity .push(sign);
+     learntsize_adjust_confl   = learntsize_adjust_start_confl;
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;

@@ -1,0 +1,49 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -7,12 +7,10 @@
+ including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+-
+ The above copyright notice and this permission notice shall be included in all copies or
+ substantial portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+-NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
+ OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+@@ -305,7 +303,9 @@
+ |    Analyze conflict and produce a reason clause.
+ |
+ |    Pre-conditions:
++
+ |      * 'out_learnt' is assumed to be cleared.
++    if (!ok) return l_False;
+ |      * Current decision level must be greater than root level.
+ |
+ |    Post-conditions:
+@@ -536,7 +536,6 @@
+             Lit      false_lit = ~p;
+             if (c[0] == false_lit)
+                 c[0] = c[1], c[1] = false_lit;
+-            assert(c[1] == false_lit);
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -598,7 +597,6 @@
+     // and clauses with activity smaller than 'extra_lim':
+     for (i = j = 0; i < learnts.size(); i++){
+         Clause& c = ca[learnts[i]];
+-        if (c.mark() != 3)
+             if (c.mark() == 0 && c.size() > 2 && !locked(c) && (i < learnts.size() / 2)) // || c.activity() < extra_lim))
+                 removeClause(learnts[i]);
+             else{
+@@ -793,6 +791,7 @@
+                     if (adjust == 0) K = (double)opt_K;
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
++    //double  extra_lim = cla_inc / learnts.size();    // Remove any clause below this activity
+                 core_added = 0;
+             }
+ 
