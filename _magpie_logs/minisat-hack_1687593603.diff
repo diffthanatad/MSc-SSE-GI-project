@@ -1,0 +1,18 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -782,14 +782,13 @@
+                     if (LBD_cut < (int32_t)opt_lbd_cut_max)
+                         LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+ 
+-                    if (!luby_restart){
++{
+                         core_added = 0;
+                         K = 1;
+                         lS = 0, LQ.clear();
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0) adjust--;
+                     if (adjust == 0) K = (double)opt_K;
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }

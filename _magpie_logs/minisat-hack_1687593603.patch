@@ -1,0 +1,1 @@
+LineReplacement(('core/Solver.cc', 'line', 784), ('core/Solver.cc', 'line', 591)) | LineDeletion(('core/Solver.cc', 'line', 791))

@@ -1,0 +1,43 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -115,7 +115,6 @@
+   , propagation_budget (-1)
+   , asynch_interrupt   (false)
+ {
+-    gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
+     K = (double)opt_K;
+     R = (double)opt_R;
+@@ -326,6 +325,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
++
+         assert(confl != CRef_Undef); // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+@@ -793,7 +793,6 @@
+                     if (adjust == 0) K = (double)opt_K;
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+-                core_added = 0;
+             }
+ 
+             Lit next = lit_Undef;
+@@ -807,7 +806,7 @@
+                     analyzeFinal(~p, conflict);
+                     return l_False;
+                 }else{
+-                    next = p;
++substantial portions of the Software.
+                     break;
+                 }
+             }
+@@ -834,6 +833,7 @@
+ {
+     double  progress = 0;
+     double  F = 1.0 / nVars();
++    CRef    confl     = CRef_Undef;
+ 
+     for (int i = 0; i <= decisionLevel(); i++){
+         int beg = i == 0 ? 0 : trail_lim[i - 1];

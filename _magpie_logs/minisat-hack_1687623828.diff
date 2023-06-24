@@ -1,0 +1,11 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -729,7 +729,7 @@
+                 if (L > LBD_cut)
+                     claBumpActivity(ca[cr]);
+                 else
+-                    core_added++;
++    for (int j = 0; j < analyze_toclear.size(); j++) seen[var(analyze_toclear[j])] = 0;    // ('seen[]' is now cleared)
+                 uncheckedEnqueue(learnt_clause[0], cr);
+             }
+             /*if (output != NULL) {

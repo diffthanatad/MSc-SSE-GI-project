@@ -1,0 +1,259 @@
+2023-06-24 09:29:19,228	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = 
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 11
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_1.sh
+run_timeout = 78
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	LineReplacement
+	LineInsertion
+	LineDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 50
+max_time = 86400
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-06-24 09:29:19,228	[INFO]	==== WARMUP ====
+2023-06-24 09:30:31,013	[INFO]	WARM    SUCCESS               64.6883                 
+2023-06-24 09:31:39,122	[INFO]	WARM    SUCCESS               64.9511                 
+2023-06-24 09:32:47,106	[INFO]	WARM    SUCCESS               64.7733                 
+2023-06-24 09:32:47,106	[INFO]	INITIAL SUCCESS               64.7733                 
+2023-06-24 09:32:47,107	[INFO]	==== START: FirstImprovement ====
+2023-06-24 09:32:47,458	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 421))
+2023-06-24 09:32:47,458	[INFO]	1       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:32:47,855	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 996), ('core/Solver.cc', 'line', 16))
+2023-06-24 09:32:47,855	[INFO]	2       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:33:56,264	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 868), ('core/Solver.cc', 'line', 891))
+2023-06-24 09:33:56,264	[INFO]	3       SUCCESS               65.2379 (100.72%) [1 edit(s)] 
+2023-06-24 09:33:56,655	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 20))
+2023-06-24 09:33:56,656	[INFO]	4       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:33:57,052	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 219))
+2023-06-24 09:33:57,052	[INFO]	5       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:33:57,486	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 442), ('core/Solver.cc', 'line', 311))
+2023-06-24 09:33:57,486	[INFO]	6       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:33:57,881	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 488), ('core/Solver.cc', 'line', 872))
+2023-06-24 09:33:57,881	[INFO]	7       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:33:58,202	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 91), ('core/Solver.cc', 'line', 926))
+2023-06-24 09:33:58,203	[INFO]	8       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:33:58,599	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 891), ('core/Solver.cc', 'line', 586))
+2023-06-24 09:33:58,599	[INFO]	9       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:33:58,998	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 327), ('core/Solver.cc', 'line', 849))
+2023-06-24 09:33:58,998	[INFO]	10      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:35:07,002	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 304), ('core/Solver.cc', 'line', 124))
+2023-06-24 09:35:07,003	[INFO]	11      SUCCESS               64.9032 (100.2%) [1 edit(s)] 
+2023-06-24 09:35:07,389	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 250), ('core/Solver.cc', 'line', 739))
+2023-06-24 09:35:07,389	[INFO]	12      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:36:15,388	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 881), ('core/Solver.cc', 'line', 132))
+2023-06-24 09:36:15,388	[INFO]	13      SUCCESS               64.8748 (100.16%) [1 edit(s)] 
+2023-06-24 09:36:15,396	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 272), ('core/Solver.cc', 'line', 594))
+2023-06-24 09:36:15,396	[INFO]	14      SUCCESS              +64.7733 (100.0%) [1 edit(s)] 
+2023-06-24 09:36:15,402	[DEBUG]	
+2023-06-24 09:36:15,408	[DEBUG]	
+2023-06-24 09:36:15,409	[INFO]	15      SUCCESS              +64.7733 (100.0%) [0 edit(s)] 
+2023-06-24 09:36:15,415	[DEBUG]	
+2023-06-24 09:36:15,807	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 55))
+2023-06-24 09:36:15,807	[INFO]	16      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:36:16,206	[DEBUG]	LineReplacement(('core/Solver.cc', 'line', 650), ('core/Solver.cc', 'line', 313))
+2023-06-24 09:36:16,206	[INFO]	17      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:36:16,573	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 342))
+2023-06-24 09:36:16,573	[INFO]	18      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-06-24 09:37:24,354	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594))
+2023-06-24 09:37:24,354	[INFO]	19      SUCCESS              *64.7133 (99.91%) [1 edit(s)] 
+2023-06-24 09:37:24,362	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -592,7 +592,6 @@
+ {
+     int     i, j;
+     //double  extra_lim = cla_inc / learnts.size();    // Remove any clause below this activity
+-
+     sort(learnts, reduceDB_lt(ca));
+     // Don't delete binary or locked clauses. From the rest, delete clauses from the first half
+     // and clauses with activity smaller than 'extra_lim':
+
+2023-06-24 09:37:24,368	[DEBUG]	
+2023-06-24 09:37:24,368	[INFO]	20      SUCCESS               64.7733 (100.0%) [0 edit(s)] 
+2023-06-24 09:37:24,747	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 631), ('core/Solver.cc', 'line', 602))
+2023-06-24 09:37:24,747	[INFO]	21      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:37:25,095	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineReplacement(('core/Solver.cc', 'line', 648), ('core/Solver.cc', 'line', 556))
+2023-06-24 09:37:25,095	[INFO]	22      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:37:25,489	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 31), ('core/Solver.cc', 'line', 169))
+2023-06-24 09:37:25,489	[INFO]	23      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:37:25,900	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 376), ('core/Solver.cc', 'line', 916))
+2023-06-24 09:37:25,901	[INFO]	24      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:37:29,103	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineDeletion(('core/Solver.cc', 'line', 410))
+2023-06-24 09:37:29,103	[INFO]	25      RUN_CODE_ERROR        None  [2 edit(s)]       
+2023-06-24 09:37:29,500	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineReplacement(('core/Solver.cc', 'line', 180), ('core/Solver.cc', 'line', 827))
+2023-06-24 09:37:29,501	[INFO]	26      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:37:29,875	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 450), ('core/Solver.cc', 'line', 378))
+2023-06-24 09:37:29,876	[INFO]	27      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:38:37,933	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 488), ('core/Solver.cc', 'line', 973))
+2023-06-24 09:38:37,933	[INFO]	28      SUCCESS               64.9021 (100.2%) [2 edit(s)] 
+2023-06-24 09:38:38,281	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineDeletion(('core/Solver.cc', 'line', 491))
+2023-06-24 09:38:38,281	[INFO]	29      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:38:38,615	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineReplacement(('core/Solver.cc', 'line', 203), ('core/Solver.cc', 'line', 425))
+2023-06-24 09:38:38,616	[INFO]	30      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:38:39,004	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineDeletion(('core/Solver.cc', 'line', 693))
+2023-06-24 09:38:39,004	[INFO]	31      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:39:47,007	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineReplacement(('core/Solver.cc', 'line', 1), ('core/Solver.cc', 'line', 63))
+2023-06-24 09:39:47,007	[INFO]	32      SUCCESS               64.8643 (100.14%) [2 edit(s)] 
+2023-06-24 09:40:55,113	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 439), ('core/Solver.cc', 'line', 1027))
+2023-06-24 09:40:55,113	[INFO]	33      SUCCESS               65.066 (100.45%) [2 edit(s)] 
+2023-06-24 09:42:03,065	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineReplacement(('core/Solver.cc', 'line', 181), ('core/Solver.cc', 'line', 33))
+2023-06-24 09:42:03,065	[INFO]	34      SUCCESS               64.7659 (99.99%) [2 edit(s)] 
+2023-06-24 09:42:03,462	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 55), ('core/Solver.cc', 'line', 461))
+2023-06-24 09:42:03,463	[INFO]	35      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:42:03,862	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineReplacement(('core/Solver.cc', 'line', 980), ('core/Solver.cc', 'line', 924))
+2023-06-24 09:42:03,862	[INFO]	36      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:43:12,862	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineDeletion(('core/Solver.cc', 'line', 840))
+2023-06-24 09:43:12,862	[INFO]	37      SUCCESS               65.8283 (101.63%) [2 edit(s)] 
+2023-06-24 09:44:34,178	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineReplacement(('core/Solver.cc', 'line', 101), ('core/Solver.cc', 'line', 294))
+2023-06-24 09:44:34,178	[INFO]	38      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-06-24 09:44:34,564	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineReplacement(('core/Solver.cc', 'line', 1020), ('core/Solver.cc', 'line', 37))
+2023-06-24 09:44:34,565	[INFO]	39      COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-06-24 09:45:26,023	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602))
+2023-06-24 09:45:26,023	[INFO]	40      SUCCESS              *48.2685 (74.52%) [2 edit(s)] 
+2023-06-24 09:45:26,032	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -592,7 +592,6 @@
+ {
+     int     i, j;
+     //double  extra_lim = cla_inc / learnts.size();    // Remove any clause below this activity
+-
+     sort(learnts, reduceDB_lt(ca));
+     // Don't delete binary or locked clauses. From the rest, delete clauses from the first half
+     // and clauses with activity smaller than 'extra_lim':
+@@ -763,6 +762,7 @@
+             if (luby_restart && conflictC >= nof_conflicts ||
+                !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+                 // Reached bound on number of conflicts:
++                removeClause(learnts[i]);
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+
+2023-06-24 09:45:26,432	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602)) | LineInsertion(('core/Solver.cc', '_inter_line', 622), ('core/Solver.cc', 'line', 307))
+2023-06-24 09:45:26,432	[INFO]	41      COMPILE_CODE_ERROR    None  [3 edit(s)]       
+2023-06-24 09:46:18,138	[DEBUG]	LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602))
+2023-06-24 09:46:18,138	[INFO]	42      SUCCESS               48.4943 (74.87%) [1 edit(s)] 
+2023-06-24 09:46:18,539	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602)) | LineInsertion(('core/Solver.cc', '_inter_line', 297), ('core/Solver.cc', 'line', 1014))
+2023-06-24 09:46:18,540	[INFO]	43      COMPILE_CODE_ERROR    None  [3 edit(s)]       
+2023-06-24 09:46:21,782	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602)) | LineDeletion(('core/Solver.cc', 'line', 348))
+2023-06-24 09:46:21,783	[INFO]	44      RUN_CODE_ERROR        None  [3 edit(s)]       
+2023-06-24 09:47:13,612	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602)) | LineInsertion(('core/Solver.cc', '_inter_line', 521), ('core/Solver.cc', 'line', 943))
+2023-06-24 09:47:13,612	[INFO]	45      SUCCESS               48.589 (75.01%) [3 edit(s)] 
+2023-06-24 09:47:14,012	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602)) | LineInsertion(('core/Solver.cc', '_inter_line', 464), ('core/Solver.cc', 'line', 856))
+2023-06-24 09:47:14,013	[INFO]	46      COMPILE_CODE_ERROR    None  [3 edit(s)]       
+2023-06-24 09:48:21,983	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594))
+2023-06-24 09:48:21,983	[INFO]	47      SUCCESS               64.8693 (100.15%) [1 edit(s)] 
+2023-06-24 09:48:22,316	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602)) | LineDeletion(('core/Solver.cc', 'line', 203))
+2023-06-24 09:48:22,316	[INFO]	48      COMPILE_CODE_ERROR    None  [3 edit(s)]       
+2023-06-24 09:49:13,968	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602)) | LineDeletion(('core/Solver.cc', 'line', 67))
+2023-06-24 09:49:13,968	[INFO]	49      SUCCESS               48.5159 (74.9%) [3 edit(s)] 
+2023-06-24 09:50:05,732	[DEBUG]	LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602)) | LineInsertion(('core/Solver.cc', '_inter_line', 526), ('core/Solver.cc', 'line', 650))
+2023-06-24 09:50:05,732	[INFO]	50      SUCCESS               48.5614 (74.97%) [3 edit(s)] 
+2023-06-24 09:50:05,740	[INFO]	==== END ====
+2023-06-24 09:50:05,740	[INFO]	Reason: step budget
+2023-06-24 09:50:05,740	[INFO]	
+2023-06-24 09:50:05,740	[INFO]	==== REPORT ====
+2023-06-24 09:50:05,740	[INFO]	Termination: step budget
+2023-06-24 09:50:05,741	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1687595353.log
+2023-06-24 09:50:05,748	[INFO]	Patch file: _magpie_logs/minisat-hack_1687595353.patch
+2023-06-24 09:50:05,748	[INFO]	Diff file: _magpie_logs/minisat-hack_1687595353.diff
+2023-06-24 09:50:05,748	[INFO]	Best fitness: 48.2685
+2023-06-24 09:50:05,748	[INFO]	Best patch: LineDeletion(('core/Solver.cc', 'line', 594)) | LineInsertion(('core/Solver.cc', '_inter_line', 765), ('core/Solver.cc', 'line', 602))
+2023-06-24 09:50:05,748	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -592,7 +592,6 @@
+ {
+     int     i, j;
+     //double  extra_lim = cla_inc / learnts.size();    // Remove any clause below this activity
+-
+     sort(learnts, reduceDB_lt(ca));
+     // Don't delete binary or locked clauses. From the rest, delete clauses from the first half
+     // and clauses with activity smaller than 'extra_lim':
+@@ -763,6 +762,7 @@
+             if (luby_restart && conflictC >= nof_conflicts ||
+                !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+                 // Reached bound on number of conflicts:
++                removeClause(learnts[i]);
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+
