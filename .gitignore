@@ -10,3 +10,5 @@ _magpie_work
 /*.egg-info
 
 .DS_Store
+
+/console-output

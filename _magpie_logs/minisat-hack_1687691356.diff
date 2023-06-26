@@ -1,0 +1,75 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -7,7 +7,7 @@
+ including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+-
++            Lit next = lit_Undef;
+ The above copyright notice and this permission notice shall be included in all copies or
+ substantial portions of the Software.
+ 
+@@ -107,7 +107,6 @@
+   , simpDB_props       (0)
+   , order_heap         (VarOrderLt(activity))
+   , progress_estimate  (0)
+-  , remove_satisfied   (true)
+ 
+     // Resource constraints:
+     //
+@@ -294,6 +293,7 @@
+             next = order_heap.removeMin();
+ 
+     return next == var_Undef ? lit_Undef : mkLit(next, rnd_pol ? drand(random_seed) < 0.5 : polarity[next]);
++
+ }
+ 
+ int i, j, l;
+@@ -321,7 +321,6 @@
+     Lit p     = lit_Undef;
+ 
+     // Generate conflict clause:
+-    //
+     out_learnt.push();      // (leave room for the asserting literal)
+     int index   = trail.size() - 1;
+ 
+@@ -659,6 +658,7 @@
+     V.shrink(i - j);
+ 
+     // Remove satisfied clauses:
++
+     removeSatisfied(learnts);
+     removeSatisfied(lF);
+     if (remove_satisfied)        // Can be turned off.
+@@ -699,7 +699,6 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)
+                 var_decay += 0.01;
+             if (decisionLevel() == 0) return l_False;
+@@ -809,7 +808,6 @@
+                 }else{
+                     next = p;
+                     break;
+-                }
+             }
+ 
+             if (next == lit_Undef)*/{
+@@ -889,6 +887,7 @@
+     if (verbosity >= 1){
+         printf("c ============================[ Search Statistics ]==============================\n");
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++//=================================================================================================
+         printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+         printf("c ===============================================================================\n");
+     }
+@@ -1022,6 +1021,7 @@
+         Var v = var(trail[i]);
+ 
+         if (reason(v) != CRef_Undef && (ca[reason(v)].reloced() || locked(ca[reason(v)])))
++
+             ca.reloc(vardata[v].reason, to);
+     }
+ 

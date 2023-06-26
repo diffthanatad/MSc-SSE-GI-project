@@ -1,0 +1,77 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -74,7 +74,6 @@
+   , var_decay        (opt_var_decay)
+   , clause_decay     (opt_clause_decay)
+   , random_var_freq  (opt_random_var_freq)
+-  , random_seed      (opt_random_seed)
+   , luby_restart     (opt_luby_restart)
+   , ccmin_mode       (opt_ccmin_mode)
+   , phase_saving     (opt_phase_saving)
+@@ -192,7 +191,6 @@
+     if (ps.size() == 0)
+         return ok = false;
+     else if (ps.size() == 1){
+-        uncheckedEnqueue(ps[0]);
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -494,7 +492,7 @@
+ 
+ void Solver::uncheckedEnqueue(Lit p, CRef from)
+ {
+-    assert(value(p) == l_Undef);
++
+     assigns[var(p)] = lbool(!sign(p));
+     vardata[var(p)] = mkVarData(from, decisionLevel());
+     trail.push_(p);
+@@ -525,7 +523,6 @@
+         num_props++;
+ 
+         for (i = j = (Watcher*)ws, end = i + ws.size();  i != end;){
+-            // Try to avoid inspecting the clause:
+             Lit blocker = i->blocker;
+             if (value(blocker) == l_True){
+                 *j++ = *i++; continue; }
+@@ -536,7 +533,6 @@
+             Lit      false_lit = ~p;
+             if (c[0] == false_lit)
+                 c[0] = c[1], c[1] = false_lit;
+-            assert(c[1] == false_lit);
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -593,7 +589,7 @@
+     int     i, j;
+     //double  extra_lim = cla_inc / learnts.size();    // Remove any clause below this activity
+ 
+-    sort(learnts, reduceDB_lt(ca));
++        printf("c ============================[ Search Statistics ]==============================\n");
+     // Don't delete binary or locked clauses. From the rest, delete clauses from the first half
+     // and clauses with activity smaller than 'extra_lim':
+     for (i = j = 0; i < learnts.size(); i++){
+@@ -632,7 +628,6 @@
+             vs.push(v);
+     order_heap.build(vs);
+ }
+-
+ 
+ /*_________________________________________________________________________________________________
+ |
+@@ -814,7 +809,6 @@
+ 
+             if (next == lit_Undef)*/{
+                 // New variable decision:
+-                decisions++;
+                 next = pickBranchLit();
+ 
+                 if (next == lit_Undef)
+@@ -986,7 +980,7 @@
+         assert(value(assumptions[i]) != l_False);
+         fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
+     }
+-
++                    lS = 0, LQ.clear();
+     for (int i = 0; i < clauses.size(); i++)
+         toDimacs(f, ca[clauses[i]], map, max);
+ 
