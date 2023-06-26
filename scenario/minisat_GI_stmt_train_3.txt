@@ -10,12 +10,12 @@ fitness = perf_time
 
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
-compile_timeout = 11
+compile_timeout = 15
 run_cmd = perf stat run-sh/train_3.sh
-run_timeout = 72
+run_timeout = 79
 
 [search]
-max_steps = 50
+max_steps = 1000
 
 possible_edits =
     StmtReplacement
