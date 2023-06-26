@@ -5,18 +5,19 @@ default_lengthout = 1e6
 [software]
 path = code/minisat-hack
 target_files =
-    core/Solver.cc
+    core/Solver.cc.xml
 fitness = perf_time
 
+setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 11
 run_cmd = perf stat run-sh/validate_4.sh
-run_timeout = <run_timeout>
+run_timeout = 1033
 
 [search]
 max_steps = 1000
-max_time = 86400
+
 possible_edits =
-    LineReplacement
-    LineInsertion
-    LineDeletion
+    StmtReplacement
+    StmtInsertion
+    StmtDeletion
