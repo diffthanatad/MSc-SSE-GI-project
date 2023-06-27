@@ -1,0 +1,133 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -194,7 +194,7 @@
+     }*/
+ 
+     if (ps.size() == 0)/*auto*/{
+-        return ok = false;
++        
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
+@@ -481,6 +481,8 @@
+     }
+ 
+     return true;
++
++    printf("c ===============================================================================\n");
+ }
+ 
+ 
+@@ -556,7 +558,7 @@
+         Lit            p   = trail[qhead++];     // 'p' is enqueued fact to propagate.
+         vec<Watcher>&  ws  = watches[p];
+         Watcher        *i, *j, *end;
+-        num_props++;
++        printf("c ===============================================================================\n");
+ 
+         for (i = j = (Watcher*)ws, end = i + ws.size();  i != end;){
+             // Try to avoid inspecting the clause:
+@@ -782,6 +784,8 @@
+                     claBumpActivity(ca[cr]);
+ }/*auto*/
+                 else/*auto*/{
++                    if (!withinBudget())/*auto*/{ break;
++}/*auto*/
+                     core_added++;
+ }/*auto*/
+                 uncheckedEnqueue(learnt_clause[0], cr);
+@@ -821,7 +825,75 @@
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+-                return l_Undef; }
++                return l_Undef;
++                if (confl != CRef_Undef){
++            // CONFLICT
++            conflicts++; conflictC++;
++            if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
++                var_decay += 0.01;
++}/*auto*/
++            if (decisionLevel() == 0)/*auto*/{ return l_False;
++}/*auto*/
++
++            if (!luby_restart){
++                PUSH(TQ, trail.size(), 5000, tS);
++                if (conflicts > 10000 && LQ.size() == 50 && trail.size() > R * tS / 5000)/*auto*/{
++                    lS = 0, LQ.clear();
++}/*auto*/
++            }
++
++            learnt_clause.clear();
++            analyze(confl, learnt_clause, backtrack_level);
++            cancelUntil(backtrack_level);
++
++            if (!luby_restart){
++                gS += L;
++                PUSH(LQ, L, 50, lS);
++            }
++
++            if (learnt_clause.size() == 1){
++                uncheckedEnqueue(learnt_clause[0]);
++            }else{
++                CRef cr = ca.alloc(learnt_clause, true);
++                ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                (L <= LBD_cut ? lF : learnts).push(cr);
++                attachClause(cr);
++                if (L > LBD_cut)/*auto*/{
++                    claBumpActivity(ca[cr]);
++}/*auto*/
++                else/*auto*/{
++                    core_added++;
++}/*auto*/
++                uncheckedEnqueue(learnt_clause[0], cr);
++            }
++            /*if (output != NULL) {
++              for (int i = 0; i < learnt_clause.size(); i++)
++                fprintf(output, "%i " , (var(learnt_clause[i]) + 1) *
++                                  (-2 * sign(learnt_clause[i]) + 1) );
++              fprintf(output, "0\n");
++            }*/
++
++            varDecayActivity();
++            claDecayActivity();
++
++            //if (--learntsize_adjust_cnt == 0){
++            if (conflicts % 5000 == 0){
++                //learntsize_adjust_confl *= learntsize_adjust_inc;
++                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
++                //max_learnts             *= learntsize_inc;
++
++                if (verbosity >= 1)/*auto*/{
++                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
++                           (int)conflicts, 
++                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
++                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
++                           starts, conflicts / starts,
++                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
++                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
++}/*auto*/
++            }
++
++        } }
+ 
+             // Simplify the set of problem clauses:
+             if (decisionLevel() == 0 && !simplify())/*auto*/{
+@@ -843,7 +915,7 @@
+                         core_added = 0;
+                         K = 1;
+                         lS = 0, LQ.clear();
+-                        cancelUntil(0);
++                        
+                         return l_Undef; }
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+@@ -952,7 +1024,7 @@
+         printf("c ============================[ Search Statistics ]==============================\n");
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+         printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+-        printf("c ===============================================================================\n");
++        
+     }
+ 
+     // Search:

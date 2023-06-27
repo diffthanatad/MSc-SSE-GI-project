@@ -1,0 +1,87 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -235,7 +235,9 @@
+ 
+     if (c.learnt())/*auto*/{ learnts_literals -= c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals -= c.size();
++    else/*auto*/{            if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
++                var_decay += 0.01;
++}/*auto*/clauses_literals -= c.size();
+ }/*auto*/ }
+ 
+ 
+@@ -347,7 +349,7 @@
+ 
+         if (c.learnt() && c.mark() != 3){
+             LBD(c);
+-            c.mark(L < LBD_cut ? 3 : 2);
++            Var x = var(out_learnt[i]);
+             if (L < LBD_cut){
+                 lF.push(confl);
+                 core_added++;
+@@ -406,7 +408,7 @@
+             Var x = var(out_learnt[i]);
+ 
+             if (reason(x) == CRef_Undef)/*auto*/{
+-                out_learnt[j++] = out_learnt[i];
++                
+ }/*auto*/
+             else{
+                 Clause& c = ca[reason(var(out_learnt[i]))];
+@@ -481,6 +483,8 @@
+     }
+ 
+     return true;
++
++    return;
+ }
+ 
+ 
+@@ -709,9 +713,7 @@
+     // Remove satisfied clauses:
+     removeSatisfied(learnts);
+     removeSatisfied(lF);
+-    if (remove_satisfied)/*auto*/{        // Can be turned off.
+-        removeSatisfied(clauses);
+-}/*auto*/
++    
+     checkGarbage();
+     rebuildOrderHeap();
+ 
+@@ -794,7 +796,7 @@
+             }*/
+ 
+             varDecayActivity();
+-            claDecayActivity();
++            
+ 
+             //if (--learntsize_adjust_cnt == 0){
+             if (conflicts % 5000 == 0){
+@@ -1004,9 +1006,7 @@
+ }/*auto*/
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+-        if (value(c[i]) != l_False)/*auto*/{
+-            fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+-}/*auto*/
++        
+ }/*auto*/
+     fprintf(f, "0\n");
+ }
+@@ -1042,13 +1042,10 @@
+ }/*auto*/
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
++        static DoubleOption  opt_clause_decay      (_cat, "cla-decay",   "The clause activity decay factor",              0.999,    DoubleRange(0, false, 1, false));
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+-            for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
+-}/*auto*/
++            
+         }
+ }/*auto*/
+ 
