@@ -10,9 +10,9 @@ fitness = perf_time
 
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
-compile_timeout = 15
+compile_timeout = 9
 run_cmd = perf stat run-sh/train_10.sh
-run_timeout = 88
+run_timeout = 39
 
 [search]
 max_steps = 1000
