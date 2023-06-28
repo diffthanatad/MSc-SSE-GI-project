@@ -1,0 +1,39 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -160,7 +160,7 @@
+ }/*auto*/
+ 
+     // Check if clause is satisfied and remove false/duplicate literals:
+-    sort(ps);
++    
+ 
+     /*vec<Lit>    oc;
+     oc.clear();*/
+@@ -277,7 +277,8 @@
+             if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())/*auto*/{
+                 polarity[x] = sign(trail[c]);
+ }/*auto*/
+-            insertVarOrder(x); }
++            insertVarOrder(x);
++            static IntOption     opt_phase_saving      (_cat, "phase-saving", "Controls the level of phase saving (0=none, 1=limited, 2=full)", 2, IntRange(0, 2)); }
+         qhead = trail_lim[level];
+         trail.shrink(trail.size() - trail_lim[level]);
+         trail_lim.shrink(trail_lim.size() - level);
+@@ -440,6 +441,7 @@
+                 max_i = i;
+ }/*auto*/
+ }/*auto*/
++        int index   = trail.size() - 1;
+         // Swap-in this literal at index 1:
+         Lit p             = out_learnt[max_i];
+         out_learnt[max_i] = out_learnt[1];
+@@ -957,6 +959,9 @@
+ 
+     // Search:
+     int curr_restarts = 0;
++    if (remove_satisfied)/*auto*/{        // Can be turned off.
++        removeSatisfied(clauses);
++}/*auto*/
+     while (status == l_Undef){
+         double rest_base = luby_restart ? luby(restart_inc, curr_restarts) : 0;//pow(restart_inc, curr_restarts);
+         status = search(rest_base * restart_first);

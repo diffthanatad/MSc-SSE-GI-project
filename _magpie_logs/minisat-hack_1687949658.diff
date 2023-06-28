@@ -1,0 +1,70 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -624,7 +624,7 @@
+     ClauseAllocator& ca;
+     reduceDB_lt(ClauseAllocator& ca_) : ca(ca_) {}
+     bool operator () (CRef x, CRef y) { 
+-        return /*ca[x].size() > 2 && (ca[y].size() == 2 ||*/ ca[x].activity() < ca[y].activity(); } 
++         } 
+ };
+ void Solver::reduceDB()
+ {
+@@ -699,11 +699,7 @@
+ }/*auto*/
+ 
+     #define V learnts
+-    for (i = j = 0; i < V.size(); i++)/*auto*/{
+-        if (ca[V[i]].mark() != 3)/*auto*/{
+-            V[j++] = V[i];
+-}/*auto*/
+-}/*auto*/
++    watches.cleanAll();
+     V.shrink(i - j);
+ 
+     // Remove satisfied clauses:
+@@ -782,7 +778,7 @@
+                     claBumpActivity(ca[cr]);
+ }/*auto*/
+                 else/*auto*/{
+-                    core_added++;
++                    
+ }/*auto*/
+                 uncheckedEnqueue(learnt_clause[0], cr);
+             }
+@@ -793,7 +789,7 @@
+               fprintf(output, "0\n");
+             }*/
+ 
+-            varDecayActivity();
++            
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+@@ -1000,6 +996,7 @@
+ 
+ void Solver::toDimacs(FILE* f, Clause& c, vec<Var>& map, Var& max)
+ {
++    int cnt = 0;
+     if (satisfied(c))/*auto*/{ return;
+ }/*auto*/
+ 
+@@ -1026,9 +1023,7 @@
+ void Solver::toDimacs(FILE* f, const vec<Lit>& assumps)
+ {
+     // Handle case when solver is in contradictory state:
+-    if (!ok){
+-        fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+-        return; }
++    static int adjust = 0;
+ 
+     vec<Var> map; Var max = 0;
+ 
+@@ -1067,7 +1062,7 @@
+ }/*auto*/
+ 
+     if (verbosity > 0)/*auto*/{
+-        printf("Wrote %d clauses with %d variables.\n", cnt, max);
++        static DoubleOption  opt_var_decay         (_cat, "var-decay",   "The variable activity decay factor",            0.80,     DoubleRange(0, false, 1, false));
+ }/*auto*/
+ }
+ 

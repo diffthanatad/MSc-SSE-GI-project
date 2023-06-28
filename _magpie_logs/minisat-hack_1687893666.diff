@@ -1,0 +1,89 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -156,8 +156,7 @@
+ bool Solver::addClause_(vec<Lit>& ps)
+ {
+     assert(decisionLevel() == 0);
+-    if (!ok)/*auto*/{ return false;
+-}/*auto*/
++    
+ 
+     // Check if clause is satisfied and remove false/duplicate literals:
+     sort(ps);
+@@ -498,9 +497,7 @@
+     out_conflict.clear();
+     out_conflict.push(p);
+ 
+-    if (decisionLevel() == 0)/*auto*/{
+-        return;
+-}/*auto*/
++    
+ 
+     seen[var(p)] = 1;
+ 
+@@ -508,7 +505,7 @@
+         Var x = var(trail[i]);
+         if (seen[x]){
+             if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
++                
+                 out_conflict.push(~trail[i]);
+             }else{
+                 Clause& c = ca[reason(x)];
+@@ -756,7 +753,7 @@
+ }/*auto*/
+ 
+             if (!luby_restart){
+-                PUSH(TQ, trail.size(), 5000, tS);
++                
+                 if (conflicts > 10000 && LQ.size() == 50 && trail.size() > R * tS / 5000)/*auto*/{
+                     lS = 0, LQ.clear();
+ }/*auto*/
+@@ -829,7 +826,7 @@
+ }/*auto*/
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+-                cp = conflicts + (int32_t)opt_cp_increase;
++                
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -899,6 +896,7 @@
+         int beg = i == 0 ? 0 : trail_lim[i - 1];
+         int end = i == decisionLevel() ? trail.size() : trail_lim[i];
+         progress += pow(F, i) * (end - beg);
++        uint32_t abstract_level = 0;
+     }
+ 
+     return progress / nVars();
+@@ -1000,7 +998,7 @@
+ 
+ void Solver::toDimacs(FILE* f, Clause& c, vec<Var>& map, Var& max)
+ {
+-    if (satisfied(c))/*auto*/{ return;
++    if (satisfied(c))/*auto*/{ model[i] = value(i);return;
+ }/*auto*/
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+@@ -1015,9 +1013,7 @@
+ void Solver::toDimacs(const char *file, const vec<Lit>& assumps)
+ {
+     FILE* f = fopen(file, "wr");
+-    if (f == NULL)/*auto*/{
+-        fprintf(stderr, "could not open file %s\n", file), exit(1);
+-}/*auto*/
++    
+     toDimacs(f, assumps);
+     fclose(f);
+ }
+@@ -1026,9 +1022,7 @@
+ void Solver::toDimacs(FILE* f, const vec<Lit>& assumps)
+ {
+     // Handle case when solver is in contradictory state:
+-    if (!ok){
+-        fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+-        return; }
++    
+ 
+     vec<Var> map; Var max = 0;
+ 

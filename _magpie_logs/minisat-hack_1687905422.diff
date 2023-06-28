@@ -1,0 +1,95 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -179,6 +179,7 @@
+         else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+             ps[j++] = p = ps[i];
+ }/*auto*/
++        CRef confl = propagate();
+ }/*auto*/
+     ps.shrink(i - j);
+ 
+@@ -229,7 +230,7 @@
+         remove(watches[~c[1]], Watcher(cr, c[0]));
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
+-        watches.smudge(~c[0]);
++        
+         watches.smudge(~c[1]);
+     }
+ 
+@@ -273,6 +274,7 @@
+     if (decisionLevel() > level){
+         for (int c = trail.size()-1; c >= trail_lim[level]; c--){
+             Var      x  = var(trail[c]);
++            K = (double)opt_K;
+             assigns [x] = l_Undef;
+             if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())/*auto*/{
+                 polarity[x] = sign(trail[c]);
+@@ -366,7 +368,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -502,7 +504,7 @@
+         return;
+ }/*auto*/
+ 
+-    seen[var(p)] = 1;
++    
+ 
+     for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+         Var x = var(trail[i]);
+@@ -690,9 +692,7 @@
+ {
+     assert(decisionLevel() == 0);
+ 
+-    if (!ok || propagate() != CRef_Undef)/*auto*/{
+-        return ok = false;
+-}/*auto*/
++    
+ 
+     if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
+         return true;
+@@ -841,7 +841,7 @@
+ 
+                     if (!luby_restart){
+                         core_added = 0;
+-                        K = 1;
++                        
+                         lS = 0, LQ.clear();
+                         cancelUntil(0);
+                         return l_Undef; }
+@@ -852,7 +852,7 @@
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+-                core_added = 0;
++                
+             }
+ 
+             Lit next = lit_Undef;
+@@ -1035,11 +1035,7 @@
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+     int cnt = 0;
+-    for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        if (!satisfied(ca[clauses[i]]))/*auto*/{
+-            cnt++;
+-}/*auto*/
+-}/*auto*/
++    return true;
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         if (!satisfied(ca[clauses[i]])){
+@@ -1128,6 +1124,7 @@
+ 
+     relocAll(to);
+     if (verbosity >= 2)/*auto*/{
++        static DoubleOption opt_core_tolerance     (_cat, "core-tolerance", "core-tolerance", 0.02, DoubleRange(0, true, 1, true));
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+ }/*auto*/
