@@ -3,6 +3,7 @@ from .local_search import FirstImprovement, BestImprovement, WorstImprovement, T
 from .genetic_programming import GeneticProgramming, GeneticProgrammingConcat, GeneticProgramming1Point, GeneticProgramming2Point, GeneticProgrammingUniformConcat, GeneticProgrammingUniformInter
 from .validation import ValidSearch, ValidSingle, ValidTest, ValidRanking, ValidSimplify, ValidRankingSimplify
 from .ablation import AblationAnalysis
+from .evolutionary import ParticleSwarmOptimization
 
 # "final" algos only
 algos = [
@@ -11,4 +12,5 @@ algos = [
     GeneticProgrammingConcat, GeneticProgramming1Point, GeneticProgramming2Point, GeneticProgrammingUniformConcat, GeneticProgrammingUniformInter,
     ValidSingle, ValidTest, ValidRanking, ValidSimplify, ValidRankingSimplify,
     AblationAnalysis,
+    ParticleSwarmOptimization
 ]
