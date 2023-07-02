@@ -27,7 +27,6 @@ class BasicProtocol:
                     break
             else:
                 raise ValueError('Invalid config file: unknown edit type "{}" in "[software] possible_edits"'.format(edit))
-        print("possible_edits:", self.search.config['possible_edits'])
         if self.search.config['possible_edits'] == []:
             raise ValueError('Invalid config file: "[search] possible_edits" must be non-empty!')
 
