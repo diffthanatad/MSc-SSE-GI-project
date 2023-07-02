@@ -124,6 +124,10 @@ class Algorithm(ABC):
     def create_edit(self):
         edit_klass = random.choice(self.config['possible_edits'])
         tries = magpie_config.edit_retries
+
+        print("edit_klass:", edit_klass)
+        print("tries:", tries)
+
         while (edit := edit_klass.create(self.program)) is None:
             tries -= 1
             if tries == 0:
