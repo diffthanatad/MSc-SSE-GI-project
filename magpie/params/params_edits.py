@@ -25,22 +25,9 @@ class ParamSetting(Edit):
             target_file = program.random_file(AbstractParamsEngine)
 
         engine = program.engines[target_file]
-        configuration = []
-        for k, v in program.contents['minisat_simplified.params']['space'].items():
+        configuration = dict()
+        for k, v in program.contents[target_file]['space'].items():
             data = engine.random_value(program.contents[target_file], k)
-            print('generated:', k, data)
-            configuration.append(data)
+            configuration[k] = data
         
         return configuration
-
-            # print(k, v)
-
-        # print('randomly_initialise_population', program, size)
-        # print('program.contents', program.contents)
-
-        # param_ids = [program.contents]
-
-        # realm = file_contents['space'][param_key]
-        # return Realm.random_value_from_realm(realm)
-
-        # return [cls.create(program) for _ in range(size)]
