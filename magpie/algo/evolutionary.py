@@ -45,6 +45,11 @@ class ParticleSwarmOptimization(Algorithm):
             current_patch = self.report['best_patch']
             current_fitness = self.report['best_fitness']
             while not self.stopping_condition():
+                # reset generation_best
+                self.generation_best_particle = None
+                self.generation_best_patch = None
+
+                # start exploring each generation
                 self.hook_main_loop()
                 current_patch, current_fitness = self.explore(current_patch, current_fitness)
 
@@ -62,21 +67,32 @@ class ParticleSwarmOptimization(Algorithm):
             particle.update_position(self.params)
 
             # evaluate
-            print("before:", particle.run.fitness)
+            print("before:", str(particle))
             patch = self.create_particle_patch(particle)
             run = self.evaluate_patch(patch)
-            particle.run = run
-            print("after:", particle.run.fitness)
-
-            # update particle best
-            # if run.fitness < particle.best_fitness:
-            #     particle.best_fitness = run.fitness
-            #     particle.best_patch = patch
-            # update generation best
-            # update global best
-
-
-        self.hook_evaluation(patch, run, accept, best)
+            print("after:", run.fitness)
+            
+            if run.status == 'SUCCESS':
+                # update particle best
+                if self.dominates(run.fitness, particle.run.fitness):
+                    particle.best = particle.position
+                    particle.run = run
+            
+                # update generation best
+                if self.dominates(run.fitness, self.generation_best_particle.run.fitness):
+                    accept = True
+                    self.generation_best_particle = particle
+                    self.generation_best_patch = patch
+            
+                # update global best
+                if self.dominates(run.fitness, self.global_best_particle.run.fitness):
+                    best = True
+                    self.report['best_fitness'] = run.fitness
+                    self.report['best_patch'] = patch
+                    self.global_best_particle = particle
+                    self.global_best_patch = patch
+        
+        self.hook_evaluation(self.generation_best_patch, self.generation_best_particle.run, accept, best)
         
         # next iteration
         self.stats['steps'] += 1
@@ -151,10 +167,10 @@ class ParticleSwarmOptimization(Algorithm):
 class Particle():
     def __init__(self, params, speed_max, speed_min, starting_value):
         self.position = dict()
-        self.fitness = None
+        # self.fitness = None
         
         self.best = dict()
-        self.best_fitness = None
+        # self.best_fitness = None
         
         self.speed = dict()
         self.speed_max = speed_max
