@@ -3,27 +3,21 @@ import random
 import time
 
 from ..base import Algorithm, Patch
+from ..params import  UniformIntRealm, GeometricRealm
 
 class ParticleSwarmOptimization(Algorithm):
-    param_list = list()
+    params = dict() # magpie.params.realms
     param_size = 0
     pop_size = 10
-    phi_1 = 2.0
-    phi_2 = 2.0
     speed_max = 3
     speed_min = -3
     population = []
 
     global_best_particle = None # class Particle
     global_best_patch = None # class Patch
-    # global_best = dict()
-    # global_best_fitness = None
-    global_best_run = None # class RunResult
 
     generation_best_particle = None
     generation_best_patch = None
-    generation_best_fitness = None
-    generation_best_run = None
 
     def setup(self):
         super().setup()
@@ -35,25 +29,17 @@ class ParticleSwarmOptimization(Algorithm):
             self.hook_warmup()
             self.warmup()
 
-            # start!
-            self.hook_start()
-
-            self.generation_best_patch = self.report['best_patch']
-            self.generation_best_fitness = self.report['best_fitness']
-            print("generation 0:", self.generation_best_patch, self.generation_best_fitness)
-
             # PSO set up.
             # how many parameters are there?
-            for k, v in self.program.locations.items():
-                if k.endswith('.params'):
-                    self.param_list += v['param']
-            self.param_size =  len(self.param_list)
+            target_file = self.find_target_file_param()
+            self.params.update(self.program.contents[target_file]['space'])
+            self.param_size = len(self.params)
 
-            # initialise population and velocity at the same time
-            self.initialise_population()
+            self.initialise_population() # initialise population and velocity at the same time
 
-            # evaluate 1st generation
-            self.evaluate_generation_1()
+            # start!
+            self.hook_start() 
+            self.evaluate_generation_1() # evaluate 1st generation
 
             # evaluate 2nd - nth generation
             current_patch = self.report['best_patch']
@@ -70,29 +56,26 @@ class ParticleSwarmOptimization(Algorithm):
             self.hook_end()
     
     def explore(self, current_patch, current_fitness):
-        # for each particle.
-        # (1) evaluate fitness value -> Find out and create a patch. -> send to self.evaluate_patch(patch)
-        # for particle in self.population:
-        #     patch = self.create_particle_patch(particle)
-        #     # print(patch)
-        #     # self.evaluate_patch(patch)
-        #     run = self.evaluate_patch(patch)
-        #     if run.status == 'SUCCESS':
-        #         print("****** yes")
-        #     else:
-        #         print("****** no")
+        for particle in self.population:
+            # update speed and position
+            particle.update_speed(self.global_best_particle)
+            particle.update_position(self.params)
 
-            # print(run)
+            # evaluate
+            print("before:", particle.run.fitness)
+            patch = self.create_particle_patch(particle)
+            run = self.evaluate_patch(patch)
+            particle.run = run
+            print("after:", particle.run.fitness)
 
-        # move
-        # for particle in self.population:
-        #     pass
+            # update particle best
+            # if run.fitness < particle.best_fitness:
+            #     particle.best_fitness = run.fitness
+            #     particle.best_patch = patch
+            # update generation best
+            # update global best
 
-        # compare
 
-        # accept -> Update the global best (i.e., best particle).
-        
-        # hook -> printing to the console.
         self.hook_evaluation(patch, run, accept, best)
         
         # next iteration
@@ -102,14 +85,14 @@ class ParticleSwarmOptimization(Algorithm):
     def initialise_population(self):
         ParamEdit = self.config['possible_edits'][0]
 
-        # 1st particle is the default value.
+        # 1st particle gets default value.
         target_file = self.find_target_file_param()
-        self.population.append(Particle(self.param_list, self.speed_max, self.speed_min, self.program.contents[target_file]['current']))
+        self.population.append(Particle(self.params, self.speed_max, self.speed_min, self.program.contents[target_file]['current']))
 
         # 2nd - Nth particle are randomly generated.
         for _ in range(self.pop_size - 1):
-            starting_value = ParamEdit.randomly_initialise_population(self.program)
-            self.population.append(Particle(self.param_list, self.speed_max, self.speed_min, starting_value))
+            starting_values = ParamEdit.randomly_initialise_population(self.program)
+            self.population.append(Particle(self.params, self.speed_max, self.speed_min, starting_values))
 
     def create_particle_patch(self, particle):
         target_file = self.find_target_file_param()
@@ -127,18 +110,17 @@ class ParticleSwarmOptimization(Algorithm):
                 return file
     
     def evaluate_generation_1(self):
-        # (1) evaluate fitness for each particle, for the first time.
-        # (2) find initial global_best and global_fitness.
-        # (3) report first best as 1st generation.
+        # 1st particle as generation best and global best.
+        particle_1 = self.population[0]
+        run = self.evaluate_patch(Patch())
+        particle_1.run = run
 
-        # 1st particle as generation best
-        patch = self.create_particle_patch(self.population[0])
-        run = self.evaluate_patch(patch)
-        self.population[0].run = run
-        self.generation_best_particle = self.population[0]
-        self.generation_best_patch = patch
-        self.generation_best_fitness = run.fitness
-        self.generation_best_run = run
+        self.generation_best_particle = particle_1
+        self.generation_best_patch = Patch()
+        
+        self.global_best_particle = particle_1
+        self.global_best_patch = Patch()
+        
         accept = best = False
 
         # 2nd particle - nth particle
@@ -148,26 +130,26 @@ class ParticleSwarmOptimization(Algorithm):
             particle.run = run
 
             if run.status == 'SUCCESS':
-                print("****** yes =", run.fitness, "\n")
-                if self.dominates(run.fitness, self.generation_best_fitness):
+                # print("****** yes =", run.fitness, "\n")
+                if self.dominates(run.fitness, self.generation_best_particle.run.fitness):
                     accept = True
                     self.generation_best_particle = particle
                     self.generation_best_patch = patch
-                    self.generation_best_fitness = run.fitness
-                    self.generation_best_run = run
                     if self.dominates(run.fitness, self.report['best_fitness']):
                         best = True
                         self.report['best_fitness'] = run.fitness
                         self.report['best_patch'] = patch
-            else:
-                print("****** no =", run.fitness, "\n")
+                        self.global_best_particle = particle
+                        self.global_best_patch = patch
+            # else:
+                # print("****** no =", run.fitness, "\n")
 
-        print("generation 1:", self.generation_best_patch, self.generation_best_fitness)
-        self.hook_evaluation(self.generation_best_patch, self.generation_best_run, accept=True, best=True)
+        # print("generation 1:", self.generation_best_patch, self.generation_best_particle.run.fitness)
+        self.hook_evaluation(self.generation_best_patch, self.generation_best_particle.run, accept=True, best=True)
         self.stats['steps'] += 1
     
 class Particle():
-    def __init__(self, param_list, speed_max, speed_min, starting_value):
+    def __init__(self, params, speed_max, speed_min, starting_value):
         self.position = dict()
         self.fitness = None
         
@@ -180,7 +162,7 @@ class Particle():
 
         self.run = None
 
-        for param in param_list:
+        for param in params.keys():
             self.position[param] = starting_value[param]
             self.best[param] = starting_value[param]
             self.speed[param] = random.uniform(self.speed_min, self.speed_max)
@@ -192,3 +174,28 @@ class Particle():
             'speed_max: {speed_max}\n'
             'speed_min: {speed_min}\n'
         ).format(**self.__dict__)
+    
+    def update_speed(self, global_best):
+        r1 = random.uniform(0, 1)
+        r2 = random.uniform(0, 1)
+        c1 = c2 = 1.49
+        for param_id, value in self.speed.items():
+            self.speed[param_id] = value + (c1 * r1 * (self.best[param_id] - self.position[param_id])) + (c2 * r2 * (global_best.position[param_id] - self.position[param_id]))
+
+    def update_position(self, spaces):
+        for param_id, value in self.position.items():
+            new_position = value + self.speed[param_id]
+
+            # perform round up if the parameter is an integer
+            if isinstance(spaces[param_id], (UniformIntRealm, GeometricRealm)):
+                new_position = round(new_position)
+
+            # check for upper and lower bound
+            lower_bound = spaces[param_id].start
+            upper_bound = spaces[param_id].stop
+            if new_position < lower_bound:
+                self.position[param_id] = lower_bound
+            elif new_position > upper_bound:
+                self.position[param_id] = upper_bound
+            else:
+                self.position[param_id] = new_position

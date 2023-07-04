@@ -31,3 +31,7 @@ class ParamSetting(Edit):
             configuration[k] = data
         
         return configuration
+
+    @classmethod
+    def create_with_input_value(cls, target_file, param_id, value):
+        return cls((target_file, param_id), value)
