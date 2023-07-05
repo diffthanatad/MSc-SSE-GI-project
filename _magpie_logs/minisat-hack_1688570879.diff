@@ -1,0 +1,45 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -467,6 +467,7 @@
+             if (!seen[var(p)] && level(var(p)) > 0){
+                 if (reason(var(p)) != CRef_Undef && (abstractLevel(var(p)) & abstract_levels) != 0){
+                     seen[var(p)] = 1;
++                    checkGarbage();
+                     analyze_stack.push(p);
+                     analyze_toclear.push(p);
+                 }else{
+@@ -571,7 +572,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -628,23 +629,13 @@
+ };
+ void Solver::reduceDB()
+ {
+-    int     i, j;
++    
+     //double  extra_lim = cla_inc / learnts.size();    // Remove any clause below this activity
+ 
+     sort(learnts, reduceDB_lt(ca));
+     // Don't delete binary or locked clauses. From the rest, delete clauses from the first half
+     // and clauses with activity smaller than 'extra_lim':
+-    for (i = j = 0; i < learnts.size(); i++){
+-        Clause& c = ca[learnts[i]];
+-        if (c.mark() != 3)/*auto*/{
+-            if (c.mark() == 0 && c.size() > 2 && !locked(c) && (i < learnts.size() / 2))/*auto*/{ // || c.activity() < extra_lim))
+-                removeClause(learnts[i]);
+-}/*auto*/
+-            else{
+-                c.mark(0);
+-                learnts[j++] = learnts[i]; }
+-}/*auto*/
+-    }
++    var_decay += 0.01;
+     learnts.shrink(i - j);
+     checkGarbage();
+ }
