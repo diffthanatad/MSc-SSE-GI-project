@@ -3,7 +3,7 @@ import random
 import time
 
 from ..base import Algorithm, Patch
-from ..params import  UniformIntRealm, GeometricRealm
+from ..params import CategoricalRealm, GeometricRealm, UniformIntRealm
 
 class ParticleSwarmOptimization(Algorithm):
     params = dict()                     # magpie.params.realms
@@ -11,13 +11,15 @@ class ParticleSwarmOptimization(Algorithm):
     pop_size = 10
     speed_max = 3
     speed_min = -3
-    population = []
+    population = list()                 # class Particle
 
     global_best_particle = None         # class Particle
     global_best_patch = None            # class Patch
 
     generation_best_particle = None     # class Particle
     generation_best_patch = None        # class Patch
+
+    category_params = dict()            # class CategoricalRealm
 
     def setup(self):
         super().setup()
@@ -42,6 +44,9 @@ class ParticleSwarmOptimization(Algorithm):
             self.evaluate_generation_1() # evaluate 1st generation
             self.report_best()
 
+            for particle in self.population:
+                print(str(particle))
+                
             # evaluate 2nd - nth generation
             current_patch = self.report['best_patch']
             current_fitness = self.report['best_fitness']
@@ -109,22 +114,41 @@ class ParticleSwarmOptimization(Algorithm):
 
     def initialise_population(self):
         ParamEdit = self.config['possible_edits'][0]
+        target_file = self.find_target_file_param()
+
+        # search for categorical params
+        for param_id, value in self.program.contents[target_file]['space'].items():
+            if isinstance(value, CategoricalRealm):
+                self.category_params[param_id] = value
 
         # 1st particle gets default value.
-        target_file = self.find_target_file_param()
-        self.population.append(Particle(self.params, self.speed_max, self.speed_min, self.program.contents[target_file]['current']))
+        starting_values = copy.deepcopy(self.program.contents[target_file]['current'])
+        self.transform_category_to_int(starting_values)
+        self.population.append(Particle(self.params, self.speed_max, self.speed_min, starting_values))
 
         # 2nd - Nth particle are randomly generated.
         for _ in range(self.pop_size - 1):
-            starting_values = ParamEdit.randomly_initialise_population(self.program)
+            starting_values = copy.deepcopy(ParamEdit.randomly_initialise_population(self.program))
+            self.transform_category_to_int(starting_values)
             self.population.append(Particle(self.params, self.speed_max, self.speed_min, starting_values))
 
+    def transform_category_to_int(self, starting_values):
+        for param_id, realm in self.category_params.items():
+            starting_values[param_id] = realm.get_data_index(starting_values[param_id])
+
+    def transform_int_to_category(self, param_id, int_values):
+        return copy.deepcopy(self.category_params[param_id].get_data_value(int_values))
+    
     def create_particle_patch(self, particle):
         target_file = self.find_target_file_param()
         ParamEdit = self.config['possible_edits'][0]
         patch = Patch()
         for param_id, value in self.program.contents[target_file]['current'].items():
-            if particle.position[param_id] != value:
+            if param_id in self.category_params:
+                category_value = self.transform_int_to_category(param_id, particle.position[param_id])
+                if category_value != value:
+                    patch.edits.append(ParamEdit.create_with_input_value(target_file, param_id, category_value))
+            elif particle.position[param_id] != value:
                 patch.edits.append(ParamEdit.create_with_input_value(target_file, param_id, particle.position[param_id]))
         return patch
 
@@ -138,7 +162,6 @@ class ParticleSwarmOptimization(Algorithm):
         for particle in self.population:
            patch = self.create_particle_patch(particle)
            particle.position_run = particle.best_run = self.evaluate_patch(patch)
-           print("evaluate_generation_1:", particle.position_run.fitness)
         
         self.generation_best_particle = self.global_best_particle = self.population[0]
         self.generation_best_patch    = self.global_best_patch    = Patch()
@@ -172,7 +195,7 @@ class ParticleSwarmOptimization(Algorithm):
         print("report: global", self.global_best_particle.best_run.fitness, "generation", self.generation_best_particle.position_run.fitness)
     
 class Particle():
-    def __init__(self, params, speed_max, speed_min, starting_value):
+    def __init__(self, params, speed_max, speed_min, starting_values):
         self.position = dict()
         self.position_run = None        # class RunResult
 
@@ -184,16 +207,14 @@ class Particle():
         self.speed_min = speed_min
 
         for param in params.keys():
-            self.position[param] = starting_value[param]
-            self.best[param] = starting_value[param]
+            self.position[param] = starting_values[param]
+            self.best[param] = starting_values[param]
             self.speed[param] = random.uniform(self.speed_min, self.speed_max)
 
     def __str__(self):
         return ('position: {position}\n'
             'speed: {speed}\n'
             'best: {best}\n'
-            'speed_max: {speed_max}\n'
-            'speed_min: {speed_min}\n'
         ).format(**self.__dict__)
     
     def update_speed(self, global_best):
@@ -208,7 +229,7 @@ class Particle():
             new_position = value + self.speed[param_id]
 
             # perform round up if the parameter is an integer
-            if isinstance(spaces[param_id], (UniformIntRealm, GeometricRealm)):
+            if isinstance(spaces[param_id], (CategoricalRealm, GeometricRealm, UniformIntRealm)):
                 new_position = round(new_position)
 
             # check for upper and lower bound

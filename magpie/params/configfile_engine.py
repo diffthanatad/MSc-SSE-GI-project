@@ -164,6 +164,7 @@ class ConfigFileParamsEngine(AbstractParamsEngine):
                     contents['conditionals'].append(tmp)
                     continue
                 raise RuntimeError('Unable to parse line: "{}"'.format(line.strip()))
+        print("get_content():", contents)
         return contents
 
     def would_be_ignored(self, file_contents, key, value):

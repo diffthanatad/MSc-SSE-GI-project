@@ -3,6 +3,8 @@ CLI_GLUE = "="
 CLI_BOOLEAN = "prefix"
 
 # core
+luby      {True, False}[True]
+rnd-init  {True, False}[False]
 gc-frac   e(0, 65535)[0.2]
 rinc      e(1, 65535)[2]
 var-decay (0, 1)[0.95]

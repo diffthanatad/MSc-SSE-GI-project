@@ -14,7 +14,7 @@ test_cmd =
 run_cmd = ./run.sh
 
 [search]
-max_steps = 10
+max_steps = 3
 possible_edits = ParamSetting
-warmup = 3
+warmup = 1
 warmup_strategy = last
