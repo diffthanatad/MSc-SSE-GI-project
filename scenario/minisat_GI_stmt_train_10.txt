@@ -10,12 +10,13 @@ fitness = perf_time
 
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
-compile_timeout = 9
+compile_timeout = 15
 run_cmd = perf stat run-sh/train_10.sh
 run_timeout = 88
 
 [search]
 max_time = 12840
+algorithm = FirstImprovement
 
 possible_edits =
     StmtReplacement
