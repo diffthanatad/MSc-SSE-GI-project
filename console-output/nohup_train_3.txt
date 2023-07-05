@@ -1,0 +1,19 @@
+==== WARMUP ====
+WARM    SUCCESS               75.1326                 
+WARM    SUCCESS               72.4604                 
+WARM    SUCCESS               70.5939                 
+INITIAL SUCCESS               70.5939                 
+==== START: FirstImprovement ====
+1       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+3       SUCCESS               72.8536 (103.2%) [1 edit(s)] 
+4       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+5       RUN_CODE_ERROR        None  [1 edit(s)]       
+6       RUN_CODE_ERROR        None  [1 edit(s)]       
+7       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+8       RUN_CODE_ERROR        None  [1 edit(s)]       
+9       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+10      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+11      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+12      SUCCESS               73.2426 (103.75%) [1 edit(s)] 
+13      RUN_TIMEOUT           None  [1 edit(s)]       
