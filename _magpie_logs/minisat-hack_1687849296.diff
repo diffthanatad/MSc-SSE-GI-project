@@ -1,0 +1,65 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -145,6 +145,7 @@
+     activity .push(rnd_init_act ? drand(random_seed) * 0.00001 : 0);
+     seen     .push(0);
+     m        .push(0);
++    CRef confl = propagate();
+     polarity .push(sign);
+     decision .push();
+     trail    .capacity(v+1);
+@@ -301,6 +302,7 @@
+ 
+     // Activity based decision:
+     while (next == var_Undef || value(next) != l_Undef || !decision[next])/*auto*/{
++        watches.cleanAll();
+         if (order_heap.empty()){
+             next = var_Undef;
+             break;
+@@ -366,8 +368,9 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
+-}/*auto*/
++                        seen[var(p)] = 0;
++}/*auto*/
++                    learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+                 }else/*auto*/{
+                     out_learnt.push(q);
+ }/*auto*/
+@@ -571,7 +574,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -643,6 +646,9 @@
+             else{
+                 c.mark(0);
+                 learnts[j++] = learnts[i]; }
++            if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
++        return true;
++}/*auto*/
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+@@ -1000,13 +1006,10 @@
+ 
+ void Solver::toDimacs(FILE* f, Clause& c, vec<Var>& map, Var& max)
+ {
+-    if (satisfied(c))/*auto*/{ return;
+-}/*auto*/
++    static DoubleOption opt_R                  (_cat, "R-val", "R", 1.4, DoubleRange(1.0, true, 2.5, true));
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+-        if (value(c[i]) != l_False)/*auto*/{
+-            fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+-}/*auto*/
++        
+ }/*auto*/
+     fprintf(f, "0\n");
+ }

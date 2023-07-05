@@ -1,0 +1,100 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -160,7 +160,7 @@
+ }/*auto*/
+ 
+     // Check if clause is satisfied and remove false/duplicate literals:
+-    sort(ps);
++    int     num_props = 0;
+ 
+     /*vec<Lit>    oc;
+     oc.clear();*/
+@@ -350,7 +350,7 @@
+             c.mark(L < LBD_cut ? 3 : 2);
+             if (L < LBD_cut){
+                 lF.push(confl);
+-                core_added++;
++                static DoubleOption opt_K                  (_cat, "K-val", "K", 0.8, DoubleRange(0.5, true, 1, true));
+             }else/*auto*/{
+                 claBumpActivity(c);
+ }/*auto*/
+@@ -553,7 +553,8 @@
+     watches.cleanAll();
+ 
+     while (qhead < trail.size()){
+-        Lit            p   = trail[qhead++];     // 'p' is enqueued fact to propagate.
++        Lit            p   = trail[qhead++];
++        rnd_decisions++;     // 'p' is enqueued fact to propagate.
+         vec<Watcher>&  ws  = watches[p];
+         Watcher        *i, *j, *end;
+         num_props++;
+@@ -738,7 +739,7 @@
+ #define PUSH(Q, V, Z, S) S += V; Q.push_back(V); if (Q.size() > Z) S -= Q.front(), Q.pop_front();
+ lbool Solver::search(int nof_conflicts)
+ {
+-    assert(ok);
++    
+     int         backtrack_level;
+     int         conflictC = 0;
+     vec<Lit>    learnt_clause;
+@@ -748,7 +749,7 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
++             conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+                 var_decay += 0.01;
+ }/*auto*/
+@@ -779,7 +780,7 @@
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+-                    claBumpActivity(ca[cr]);
++                    
+ }/*auto*/
+                 else/*auto*/{
+                     core_added++;
+@@ -828,32 +829,7 @@
+                 return l_False;
+ }/*auto*/
+ 
+-            if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+-                cp = conflicts + (int32_t)opt_cp_increase;
+-                // Reduce the set of learnt clauses:
+-                reduceDB();
+-
+-                static int adjust = 0;
+-                if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+-                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+-}/*auto*/
+-
+-                    if (!luby_restart){
+-                        core_added = 0;
+-                        K = 1;
+-                        lS = 0, LQ.clear();
+-                        cancelUntil(0);
+-                        return l_Undef; }
+-                }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
+-}/*auto*/
+-                    LBD_cut = (int32_t)opt_lbd_cut + adjust;
+-                }
+-                core_added = 0;
+-            }
++            
+ 
+             Lit next = lit_Undef;
+             /*while (decisionLevel() < assumptions.size()){
+@@ -1030,7 +1006,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;K = 1;
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.

@@ -1,0 +1,125 @@
+2023-07-05 09:02:06,136	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_4.sh
+run_timeout = 106
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 1000
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-05 09:02:06,136	[INFO]	==== WARMUP ====
+2023-07-05 09:03:57,533	[INFO]	WARM    SUCCESS               101.4795                
+2023-07-05 09:05:42,665	[INFO]	WARM    SUCCESS               101.4581                
+2023-07-05 09:07:24,168	[INFO]	WARM    SUCCESS               97.6335                 
+2023-07-05 09:07:24,168	[INFO]	INITIAL SUCCESS               97.6335                 
+2023-07-05 09:07:24,169	[INFO]	==== START: FirstImprovement ====
+2023-07-05 09:07:24,601	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 393), ('core/Solver.cc.xml', 'stmt', 379))
+2023-07-05 09:07:24,601	[INFO]	1       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-07-05 09:07:25,056	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 261))
+2023-07-05 09:07:25,056	[INFO]	2       COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-07-05 09:09:05,117	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 428))
+2023-07-05 09:09:05,117	[INFO]	3       SUCCESS              *96.7248 (99.07%) [1 edit(s)] 
+2023-07-05 09:09:05,126	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1016,7 +1016,7 @@
+ {
+     FILE* f = fopen(file, "wr");
+     if (f == NULL)/*auto*/{
+-        fprintf(stderr, "could not open file %s\n", file), exit(1);
++        
+ }/*auto*/
+     toDimacs(f, assumps);
+     fclose(f);
+
+2023-07-05 09:09:05,134	[DEBUG]	
+2023-07-05 09:09:05,134	[INFO]	4       SUCCESS               97.6335 (100.0%) [0 edit(s)] 
+2023-07-05 09:09:08,612	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 428)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 244))
+2023-07-05 09:09:08,612	[INFO]	5       RUN_CODE_ERROR        None  [2 edit(s)]       
+2023-07-05 09:09:09,027	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 428)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 45), ('core/Solver.cc.xml', 'stmt', 453))
+2023-07-05 09:09:09,027	[INFO]	6       COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-07-05 09:09:09,440	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 428)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 227))
+2023-07-05 09:09:09,441	[INFO]	7       COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-07-05 09:09:09,894	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 428)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 564), ('core/Solver.cc.xml', 'stmt', 373))
+2023-07-05 09:09:09,895	[INFO]	8       COMPILE_CODE_ERROR    None  [2 edit(s)]       
