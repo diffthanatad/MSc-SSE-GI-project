@@ -217,7 +217,7 @@ class AbstractProgram():
             if isinstance(engine, AbstractParamsEngine):
                 if step in engine.config['timing']:
                     cli = '{} {}'.format(cli, engine.resolve_cli(self.local_contents[target]))
-        print("cli:", cli)
+        # print("cli:", cli)
         return cli
 
     def evaluate_local(self):

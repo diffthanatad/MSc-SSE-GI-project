@@ -6,18 +6,18 @@ from ..base import Algorithm, Patch
 from ..params import  UniformIntRealm, GeometricRealm
 
 class ParticleSwarmOptimization(Algorithm):
-    params = dict() # magpie.params.realms
+    params = dict()                     # magpie.params.realms
     param_size = 0
     pop_size = 10
     speed_max = 3
     speed_min = -3
     population = []
 
-    global_best_particle = None # class Particle
-    global_best_patch = None # class Patch
+    global_best_particle = None         # class Particle
+    global_best_patch = None            # class Patch
 
-    generation_best_particle = None
-    generation_best_patch = None
+    generation_best_particle = None     # class Particle
+    generation_best_patch = None        # class Patch
 
     def setup(self):
         super().setup()
@@ -40,6 +40,7 @@ class ParticleSwarmOptimization(Algorithm):
             # start!
             self.hook_start() 
             self.evaluate_generation_1() # evaluate 1st generation
+            self.report_best()
 
             # evaluate 2nd - nth generation
             current_patch = self.report['best_patch']
@@ -52,6 +53,8 @@ class ParticleSwarmOptimization(Algorithm):
                 # start exploring each generation
                 self.hook_main_loop()
                 current_patch, current_fitness = self.explore(current_patch, current_fitness)
+
+                self.report_best()
 
         except KeyboardInterrupt:
             self.report['stop'] = 'keyboard interrupt'
@@ -67,36 +70,42 @@ class ParticleSwarmOptimization(Algorithm):
             particle.update_position(self.params)
 
             # evaluate
-            print("before:", str(particle))
             patch = self.create_particle_patch(particle)
-            run = self.evaluate_patch(patch)
-            print("after:", run.fitness)
-            
-            if run.status == 'SUCCESS':
-                # update particle best
-                if self.dominates(run.fitness, particle.run.fitness):
-                    particle.best = particle.position
-                    particle.run = run
-            
-                # update generation best
-                if self.dominates(run.fitness, self.generation_best_particle.run.fitness):
-                    accept = True
-                    self.generation_best_particle = particle
-                    self.generation_best_patch = patch
-            
-                # update global best
-                if self.dominates(run.fitness, self.global_best_particle.run.fitness):
-                    best = True
-                    self.report['best_fitness'] = run.fitness
-                    self.report['best_patch'] = patch
-                    self.global_best_particle = particle
-                    self.global_best_patch = patch
+            particle.position_run = self.evaluate_patch(patch)
+            print("explore:", particle.position_run.fitness)
+
+            # update particle best
+            if self.dominates(particle.position_run.fitness, particle.best_run.fitness):
+                particle.best = particle.position
+                particle.best_run = particle.position_run
         
-        self.hook_evaluation(self.generation_best_patch, self.generation_best_particle.run, accept, best)
+        self.generation_best_particle = self.population[0]
+        self.generation_best_patch    = self.create_particle_patch(self.population[0])
         
-        # next iteration
+        accept = best = False
+        
+        # find generation_best_particle
+        for particle in self.population:
+            if self.dominates(particle.position_run.fitness, self.generation_best_particle.position_run.fitness):
+                accept = True
+                
+                self.generation_best_particle = particle
+                self.generation_best_patch = self.create_particle_patch(particle)
+        
+        # update global_best_particle
+        if self.dominates(self.generation_best_particle.best_run.fitness, self.report['best_fitness']):
+            best = True
+            
+            self.report['best_fitness'] = self.generation_best_particle.best_run.fitness
+            self.report['best_patch']   = self.generation_best_patch
+
+            self.global_best_particle = self.generation_best_particle
+            self.global_best_patch    = self.generation_best_patch
+        
+        self.hook_evaluation(self.generation_best_patch, self.generation_best_particle.position_run, accept, best)
         self.stats['steps'] += 1
-        return current_patch, current_fitness
+        
+        return self.generation_best_patch, self.generation_best_particle.best_run.fitness
 
     def initialise_population(self):
         ParamEdit = self.config['possible_edits'][0]
@@ -126,57 +135,53 @@ class ParticleSwarmOptimization(Algorithm):
                 return file
     
     def evaluate_generation_1(self):
-        # 1st particle as generation best and global best.
-        particle_1 = self.population[0]
-        run = self.evaluate_patch(Patch())
-        particle_1.run = run
-
-        self.generation_best_particle = particle_1
-        self.generation_best_patch = Patch()
+        for particle in self.population:
+           patch = self.create_particle_patch(particle)
+           particle.position_run = particle.best_run = self.evaluate_patch(patch)
+           print("evaluate_generation_1:", particle.position_run.fitness)
         
-        self.global_best_particle = particle_1
-        self.global_best_patch = Patch()
+        self.generation_best_particle = self.global_best_particle = self.population[0]
+        self.generation_best_patch    = self.global_best_patch    = Patch()
         
         accept = best = False
 
-        # 2nd particle - nth particle
-        for particle in self.population[1::]:
-            patch = self.create_particle_patch(particle)
-            run = self.evaluate_patch(patch)
-            particle.run = run
+        # find generation_best_particle
+        for particle in self.population:
+            if self.dominates(particle.best_run.fitness, self.generation_best_particle.best_run.fitness):
+                accept = True
+                
+                self.generation_best_particle = particle
+                self.generation_best_patch = self.create_particle_patch(particle)
+        
+        # find global_best_particle
+        if self.dominates(self.generation_best_particle.best_run.fitness, self.report['best_fitness']):
+            best = True
+            
+            self.report['best_fitness'] = self.generation_best_particle.best_run.fitness
+            self.report['best_patch']   = self.generation_best_patch
 
-            if run.status == 'SUCCESS':
-                # print("****** yes =", run.fitness, "\n")
-                if self.dominates(run.fitness, self.generation_best_particle.run.fitness):
-                    accept = True
-                    self.generation_best_particle = particle
-                    self.generation_best_patch = patch
-                    if self.dominates(run.fitness, self.report['best_fitness']):
-                        best = True
-                        self.report['best_fitness'] = run.fitness
-                        self.report['best_patch'] = patch
-                        self.global_best_particle = particle
-                        self.global_best_patch = patch
-            # else:
-                # print("****** no =", run.fitness, "\n")
+            self.global_best_particle = self.generation_best_particle
+            self.global_best_patch    = self.generation_best_patch
 
-        # print("generation 1:", self.generation_best_patch, self.generation_best_particle.run.fitness)
-        self.hook_evaluation(self.generation_best_patch, self.generation_best_particle.run, accept=True, best=True)
+        self.report_best()
+
+        self.hook_evaluation(self.generation_best_patch, self.generation_best_particle.best_run, accept, best)
         self.stats['steps'] += 1
+    
+    def report_best(self):
+        print("report: global", self.global_best_particle.best_run.fitness, "generation", self.generation_best_particle.position_run.fitness)
     
 class Particle():
     def __init__(self, params, speed_max, speed_min, starting_value):
         self.position = dict()
-        # self.fitness = None
-        
+        self.position_run = None        # class RunResult
+
         self.best = dict()
-        # self.best_fitness = None
+        self.best_run = None            # class RunResult
         
         self.speed = dict()
         self.speed_max = speed_max
         self.speed_min = speed_min
-
-        self.run = None
 
         for param in params.keys():
             self.position[param] = starting_value[param]
