@@ -12,10 +12,10 @@ setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 9
 run_cmd = perf stat run-sh/train_1.sh
-run_timeout = 38
+run_timeout = 86
 
 [search]
-max_steps = 1000
+max_time = 12840
 
 possible_edits =
     StmtReplacement
