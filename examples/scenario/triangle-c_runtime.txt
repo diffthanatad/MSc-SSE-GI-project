@@ -10,7 +10,7 @@ run_cmd = ./run_triangle
 run_timeout = 1
 
 [search]
-max_steps = 5
+max_steps = 100
 max_time = 60
 possible_edits =
     StmtReplacement
