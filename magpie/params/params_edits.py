@@ -14,7 +14,6 @@ class ParamSetting(Edit):
         if target_file is None:
             target_file = program.random_file(AbstractParamsEngine)
         _, _, param_id = program.random_target(target_file, 'param')
-        print('param_id: {}'.format(param_id), 'target_file: {}'.format(target_file))
         engine = program.engines[target_file]
         data = engine.random_value(program.contents[target_file], param_id)
         return cls((target_file, param_id), data)

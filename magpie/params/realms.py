@@ -65,9 +65,6 @@ class CategoricalRealm(Realm):
         return 'CategoricalRealm({})'.format(self.data)
 
     def random_value(self):
-        # x = random.choice(self.data)
-        # print("CategoricalRealm:", self.data, x)
-        # return x
         return random.choice(self.data)
     
     def get_data_index(self, data):
