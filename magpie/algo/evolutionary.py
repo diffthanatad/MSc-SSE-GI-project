@@ -8,7 +8,7 @@ from ..params import CategoricalRealm, GeometricRealm, UniformIntRealm
 class ParticleSwarmOptimization(Algorithm):
     params = dict()                     # magpie.params.realms
     param_size = 0
-    pop_size = 10
+    pop_size = 5
     speed_max = 3
     speed_min = -3
     population = list()                 # class Particle
@@ -32,10 +32,14 @@ class ParticleSwarmOptimization(Algorithm):
             self.warmup()
 
             # PSO set up.
-            # how many parameters are there?
+            # (1) how many parameters are there?
             target_file = self.find_target_file_param()
             self.params.update(self.program.contents[target_file]['space'])
             self.param_size = len(self.params)
+            # (2) search for categorical params
+            for param_id, value in self.program.contents[target_file]['space'].items():
+                if isinstance(value, CategoricalRealm):
+                    self.category_params[param_id] = value
 
             self.initialise_population() # initialise population and velocity at the same time
 
@@ -44,9 +48,6 @@ class ParticleSwarmOptimization(Algorithm):
             self.evaluate_generation_1() # evaluate 1st generation
             self.report_best()
 
-            for particle in self.population:
-                print(str(particle))
-                
             # evaluate 2nd - nth generation
             current_patch = self.report['best_patch']
             current_fitness = self.report['best_fitness']
@@ -115,11 +116,6 @@ class ParticleSwarmOptimization(Algorithm):
     def initialise_population(self):
         ParamEdit = self.config['possible_edits'][0]
         target_file = self.find_target_file_param()
-
-        # search for categorical params
-        for param_id, value in self.program.contents[target_file]['space'].items():
-            if isinstance(value, CategoricalRealm):
-                self.category_params[param_id] = value
 
         # 1st particle gets default value.
         starting_values = copy.deepcopy(self.program.contents[target_file]['current'])
@@ -214,7 +210,6 @@ class Particle():
     def __str__(self):
         return ('position: {position}\n'
             'speed: {speed}\n'
-            'best: {best}\n'
         ).format(**self.__dict__)
     
     def update_speed(self, global_best):
@@ -230,7 +225,9 @@ class Particle():
 
             # perform round up if the parameter is an integer
             if isinstance(spaces[param_id], (CategoricalRealm, GeometricRealm, UniformIntRealm)):
+                print("rounding up", param_id, new_position, end=", ")
                 new_position = round(new_position)
+                print(new_position, end=", ")
 
             # check for upper and lower bound
             lower_bound = spaces[param_id].start
@@ -241,3 +238,6 @@ class Particle():
                 self.position[param_id] = upper_bound
             else:
                 self.position[param_id] = new_position
+            
+            print(self.position[param_id])
+            
