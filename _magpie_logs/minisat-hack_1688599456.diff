@@ -1,0 +1,40 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -387,7 +387,7 @@
+ 
+     // Simplify conflict clause:
+     //
+-    int i, j;
++    
+     out_learnt.copyTo(analyze_toclear);
+     if (ccmin_mode == 2){
+         uint32_t abstract_level = 0;
+@@ -749,9 +749,7 @@
+         if (confl != CRef_Undef){
+             // CONFLICT
+             conflicts++; conflictC++;
+-            if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+-                var_decay += 0.01;
+-}/*auto*/
++            K = (double)opt_K;
+             if (decisionLevel() == 0)/*auto*/{ return l_False;
+ }/*auto*/
+ 
+@@ -992,7 +990,7 @@
+ {
+     if (map.size() <= x || map[x] == -1){
+         map.growTo(x+1, -1);
+-        map[x] = max++;
++        
+     }
+     return map[x];
+ }
+@@ -1037,7 +1035,7 @@
+     int cnt = 0;
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         if (!satisfied(ca[clauses[i]]))/*auto*/{
+-            cnt++;
++            
+ }/*auto*/
+ }/*auto*/
+         

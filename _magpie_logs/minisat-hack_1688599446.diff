@@ -1,0 +1,74 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -274,9 +274,7 @@
+         for (int c = trail.size()-1; c >= trail_lim[level]; c--){
+             Var      x  = var(trail[c]);
+             assigns [x] = l_Undef;
+-            if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())/*auto*/{
+-                polarity[x] = sign(trail[c]);
+-}/*auto*/
++            
+             insertVarOrder(x); }
+         qhead = trail_lim[level];
+         trail.shrink(trail.size() - trail_lim[level]);
+@@ -477,6 +475,7 @@
+                     return false;
+                 }
+             }
++            i++;
+         }
+     }
+ 
+@@ -708,7 +707,7 @@
+ 
+     // Remove satisfied clauses:
+     removeSatisfied(learnts);
+-    removeSatisfied(lF);
++    
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+@@ -748,7 +747,7 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
++             conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+                 var_decay += 0.01;
+ }/*auto*/
+@@ -802,15 +801,7 @@
+                 //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+                 //max_learnts             *= learntsize_inc;
+ 
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
++                
+             }
+ 
+         }else{
+@@ -925,7 +916,7 @@
+ }/*auto*/
+ 
+     while (size-1 != x){
+-        size = (size-1)>>1;
++        
+         seq--;
+         x = x % size;
+     }
+@@ -973,7 +964,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);static DoubleOption  opt_random_seed       (_cat, "rnd-seed",    "Used by the random variable selection",         91648253, DoubleRange(0, false, HUGE_VAL, false));
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
