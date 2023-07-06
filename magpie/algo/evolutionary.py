@@ -7,8 +7,7 @@ from ..params import CategoricalRealm, GeometricRealm, UniformIntRealm
 
 class ParticleSwarmOptimization(Algorithm):
     params = dict()                     # magpie.params.realms
-    param_size = 0
-    pop_size = 5
+    pop_size = 10
     speed_max = 3
     speed_min = -3
     population = list()                 # class Particle
@@ -34,8 +33,8 @@ class ParticleSwarmOptimization(Algorithm):
             # PSO set up.
             # (1) how many parameters are there?
             target_file = self.find_target_file_param()
+            self.params.clear()
             self.params.update(self.program.contents[target_file]['space'])
-            self.param_size = len(self.params)
             # (2) search for categorical params
             for param_id, value in self.program.contents[target_file]['space'].items():
                 if isinstance(value, CategoricalRealm):
@@ -46,7 +45,6 @@ class ParticleSwarmOptimization(Algorithm):
             # start!
             self.hook_start() 
             self.evaluate_generation_1() # evaluate 1st generation
-            self.report_best()
 
             # evaluate 2nd - nth generation
             current_patch = self.report['best_patch']
@@ -59,8 +57,6 @@ class ParticleSwarmOptimization(Algorithm):
                 # start exploring each generation
                 self.hook_main_loop()
                 current_patch, current_fitness = self.explore(current_patch, current_fitness)
-
-                self.report_best()
 
         except KeyboardInterrupt:
             self.report['stop'] = 'keyboard interrupt'
@@ -78,7 +74,6 @@ class ParticleSwarmOptimization(Algorithm):
             # evaluate
             patch = self.create_particle_patch(particle)
             particle.position_run = self.evaluate_patch(patch)
-            print("explore:", particle.position_run.fitness)
 
             # update particle best
             if self.dominates(particle.position_run.fitness, particle.best_run.fitness):
@@ -166,7 +161,7 @@ class ParticleSwarmOptimization(Algorithm):
 
         # find generation_best_particle
         for particle in self.population:
-            if self.dominates(particle.best_run.fitness, self.generation_best_particle.best_run.fitness):
+            if self.dominates(particle.position_run.fitness, self.generation_best_particle.position_run.fitness):
                 accept = True
                 
                 self.generation_best_particle = particle
@@ -182,9 +177,7 @@ class ParticleSwarmOptimization(Algorithm):
             self.global_best_particle = self.generation_best_particle
             self.global_best_patch    = self.generation_best_patch
 
-        self.report_best()
-
-        self.hook_evaluation(self.generation_best_patch, self.generation_best_particle.best_run, accept, best)
+        self.hook_evaluation(self.generation_best_patch, self.generation_best_particle.position_run, accept, best)
         self.stats['steps'] += 1
     
     def report_best(self):
@@ -225,9 +218,7 @@ class Particle():
 
             # perform round up if the parameter is an integer
             if isinstance(spaces[param_id], (CategoricalRealm, GeometricRealm, UniformIntRealm)):
-                print("rounding up", param_id, new_position, end=", ")
                 new_position = round(new_position)
-                print(new_position, end=", ")
 
             # check for upper and lower bound
             lower_bound = spaces[param_id].start
@@ -238,6 +229,4 @@ class Particle():
                 self.position[param_id] = upper_bound
             else:
                 self.position[param_id] = new_position
-            
-            print(self.position[param_id])
             
