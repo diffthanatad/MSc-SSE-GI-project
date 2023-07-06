@@ -1,0 +1,22 @@
+[magpie]
+default_timeout = 30
+default_lengthout = 1e6
+
+[software]
+path = code/minisat-hack
+target_files =
+    minisat.params
+fitness = perf_time
+
+setup_cmd = ./compile.sh
+compile_cmd = ./compile.sh
+compile_timeout = 15
+run_cmd = perf stat run-sh/train_7.sh
+run_timeout = 47
+
+[search]
+max_time = 12840
+algorithm = FirstImprovement
+
+possible_edits =
+    ParamSetting
