@@ -1,0 +1,101 @@
+2023-07-06 19:08:50,823	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_2.sh
+run_timeout = 63
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 12840
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-06 19:08:50,823	[INFO]	==== WARMUP ====
+2023-07-06 19:09:23,654	[INFO]	WARM    SUCCESS               24.8171                 
+2023-07-06 19:09:51,202	[INFO]	WARM    SUCCESS               27.4501                 
+2023-07-06 19:10:16,675	[INFO]	WARM    SUCCESS               25.3712                 
+2023-07-06 19:10:16,675	[INFO]	INITIAL SUCCESS               25.3712                 
+2023-07-06 19:10:16,675	[INFO]	==== START: FirstImprovement ====
+2023-07-06 19:10:16,677	[DEBUG]	ParamSetting(('minisat.params', 'verb'), 1)
+2023-07-06 19:10:16,677	[INFO]	1       SUCCESS              +25.3712 (100.0%) [1 edit(s)] 
+2023-07-06 19:10:16,678	[DEBUG]	
+2023-07-06 19:10:16,679	[DEBUG]	
+2023-07-06 19:10:16,680	[INFO]	2       SUCCESS              +25.3712 (100.0%) [0 edit(s)] 
+2023-07-06 19:10:16,681	[DEBUG]	
