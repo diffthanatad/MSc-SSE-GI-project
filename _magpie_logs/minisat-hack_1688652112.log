@@ -1,0 +1,170 @@
+2023-07-06 15:01:53,042	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_2.sh
+run_timeout = 63
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 12840
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-06 15:01:53,043	[INFO]	==== WARMUP ====
+2023-07-06 15:02:25,371	[INFO]	WARM    SUCCESS               23.987                  
+2023-07-06 15:02:49,211	[INFO]	WARM    SUCCESS               23.7395                 
+2023-07-06 15:03:13,046	[INFO]	WARM    SUCCESS               23.7227                 
+2023-07-06 15:03:13,047	[INFO]	INITIAL SUCCESS               23.7227                 
+2023-07-06 15:03:13,047	[INFO]	==== START: FirstImprovement ====
+2023-07-06 15:03:36,844	[DEBUG]	ParamSetting(('minisat.params', 'grow'), 1393)
+2023-07-06 15:03:36,844	[INFO]	1       SUCCESS              *23.705 (99.93%) [1 edit(s)] 
+2023-07-06 15:03:36,846	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := 1393
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-06 15:03:36,848	[DEBUG]	ParamSetting(('minisat.params', 'grow'), 1393) | ParamSetting(('minisat.params', 'rfirst'), 1.2765946949470934)
+2023-07-06 15:03:36,848	[INFO]	2       SUCCESS              +23.705 (99.93%) [2 edit(s)] 
+2023-07-06 15:03:36,849	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := 1393
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-06 15:04:02,873	[DEBUG]	ParamSetting(('minisat.params', 'grow'), 1393) | ParamSetting(('minisat.params', 'rfirst'), 1.2765946949470934) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.9261585236244284)
+2023-07-06 15:04:02,874	[INFO]	3       SUCCESS               25.9267 (109.29%) [3 edit(s)] 
+2023-07-06 15:04:02,875	[DEBUG]	ParamSetting(('minisat.params', 'rfirst'), 1.2765946949470934)
+2023-07-06 15:04:02,875	[INFO]	4       SUCCESS               23.7227 (100.0%) [1 edit(s)] 
+2023-07-06 15:04:43,650	[DEBUG]	ParamSetting(('minisat.params', 'grow'), 1393) | ParamSetting(('minisat.params', 'rfirst'), 1.2765946949470934) | ParamSetting(('minisat.params', 'pre'), 'False')
+2023-07-06 15:04:43,651	[INFO]	5       SUCCESS               40.6882 (171.52%) [3 edit(s)] 
+2023-07-06 15:04:43,652	[DEBUG]	ParamSetting(('minisat.params', 'grow'), 1393)
+2023-07-06 15:04:43,652	[INFO]	6       SUCCESS              +23.705 (99.93%) [1 edit(s)] 
+2023-07-06 15:04:43,653	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := 1393
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-06 15:05:09,621	[DEBUG]	ParamSetting(('minisat.params', 'grow'), 1393) | ParamSetting(('minisat.params', 'gc-frac'), 0.3503499460929793)
+2023-07-06 15:05:09,621	[INFO]	7       SUCCESS               25.877 (109.08%) [2 edit(s)] 
+2023-07-06 15:05:09,623	[DEBUG]	
+2023-07-06 15:05:09,623	[INFO]	8       SUCCESS               23.7227 (100.0%) [0 edit(s)] 
+2023-07-06 15:05:19,222	[INFO]	==== END ====
+2023-07-06 15:05:19,222	[INFO]	Reason: keyboard interrupt
+2023-07-06 15:05:19,222	[INFO]	
+2023-07-06 15:05:19,222	[INFO]	==== REPORT ====
+2023-07-06 15:05:19,223	[INFO]	Termination: keyboard interrupt
+2023-07-06 15:05:19,223	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1688652112.log
+2023-07-06 15:05:19,224	[INFO]	Patch file: _magpie_logs/minisat-hack_1688652112.patch
+2023-07-06 15:05:19,224	[INFO]	Diff file: _magpie_logs/minisat-hack_1688652112.diff
+2023-07-06 15:05:19,224	[INFO]	Best fitness: 23.705
+2023-07-06 15:05:19,224	[INFO]	Best patch: ParamSetting(('minisat.params', 'grow'), 1393)
+2023-07-06 15:05:19,225	[INFO]	Diff:
+--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := 1393
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+

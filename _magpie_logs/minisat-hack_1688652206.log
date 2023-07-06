@@ -1,0 +1,197 @@
+2023-07-06 15:03:26,951	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_4.sh
+run_timeout = 106
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 12840
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-06 15:03:26,952	[INFO]	==== WARMUP ====
+2023-07-06 15:05:02,225	[INFO]	WARM    SUCCESS               86.7329                 
+2023-07-06 15:06:32,736	[INFO]	WARM    SUCCESS               90.4039                 
+2023-07-06 15:08:01,266	[INFO]	WARM    SUCCESS               88.4395                 
+2023-07-06 15:08:01,267	[INFO]	INITIAL SUCCESS               88.4395                 
+2023-07-06 15:08:01,267	[INFO]	==== START: FirstImprovement ====
+2023-07-06 15:08:01,270	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.6739376930992114)
+2023-07-06 15:08:01,270	[INFO]	1       SUCCESS              +88.4395 (100.0%) [1 edit(s)] 
+2023-07-06 15:08:01,272	[DEBUG]	
+2023-07-06 15:09:47,454	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.6739376930992114) | ParamSetting(('minisat.params', 'var-decay'), 0.1931421092771035)
+2023-07-06 15:09:47,455	[INFO]	2       RUN_TIMEOUT           None  [2 edit(s)]       
+2023-07-06 15:11:14,245	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.6739376930992114) | ParamSetting(('minisat.params', 'pre'), 'False')
+2023-07-06 15:11:14,246	[INFO]	3       SUCCESS              *86.6939 (98.03%) [2 edit(s)] 
+2023-07-06 15:11:14,247	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -11,7 +11,7 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+
+2023-07-06 15:11:14,249	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.6739376930992114)
+2023-07-06 15:11:14,249	[INFO]	4       SUCCESS               88.4395 (100.0%) [1 edit(s)] 
+2023-07-06 15:11:14,250	[DEBUG]	ParamSetting(('minisat.params', 'pre'), 'False')
+2023-07-06 15:11:14,250	[INFO]	5       SUCCESS              +86.6939 (98.03%) [1 edit(s)] 
+2023-07-06 15:11:14,252	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -11,7 +11,7 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+
+2023-07-06 15:11:14,253	[DEBUG]	ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'luby'), 0)
+2023-07-06 15:11:14,253	[INFO]	6       SUCCESS              +86.6939 (98.03%) [2 edit(s)] 
+2023-07-06 15:11:14,255	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -11,7 +11,7 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+
+2023-07-06 15:12:17,085	[DEBUG]	ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'luby'), 0) | ParamSetting(('minisat.params', 'cp-increase'), 5663)
+2023-07-06 15:12:17,086	[INFO]	7       SUCCESS              *62.7262 (70.93%) [3 edit(s)] 
+2023-07-06 15:12:17,087	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5663
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -11,7 +11,7 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+
+2023-07-06 15:12:44,950	[INFO]	==== END ====
+2023-07-06 15:12:44,950	[INFO]	Reason: keyboard interrupt
+2023-07-06 15:12:44,950	[INFO]	
+2023-07-06 15:12:44,950	[INFO]	==== REPORT ====
+2023-07-06 15:12:44,950	[INFO]	Termination: keyboard interrupt
+2023-07-06 15:12:44,950	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1688652206.log
+2023-07-06 15:12:44,952	[INFO]	Patch file: _magpie_logs/minisat-hack_1688652206.patch
+2023-07-06 15:12:44,952	[INFO]	Diff file: _magpie_logs/minisat-hack_1688652206.diff
+2023-07-06 15:12:44,953	[INFO]	Best fitness: 62.7262
+2023-07-06 15:12:44,953	[INFO]	Best patch: ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'luby'), 0) | ParamSetting(('minisat.params', 'cp-increase'), 5663)
+2023-07-06 15:12:44,953	[INFO]	Diff:
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5663
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -11,7 +11,7 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+

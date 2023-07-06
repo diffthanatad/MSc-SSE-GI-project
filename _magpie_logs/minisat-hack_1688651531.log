@@ -1,0 +1,123 @@
+2023-07-06 14:52:11,953	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_1.sh
+run_timeout = 86
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 12840
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-06 14:52:11,954	[INFO]	==== WARMUP ====
+2023-07-06 14:53:05,557	[INFO]	WARM    SUCCESS               45.688                  
+2023-07-06 14:53:49,782	[INFO]	WARM    SUCCESS               44.1223                 
+2023-07-06 14:54:34,459	[INFO]	WARM    SUCCESS               44.5838                 
+2023-07-06 14:54:34,459	[INFO]	INITIAL SUCCESS               44.5838                 
+2023-07-06 14:54:34,460	[INFO]	==== START: FirstImprovement ====
+2023-07-06 14:54:34,461	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.3213818181916503)
+2023-07-06 14:54:34,461	[INFO]	1       SUCCESS              +44.5838 (100.0%) [1 edit(s)] 
+2023-07-06 14:54:34,462	[DEBUG]	
+2023-07-06 14:55:51,678	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.3213818181916503) | ParamSetting(('minisat.params', 'phase-saving'), 0)
+2023-07-06 14:55:51,678	[INFO]	2       SUCCESS               77.1216 (172.98%) [2 edit(s)] 
+2023-07-06 14:56:44,069	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.3213818181916503) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-07-06 14:56:44,069	[INFO]	3       SUCCESS               52.2796 (117.26%) [2 edit(s)] 
+2023-07-06 14:56:44,071	[DEBUG]	
+2023-07-06 14:56:44,071	[INFO]	4       SUCCESS              +44.5838 (100.0%) [0 edit(s)] 
+2023-07-06 14:56:44,072	[DEBUG]	
+2023-07-06 14:56:44,073	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.096824293556817)
+2023-07-06 14:56:44,073	[INFO]	5       SUCCESS              +44.5838 (100.0%) [1 edit(s)] 
+2023-07-06 14:56:44,075	[DEBUG]	
+2023-07-06 14:56:44,076	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.096824293556817) | ParamSetting(('minisat.params', 'rnd-init'), 'False')
+2023-07-06 14:56:44,076	[INFO]	6       SUCCESS              +44.5838 (100.0%) [2 edit(s)] 
+2023-07-06 14:56:44,077	[DEBUG]	
+2023-07-06 14:57:14,069	[INFO]	==== END ====
+2023-07-06 14:57:14,069	[INFO]	Reason: keyboard interrupt
+2023-07-06 14:57:14,069	[INFO]	
+2023-07-06 14:57:14,069	[INFO]	==== REPORT ====
+2023-07-06 14:57:14,069	[INFO]	Termination: keyboard interrupt
+2023-07-06 14:57:14,069	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1688651531.log
+2023-07-06 14:57:14,071	[INFO]	Patch file: _magpie_logs/minisat-hack_1688651531.patch
+2023-07-06 14:57:14,071	[INFO]	Diff file: _magpie_logs/minisat-hack_1688651531.diff
+2023-07-06 14:57:14,072	[INFO]	Best fitness: 44.5838
+2023-07-06 14:57:14,072	[INFO]	Best patch: 
+2023-07-06 14:57:14,072	[INFO]	Diff:
+
