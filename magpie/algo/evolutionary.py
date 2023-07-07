@@ -7,7 +7,7 @@ from ..params import CategoricalRealm, GeometricRealm, UniformIntRealm
 
 class ParticleSwarmOptimization(Algorithm):
     params = dict()                     # magpie.params.realms
-    pop_size = 10
+    pop_size = 100
     speed_max = 3
     speed_min = -3
     population = list()                 # class Particle

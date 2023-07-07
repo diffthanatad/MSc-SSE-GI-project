@@ -16,7 +16,7 @@ run_timeout = 86
 
 [search]
 max_time = 21840
-algorithm = FirstImprovement
+algorithm = ParticleSwarmOptimization
 
 possible_edits =
     ParamSetting
