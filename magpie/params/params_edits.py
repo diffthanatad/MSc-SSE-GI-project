@@ -17,3 +17,20 @@ class ParamSetting(Edit):
         engine = program.engines[target_file]
         data = engine.random_value(program.contents[target_file], param_id)
         return cls((target_file, param_id), data)
+    
+    @classmethod
+    def randomly_initialise_population(cls, program, target_file=None):
+        if target_file is None:
+            target_file = program.random_file(AbstractParamsEngine)
+
+        engine = program.engines[target_file]
+        configuration = dict()
+        for k, v in program.contents[target_file]['space'].items():
+            data = engine.random_value(program.contents[target_file], k)
+            configuration[k] = data
+        
+        return configuration
+
+    @classmethod
+    def create_with_input_value(cls, target_file, param_id, value):
+        return cls((target_file, param_id), value)

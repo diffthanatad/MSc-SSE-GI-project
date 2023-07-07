@@ -58,12 +58,26 @@ class Realm(ABC):
 class CategoricalRealm(Realm):
     def __init__(self, data):
         self.data = data
+        self.start = 0
+        self.stop = len(data) - 1
 
     def __str__(self):
         return 'CategoricalRealm({})'.format(self.data)
 
     def random_value(self):
         return random.choice(self.data)
+    
+    def get_data_index(self, data):
+        try:
+            return self.data.index(data)
+        except ValueError:
+            return -1
+    
+    def get_data_value(self, index):
+        try:
+            return self.data[index]
+        except IndexError:
+            return -1
 
 class UniformRealm(Realm):
     def __init__(self, start, stop, step=None):
