@@ -1,0 +1,30 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -235,7 +235,7 @@
+ 
+     if (c.learnt())/*auto*/{ learnts_literals -= c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals -= c.size();
++    else/*auto*/{            static DoubleOption opt_core_tolerance     (_cat, "core-tolerance", "core-tolerance", 0.02, DoubleRange(0, true, 1, true));
+ }/*auto*/ }
+ 
+ 
+@@ -509,6 +509,8 @@
+         if (seen[x]){
+             if (reason(x) == CRef_Undef){
+                 assert(level(x) > 0);
++                for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++}/*auto*/
+                 out_conflict.push(~trail[i]);
+             }else{
+                 Clause& c = ca[reason(x)];
+@@ -1004,6 +1006,9 @@
+ }/*auto*/
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
++        if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
++        return true;
++}/*auto*/
+         if (value(c[i]) != l_False)/*auto*/{
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/

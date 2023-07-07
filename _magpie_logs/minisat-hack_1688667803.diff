@@ -1,0 +1,52 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -180,6 +180,8 @@
+             ps[j++] = p = ps[i];
+ }/*auto*/
+ }/*auto*/
++
++    rnd_decisions++;
+     ps.shrink(i - j);
+ 
+     /*if (flag && (output != NULL)) {
+@@ -230,7 +232,7 @@
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
+         watches.smudge(~c[0]);
+-        watches.smudge(~c[1]);
++        
+     }
+ 
+     if (c.learnt())/*auto*/{ learnts_literals -= c.size();
+@@ -803,13 +805,7 @@
+                 //max_learnts             *= learntsize_inc;
+ 
+                 if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
++                    
+ }/*auto*/
+             }
+ 
+@@ -844,6 +840,7 @@
+                         K = 1;
+                         lS = 0, LQ.clear();
+                         cancelUntil(0);
++                        return l_True;
+                         return l_Undef; }
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+@@ -1058,7 +1055,7 @@
+     fprintf(f, "p cnf %d %d\n", max, cnt);
+ 
+     for (int i = 0; i < assumptions.size(); i++){
+-        assert(value(assumptions[i]) != l_False);
++        
+         fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
+     }
+ 

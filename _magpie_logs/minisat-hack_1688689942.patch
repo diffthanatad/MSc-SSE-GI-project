@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cl-lim'), 1314) | ParamSetting(('minisat.params', 'sub-lim'), 171) | ParamSetting(('minisat.params', 'grow'), -796) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'cp-increase'), 5224) | ParamSetting(('minisat.params', 'luby'), 0) | ParamSetting(('minisat.params', 'grow'), -143)
