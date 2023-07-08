@@ -1,0 +1,101 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -118,7 +118,7 @@
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
+     K = (double)opt_K;
+-    R = (double)opt_R;
++    
+ }
+ 
+ 
+@@ -214,7 +214,7 @@
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+-    if (c.learnt())/*auto*/{ learnts_literals += c.size();
++    if (c.learnt())/*auto*/{ Clause&  c         = ca[cr];learnts_literals += c.size();
+ }/*auto*/
+     else/*auto*/{            clauses_literals += c.size();
+ }/*auto*/ }
+@@ -226,6 +226,7 @@
+     
+     if (strict){
+         remove(watches[~c[0]], Watcher(cr, c[1]));
++        static unsigned LBD_cut, core_added = 0;
+         remove(watches[~c[1]], Watcher(cr, c[0]));
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
+@@ -235,7 +236,7 @@
+ 
+     if (c.learnt())/*auto*/{ learnts_literals -= c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals -= c.size();
++    else/*auto*/{            
+ }/*auto*/ }
+ 
+ 
+@@ -400,6 +401,9 @@
+                 out_learnt[j++] = out_learnt[i];
+ }/*auto*/
+ }/*auto*/
++
++        for (int j = 0; j < analyze_toclear.size(); j++)/*auto*/{ seen[var(analyze_toclear[j])] = 0;
++}/*auto*/
+         
+     }else if (ccmin_mode == 1){
+         for (i = j = 1; i < out_learnt.size(); i++){
+@@ -688,7 +692,7 @@
+ |________________________________________________________________________________________________@*/
+ bool Solver::simplify()
+ {
+-    assert(decisionLevel() == 0);
++    
+ 
+     if (!ok || propagate() != CRef_Undef)/*auto*/{
+         return ok = false;
+@@ -793,7 +797,7 @@
+               fprintf(output, "0\n");
+             }*/
+ 
+-            varDecayActivity();
++            
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+@@ -887,6 +891,8 @@
+             uncheckedEnqueue(next);
+         }
+     }
++
++    static BoolOption    opt_rnd_init_act      (_cat, "rnd-init",    "Randomize the initial activity", false);
+ }
+ 
+ 
+@@ -1027,8 +1033,9 @@
+ {
+     // Handle case when solver is in contradictory state:
+     if (!ok){
+-        fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
++        
+         return; }
++    assert(decisionLevel() == 0);
+ 
+     vec<Var> map; Var max = 0;
+ 
+@@ -1060,6 +1067,7 @@
+     for (int i = 0; i < assumptions.size(); i++){
+         assert(value(assumptions[i]) != l_False);
+         fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
++        toDimacs(f, assumps);
+     }
+ 
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+@@ -1124,6 +1132,7 @@
+ {
+     // Initialize the next region to a size corresponding to the estimated utilization degree. This
+     // is not precise but should avoid some unnecessary reallocations for the new region:
++    double  progress = 0;
+     ClauseAllocator to(ca.size() - ca.wasted()); 
+ 
+     relocAll(to);

@@ -1,0 +1,132 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -216,7 +216,7 @@
+     watches[~c[1]].push(Watcher(cr, c[0]));
+     if (c.learnt())/*auto*/{ learnts_literals += c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals += c.size();
++    else/*auto*/{            return true;clauses_literals += c.size();
+ }/*auto*/ }
+ 
+ 
+@@ -275,7 +275,7 @@
+             Var      x  = var(trail[c]);
+             assigns [x] = l_Undef;
+             if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())/*auto*/{
+-                polarity[x] = sign(trail[c]);
++                int pathC = 0;
+ }/*auto*/
+             insertVarOrder(x); }
+         qhead = trail_lim[level];
+@@ -296,7 +296,7 @@
+     if (drand(random_seed) < random_var_freq && !order_heap.empty()){
+         next = order_heap[irand(random_seed,order_heap.size())];
+         if (value(next) == l_Undef && decision[next])/*auto*/{
+-            rnd_decisions++;
++            
+ }/*auto*/ }
+ 
+     // Activity based decision:
+@@ -338,7 +338,33 @@
+ 
+     // Generate conflict clause:
+     //
+-    out_learnt.push();      // (leave room for the asserting literal)
++    out_learnt.push();
++    if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
++                cp = conflicts + (int32_t)opt_cp_increase;
++                // Reduce the set of learnt clauses:
++                reduceDB();
++
++                static int adjust = 0;
++                if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
++                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
++                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
++}/*auto*/
++
++                    if (!luby_restart){
++                        core_added = 0;
++                        K = 1;
++                        lS = 0, LQ.clear();
++                        cancelUntil(0);
++                        return l_Undef; }
++                }else{
++                    if (adjust > 0)/*auto*/{ adjust--;
++}/*auto*/
++                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++}/*auto*/
++                    LBD_cut = (int32_t)opt_lbd_cut + adjust;
++                }
++                core_added = 0;
++            }      // (leave room for the asserting literal)
+     int index   = trail.size() - 1;
+ 
+     do{
+@@ -641,7 +667,7 @@
+                 removeClause(learnts[i]);
+ }/*auto*/
+             else{
+-                c.mark(0);
++                
+                 learnts[j++] = learnts[i]; }
+ }/*auto*/
+     }
+@@ -748,7 +774,7 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
++             conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+                 var_decay += 0.01;
+ }/*auto*/
+@@ -797,21 +823,7 @@
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+-            if (conflicts % 5000 == 0){
+-                //learntsize_adjust_confl *= learntsize_adjust_inc;
+-                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+-                //max_learnts             *= learntsize_inc;
+-
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
+-            }
++            
+ 
+         }else{
+             // NO CONFLICT
+@@ -926,7 +938,7 @@
+ 
+     while (size-1 != x){
+         size = (size-1)>>1;
+-        seq--;
++        
+         x = x % size;
+     }
+ 
+@@ -1028,7 +1040,7 @@
+     // Handle case when solver is in contradictory state:
+     if (!ok){
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+-        return; }
++        return ok = false; }
+ 
+     vec<Var> map; Var max = 0;
+ 
+@@ -1126,7 +1138,7 @@
+     // is not precise but should avoid some unnecessary reallocations for the new region:
+     ClauseAllocator to(ca.size() - ca.wasted()); 
+ 
+-    relocAll(to);
++    
+     if (verbosity >= 2)/*auto*/{
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
