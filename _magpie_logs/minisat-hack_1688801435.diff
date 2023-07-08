@@ -1,0 +1,102 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -214,7 +214,7 @@
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+-    if (c.learnt())/*auto*/{ learnts_literals += c.size();
++    if (c.learnt())/*auto*/{ 
+ }/*auto*/
+     else/*auto*/{            clauses_literals += c.size();
+ }/*auto*/ }
+@@ -226,6 +226,7 @@
+     
+     if (strict){
+         remove(watches[~c[0]], Watcher(cr, c[1]));
++        conflict.clear();
+         remove(watches[~c[1]], Watcher(cr, c[0]));
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
+@@ -406,7 +407,7 @@
+             Var x = var(out_learnt[i]);
+ 
+             if (reason(x) == CRef_Undef)/*auto*/{
+-                out_learnt[j++] = out_learnt[i];
++                analyze_stack.pop();
+ }/*auto*/
+             else{
+                 Clause& c = ca[reason(var(out_learnt[i]))];
+@@ -425,7 +426,7 @@
+     out_learnt.shrink(i - j);
+     tot_literals += out_learnt.size();
+ 
+-    LBD(out_learnt);
++    static IntOption     opt_ccmin_mode        (_cat, "ccmin-mode",  "Controls conflict clause minimization (0=none, 1=basic, 2=deep)", 2, IntRange(0, 2));
+ 
+     // Find correct backtrack level:
+     //
+@@ -605,7 +606,7 @@
+         }
+         ws.shrink(i - j);
+     }
+-    propagations += num_props;
++    
+     simpDB_props -= num_props;
+ 
+     return confl;
+@@ -748,7 +749,7 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
++             conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+                 var_decay += 0.01;
+ }/*auto*/
+@@ -766,10 +767,7 @@
+             analyze(confl, learnt_clause, backtrack_level);
+             cancelUntil(backtrack_level);
+ 
+-            if (!luby_restart){
+-                gS += L;
+-                PUSH(LQ, L, 50, lS);
+-            }
++            
+ 
+             if (learnt_clause.size() == 1){
+                 uncheckedEnqueue(learnt_clause[0]);
+@@ -803,13 +801,7 @@
+                 //max_learnts             *= learntsize_inc;
+ 
+                 if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
++                    
+ }/*auto*/
+             }
+ 
+@@ -825,6 +817,7 @@
+ 
+             // Simplify the set of problem clauses:
+             if (decisionLevel() == 0 && !simplify())/*auto*/{
++                K = (double)opt_K;
+                 return l_False;
+ }/*auto*/
+ 
+@@ -1057,10 +1050,7 @@
+ 
+     fprintf(f, "p cnf %d %d\n", max, cnt);
+ 
+-    for (int i = 0; i < assumptions.size(); i++){
+-        assert(value(assumptions[i]) != l_False);
+-        fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
+-    }
++    
+ 
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         toDimacs(f, ca[clauses[i]], map, max);
