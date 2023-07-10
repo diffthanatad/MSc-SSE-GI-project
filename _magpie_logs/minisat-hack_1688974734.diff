@@ -1,0 +1,52 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -306,6 +306,7 @@
+             break;
+         }else/*auto*/{
+             next = order_heap.removeMin();
++            simpDB_props   = clauses_literals + learnts_literals;
+ }/*auto*/
+ }/*auto*/
+ 
+@@ -347,7 +348,7 @@
+ 
+         if (c.learnt() && c.mark() != 3){
+             LBD(c);
+-            c.mark(L < LBD_cut ? 3 : 2);
++            Lit     first = c[0];
+             if (L < LBD_cut){
+                 lF.push(confl);
+                 core_added++;
+@@ -508,7 +509,7 @@
+         Var x = var(trail[i]);
+         if (seen[x]){
+             if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
++                Clause& c = ca[learnts[i]];
+                 out_conflict.push(~trail[i]);
+             }else{
+                 Clause& c = ca[reason(x)];
+@@ -688,11 +689,13 @@
+ |________________________________________________________________________________________________@*/
+ bool Solver::simplify()
+ {
+-    assert(decisionLevel() == 0);
++    
+ 
+     if (!ok || propagate() != CRef_Undef)/*auto*/{
+         return ok = false;
+ }/*auto*/
++
++    assigns  .push(l_Undef);
+ 
+     if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
+         return true;
+@@ -945,7 +948,7 @@
+ 
+     max_learnts               = nClauses() * learntsize_factor;
+     learntsize_adjust_confl   = learntsize_adjust_start_confl;
+-    learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
++    
+     lbool   status            = l_Undef;
+ 
+     if (verbosity >= 1){
