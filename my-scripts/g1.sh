@@ -3,8 +3,3 @@
 /usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_3.txt --patch _magpie_logs/minisat-hack_1688899802.patch
 /usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_4.txt --patch _magpie_logs/minisat-hack_1688921946.patch
 /usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_5.txt --patch _magpie_logs/minisat-hack_1688944149.patch
-/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_6.txt --patch _magpie_logs/minisat-hack_1688855811.patch
-/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_7.txt --patch _magpie_logs/minisat-hack_1688877857.patch
-/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_8.txt --patch _magpie_logs/minisat-hack_1688899846.patch
-/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_9.txt --patch _magpie_logs/minisat-hack_1688921807.patch
-/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_10.txt --patch _magpie_logs/minisat-hack_1688943760.patch
