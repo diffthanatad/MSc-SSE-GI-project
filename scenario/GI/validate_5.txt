@@ -12,12 +12,14 @@ fitness = perf_time
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 15
-run_cmd = perf stat run-sh/validate_2.sh
-run_timeout = 1267
+run_cmd = perf stat run-sh/validate_5.sh
+run_timeout = 1295
 
 [search]
 max_time = 21840
 algorithm = FirstImprovement
 
 possible_edits =
-    ParamSetting
+    StmtReplacement
+    StmtInsertion
+    StmtDeletion

@@ -20,4 +20,6 @@ max_time = 21840
 algorithm = FirstImprovement
 
 possible_edits =
-    ParamSetting
+    StmtReplacement
+    StmtInsertion
+    StmtDeletion
