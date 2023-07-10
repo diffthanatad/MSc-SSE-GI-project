@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 5137) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.8501482481603058) | ParamSetting(('minisat.params', 'phase-saving'), 0) | ParamSetting(('minisat.params', 'cl-lim'), 0) | ParamSetting(('minisat.params', 'rinc'), 1.069316164580975) | ParamSetting(('minisat.params', 'gc-frac'), 0.2135922250611456)
