@@ -1,3 +1,5 @@
+Phase Training
+    * First Improve
 /usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC/train_1.txt
 
 /usr/local/bin/python3.10 -m bin.local_search --scenario scenario/GI/train_1.txt
@@ -6,6 +8,8 @@
 
 /usr/local/bin/python3.10 -m bin.evolution_algorithm --scenario scenario/GI/train_1.txt
 
+Phase Validation
+    * minify_patch
 /usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/AC_1.txt --patch path/to/my/patch
 
 /usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/GI/validate_1.txt --patch _magpie_logs/minisat-hack_1688855814.patch
@@ -18,3 +22,8 @@
 /usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/GI/validate_8.txt --patch _magpie_logs/minisat-hack_1688877877.patch
 /usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/GI/validate_9.txt --patch _magpie_logs/minisat-hack_1688899837.patch
 /usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/GI/validate_10.txt --patch _magpie_logs/minisat-hack_1688921782.patch
+
+Phase Testing
+    * revalidate_patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/AC_1.txt --patch path/to/my/patch
+
