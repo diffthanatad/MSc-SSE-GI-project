@@ -1,7 +1,7 @@
-import numpy as np
+from datetime import datetime
 import matplotlib.pyplot as plt
 
-LOGS = [
+AC = [
     "minisat-hack_1688855807",
     "minisat-hack_1688877840",
     "minisat-hack_1688899802",
@@ -14,52 +14,89 @@ LOGS = [
     "minisat-hack_1688943760"
 ]
 
-HR = [
-    [117,   279,    413,    556,    749,    922],
-    [226,   505,    804,    1111,   1395,   1697],
-    [107,   230,    395,    528,    702,    872],
-    [82,    179,    271,    366,    470,    575],
-    [255,   666,    1182,   1629,   2025,   2363],
-    [167,   380,    616,    789,    948,    1141],
-    [240,   496,    797,    1118,   1434,   1756],
-    [243,   526,    910,    1244,   1585,   1995],
-    [338,   752,    1283,   1786,   2330,   2823],
-    [129,   311,    411,    516,    655,    833]
+GI = [
+    "minisat-hack_1688855814",
+    "minisat-hack_1688877880",
+    "minisat-hack_1688974655",
+    "minisat-hack_1688899950",
+    "minisat-hack_1688922088",
+    "minisat-hack_1688974734",
+    "minisat-hack_1688855880",
+    "minisat-hack_1688877877",
+    "minisat-hack_1688899837",
+    "minisat-hack_1688921782"
 ]
 
-for i in range(10):
-    I_TH = i + 1
-    GRAPH_TITLE = "Mini-SAT, First Improvement, AC, k-{K}".format(K=I_TH)
-    IMAGE_NAME = "FirstImprovement_AC_k-{K}".format(K=I_TH)
-
-    LOG_FILE = "../_magpie_logs/{FILE_NAME}.log".format(FILE_NAME=LOGS[i])
-    colour = ['r', 'g', 'black', 'purple', 'orange', 'yellow']
-    label = ['1 hr.', '2 hr.', '3 hr.', '4 hr.', '5 hr.', '6 hr.']
-    variants = []
-    fitness = []
-
+AC_GI = [
+]
+    
+def grepData(file):
+    LOG_FILE = "../_magpie_logs/{FILE_NAME}.log".format(FILE_NAME=file)
     with open(LOG_FILE, "r") as file:
+        first_line = file.readline().split()
+        start_time = datetime.strptime(first_line[0]+first_line[1][:len(first_line[1])-4:],'%Y-%m-%d%H:%M:%S')
+
+        time = []
+        fitness = []
+
         for line in file:
             contents = line.split()
             if len(contents) == 9 and contents[2] == "[INFO]" and contents[3].isnumeric():
-                variants.append(int(contents[3]))
+                variant_time = datetime.strptime(contents[0]+contents[1][:len(contents[1])-4:],'%Y-%m-%d%H:%M:%S')
+                timedelta = int((variant_time - start_time).total_seconds())
+
+                time.append(timedelta)
+                try:
+                    fitness.append(float(contents[5]))
+                except:
+                    fitness.append(float(contents[5][1::]))
+            elif len(contents) == 6 and contents[2] == "[INFO]" and contents[3] == "WARM":
+                variant_time = datetime.strptime(contents[0]+contents[1][:len(contents[1])-4:],'%Y-%m-%d%H:%M:%S')
+                timedelta = int((variant_time - start_time).total_seconds())
+
+                time.append(timedelta)
                 try:
                     fitness.append(float(contents[5]))
                 except:
                     fitness.append(float(contents[5][1::]))
 
+    return fitness, time
+
+for i in range(10):
+    K_TH = i+1
+
+    GRAPH_TITLE = "Mini-SAT, First Improvement, k-{K}".format(K=K_TH)
+    IMAGE_NAME = "FirstImprovement_AC_GI_k-{K}".format(K=K_TH)
+
+    fitnesses = []
+    times = []
+
+    f, t = grepData(AC[i])
+    fitnesses.append(f)
+    times.append(t)
+
+    f, t = grepData(GI[i])
+    fitnesses.append(f)
+    times.append(t)
+
+    # f, t = grepData(AC_GI[i])
+    # fitnesses.append(f)
+    # times.append(t)
+
     f = plt.figure()
-    f.set_figwidth(30)
+    f.set_figwidth(25)
     f.set_figheight(10)
 
-    plt.plot(variants, fitness)
-    plt.xlabel('Variant')
+    plt.plot(times[0], fitnesses[0],label = "AC")
+    plt.plot(times[1], fitnesses[1], label = "GI")
+    # plt.plot(time[2], fitness[2], label = "AC + GI")
+
+    for i in range(6):
+        plt.axvline(x = 3600*(1+i), color = "yellow")
+
+    plt.xlabel('Time')
     plt.ylabel('Fitness')
     plt.title(GRAPH_TITLE)
-
-    for j in range(6):
-        plt.axvline(x = HR[i][j], color = colour[j], label = label[j])
-
-    plt.xticks(np.arange(min(variants), max(variants), 45))
     plt.legend()
+
     plt.savefig('./{FILE_NAME}.png'.format(FILE_NAME=IMAGE_NAME), bbox_inches='tight')
