@@ -1,0 +1,467 @@
+2023-07-11 11:56:48,573	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_5.sh
+run_timeout = 1295
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 21840
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-11 11:56:48,573	[INFO]	==== WARMUP ====
+2023-07-11 12:14:33,929	[INFO]	WARM    SUCCESS               1056.8679               
+2023-07-11 12:32:14,278	[INFO]	WARM    SUCCESS               1056.3852               
+2023-07-11 12:49:48,820	[INFO]	WARM    SUCCESS               1050.551                
+2023-07-11 12:49:48,821	[INFO]	INITIAL SUCCESS               1050.551                
+2023-07-11 12:49:48,821	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-11 12:49:48,934	[DEBUG]	CLEAN_PATCH: StmtDeletion(('core/Solver.cc.xml', 'stmt', 444)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 343)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 26)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 356), ('core/Solver.cc.xml', 'stmt', 172)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 454))
+2023-07-11 12:49:48,934	[DEBUG]	CLEAN_SIZE: 7 (was 7)
+2023-07-11 13:09:14,451	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 444)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 343)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 26)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 356), ('core/Solver.cc.xml', 'stmt', 172)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 454))
+2023-07-11 13:09:14,452	[INFO]	1       SUCCESS              *1162.0168 (110.61%) [7 edit(s)] 
+2023-07-11 13:09:14,468	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -138,7 +138,7 @@
+ {
+     int v = nVars();
+     watches  .init(mkLit(v, false));
+-    watches  .init(mkLit(v, true ));
++    
+     assigns  .push(l_Undef);
+     vardata  .push(mkVarData(CRef_Undef, 0));
+     //activity .push(0);
+@@ -198,6 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
++        rebuildOrderHeap();
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -824,9 +825,7 @@
+                 return l_Undef; }
+ 
+             // Simplify the set of problem clauses:
+-            if (decisionLevel() == 0 && !simplify())/*auto*/{
+-                return l_False;
+-}/*auto*/
++            
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
+@@ -843,11 +842,11 @@
+                         core_added = 0;
+                         K = 1;
+                         lS = 0, LQ.clear();
+-                        cancelUntil(0);
++                        for (int j = 0; j < analyze_toclear.size(); j++)/*auto*/{ seen[var(analyze_toclear[j])] = 0;
++}/*auto*/
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+@@ -1045,9 +1044,7 @@
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+             for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
++                
+ }/*auto*/
+         }
+ }/*auto*/
+@@ -1067,7 +1064,7 @@
+ }/*auto*/
+ 
+     if (verbosity > 0)/*auto*/{
+-        printf("Wrote %d clauses with %d variables.\n", cnt, max);
++        
+ }/*auto*/
+ }
+ 
+
+2023-07-11 13:09:14,468	[INFO]	-- ranking --
+2023-07-11 13:26:44,116	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 444))
+2023-07-11 13:26:44,117	[INFO]	2       SUCCESS              *1046.1692 (99.58%) [1 edit(s)] 
+2023-07-11 13:26:44,135	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1045,9 +1045,7 @@
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+             for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
++                
+ }/*auto*/
+         }
+ }/*auto*/
+
+2023-07-11 13:44:10,564	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295))
+2023-07-11 13:44:10,565	[INFO]	3       SUCCESS              *1042.699 (99.25%) [1 edit(s)] 
+2023-07-11 13:44:10,576	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -198,6 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
++        rebuildOrderHeap();
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+
+2023-07-11 14:03:22,816	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 343))
+2023-07-11 14:03:22,816	[INFO]	4       SUCCESS              +1148.7049 (109.34%) [1 edit(s)] 
+2023-07-11 14:03:22,827	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -824,9 +824,7 @@
+                 return l_Undef; }
+ 
+             // Simplify the set of problem clauses:
+-            if (decisionLevel() == 0 && !simplify())/*auto*/{
+-                return l_False;
+-}/*auto*/
++            
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
+
+2023-07-11 14:25:01,952	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 26))
+2023-07-11 14:25:01,952	[INFO]	5       RUN_TIMEOUT           None  [1 edit(s)]       
+2023-07-11 14:42:25,736	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358))
+2023-07-11 14:42:25,736	[INFO]	6       SUCCESS              *1039.8265 (98.98%) [1 edit(s)] 
+2023-07-11 14:42:25,746	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -846,8 +846,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+
+2023-07-11 14:59:54,210	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 356), ('core/Solver.cc.xml', 'stmt', 172))
+2023-07-11 14:59:54,210	[INFO]	7       SUCCESS              +1044.9569 (99.47%) [1 edit(s)] 
+2023-07-11 14:59:54,220	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -843,7 +843,8 @@
+                         core_added = 0;
+                         K = 1;
+                         lS = 0, LQ.clear();
+-                        cancelUntil(0);
++                        for (int j = 0; j < analyze_toclear.size(); j++)/*auto*/{ seen[var(analyze_toclear[j])] = 0;
++}/*auto*/
+                         return l_Undef; }
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+
+2023-07-11 15:17:19,330	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 454))
+2023-07-11 15:17:19,331	[INFO]	8       SUCCESS              +1041.3154 (99.12%) [1 edit(s)] 
+2023-07-11 15:17:19,348	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1067,7 +1067,7 @@
+ }/*auto*/
+ 
+     if (verbosity > 0)/*auto*/{
+-        printf("Wrote %d clauses with %d variables.\n", cnt, max);
++        
+ }/*auto*/
+ }
+ 
+
+2023-07-11 15:17:19,348	[INFO]	-- rebuild --
+2023-07-11 15:34:55,947	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 454))
+2023-07-11 15:34:55,947	[INFO]	9       SUCCESS              +1052.8675 (100.22%) [2 edit(s)] 
+2023-07-11 15:34:55,967	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -846,8 +846,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+@@ -1067,7 +1066,7 @@
+ }/*auto*/
+ 
+     if (verbosity > 0)/*auto*/{
+-        printf("Wrote %d clauses with %d variables.\n", cnt, max);
++        
+ }/*auto*/
+ }
+ 
+
+2023-07-11 15:52:14,236	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295))
+2023-07-11 15:52:14,237	[INFO]	10      SUCCESS              *1034.6709 (98.49%) [2 edit(s)] 
+2023-07-11 15:52:14,248	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -198,6 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
++        rebuildOrderHeap();
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -846,8 +847,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+
+2023-07-11 16:09:46,005	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 356), ('core/Solver.cc.xml', 'stmt', 172))
+2023-07-11 16:09:46,006	[INFO]	11      SUCCESS              +1047.8694 (99.74%) [3 edit(s)] 
+2023-07-11 16:09:46,023	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -198,6 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
++        rebuildOrderHeap();
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -843,11 +844,11 @@
+                         core_added = 0;
+                         K = 1;
+                         lS = 0, LQ.clear();
+-                        cancelUntil(0);
++                        for (int j = 0; j < analyze_toclear.size(); j++)/*auto*/{ seen[var(analyze_toclear[j])] = 0;
++}/*auto*/
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+
+2023-07-11 16:27:20,398	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 444))
+2023-07-11 16:27:20,398	[INFO]	12      SUCCESS              +1050.6113 (100.01%) [3 edit(s)] 
+2023-07-11 16:27:20,412	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -198,6 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
++        rebuildOrderHeap();
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -846,8 +847,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+@@ -1045,9 +1045,7 @@
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+             for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
++                
+ }/*auto*/
+         }
+ }/*auto*/
+
+2023-07-11 16:46:21,808	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 343))
+2023-07-11 16:46:21,809	[INFO]	13      SUCCESS              +1137.8871 (108.31%) [3 edit(s)] 
+2023-07-11 16:46:21,821	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -198,6 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
++        rebuildOrderHeap();
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -824,9 +825,7 @@
+                 return l_Undef; }
+ 
+             // Simplify the set of problem clauses:
+-            if (decisionLevel() == 0 && !simplify())/*auto*/{
+-                return l_False;
+-}/*auto*/
++            
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
+@@ -846,8 +845,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+
+2023-07-11 17:08:00,950	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 26))
+2023-07-11 17:08:00,951	[INFO]	14      RUN_TIMEOUT           None  [3 edit(s)]       
+2023-07-11 17:08:00,951	[INFO]	-- simplify --
+2023-07-11 17:08:00,962	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295))
+2023-07-11 17:08:00,962	[INFO]	15      SUCCESS              +1042.699 (99.25%) [1 edit(s)] 
+2023-07-11 17:08:00,973	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -198,6 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
++        rebuildOrderHeap();
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+
+2023-07-11 17:08:00,982	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358))
+2023-07-11 17:08:00,982	[INFO]	16      SUCCESS              +1039.8265 (98.98%) [1 edit(s)] 
+2023-07-11 17:08:00,990	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -846,8 +846,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+
+2023-07-11 17:08:01,000	[INFO]	==== END ====
+2023-07-11 17:08:01,001	[INFO]	Reason: validation end
+2023-07-11 17:08:01,001	[INFO]	
+2023-07-11 17:08:01,001	[INFO]	==== REPORT ====
+2023-07-11 17:08:01,001	[INFO]	Termination: validation end
+2023-07-11 17:08:01,001	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689073007.log
+2023-07-11 17:08:01,012	[INFO]	Patch file: _magpie_logs/minisat-hack_1689073007.patch
+2023-07-11 17:08:01,012	[INFO]	Diff file: _magpie_logs/minisat-hack_1689073007.diff
+2023-07-11 17:08:01,012	[INFO]	Best fitness: 1034.6709
+2023-07-11 17:08:01,012	[INFO]	Best patch: StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 44), ('core/Solver.cc.xml', 'stmt', 295))
+2023-07-11 17:08:01,012	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -198,6 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
++        rebuildOrderHeap();
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -846,8 +847,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+

@@ -1,0 +1,11 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -938,7 +938,7 @@
+ {
+     model.clear();
+     conflict.clear();
+-    if (!ok)/*auto*/{ return l_False;
++    if (!ok)/*auto*/{ printf("c ===============================================================================\n");
+ }/*auto*/
+ 
+     solves++;

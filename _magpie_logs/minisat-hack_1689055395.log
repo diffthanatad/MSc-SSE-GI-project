@@ -1,0 +1,337 @@
+2023-07-11 07:03:16,600	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_4.sh
+run_timeout = 1240
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 21840
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-11 07:03:16,600	[INFO]	==== WARMUP ====
+2023-07-11 07:19:49,079	[INFO]	WARM    SUCCESS               983.6111                
+2023-07-11 07:36:23,105	[INFO]	WARM    SUCCESS               990.3332                
+2023-07-11 07:52:52,008	[INFO]	WARM    SUCCESS               985.3553                
+2023-07-11 07:52:52,008	[INFO]	INITIAL SUCCESS               985.3553                
+2023-07-11 07:52:52,009	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-11 07:52:52,162	[DEBUG]	CLEAN_PATCH: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 601), ('core/Solver.cc.xml', 'stmt', 394)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 312), ('core/Solver.cc.xml', 'stmt', 363)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 421)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 216)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 282)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 633), ('core/Solver.cc.xml', 'stmt', 11))
+2023-07-11 07:52:52,162	[DEBUG]	CLEAN_SIZE: 7 (was 7)
+2023-07-11 08:13:36,358	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 601), ('core/Solver.cc.xml', 'stmt', 394)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 312), ('core/Solver.cc.xml', 'stmt', 363)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 421)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 216)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 282)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 633), ('core/Solver.cc.xml', 'stmt', 11))
+2023-07-11 08:13:36,359	[INFO]	1       RUN_TIMEOUT           None  [7 edit(s)]       
+2023-07-11 08:13:36,359	[INFO]	-- ranking --
+2023-07-11 08:30:03,669	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 601), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-11 08:30:03,670	[INFO]	2       SUCCESS              *983.6265 (99.82%) [1 edit(s)] 
+2023-07-11 08:30:03,683	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1027,6 +1027,12 @@
+ {
+     // Handle case when solver is in contradictory state:
+     if (!ok){
++        if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+
+2023-07-11 08:46:15,986	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1))
+2023-07-11 08:46:15,986	[INFO]	3       SUCCESS              *968.2069 (98.26%) [1 edit(s)] 
+2023-07-11 08:46:15,997	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -392,6 +392,7 @@
+     if (ccmin_mode == 2){
+         uint32_t abstract_level = 0;
+         for (i = 1; i < out_learnt.size(); i++)/*auto*/{
++            static double K, R;
+             abstract_level |= abstractLevel(var(out_learnt[i]));
+ }/*auto*/ // (maintain an abstraction of levels involved in conflict)
+ 
+
+2023-07-11 09:07:00,679	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 312), ('core/Solver.cc.xml', 'stmt', 363))
+2023-07-11 09:07:00,679	[INFO]	4       RUN_TIMEOUT           None  [1 edit(s)]       
+2023-07-11 09:23:46,504	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 421))
+2023-07-11 09:23:46,504	[INFO]	5       SUCCESS              +1002.3347 (101.72%) [1 edit(s)] 
+2023-07-11 09:23:46,514	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1000,7 +1000,7 @@
+ 
+ void Solver::toDimacs(FILE* f, Clause& c, vec<Var>& map, Var& max)
+ {
+-    if (satisfied(c))/*auto*/{ return;
++    if (satisfied(c))/*auto*/{ 
+ }/*auto*/
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+
+2023-07-11 09:40:26,953	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 216))
+2023-07-11 09:40:26,954	[INFO]	6       SUCCESS              +996.8044 (101.16%) [1 edit(s)] 
+2023-07-11 09:40:26,964	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -550,7 +550,7 @@
+ {
+     CRef    confl     = CRef_Undef;
+     int     num_props = 0;
+-    watches.cleanAll();
++    
+ 
+     while (qhead < trail.size()){
+         Lit            p   = trail[qhead++];     // 'p' is enqueued fact to propagate.
+
+2023-07-11 09:56:50,633	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 282))
+2023-07-11 09:56:50,634	[INFO]	7       SUCCESS              +980.0261 (99.46%) [1 edit(s)] 
+2023-07-11 09:56:50,653	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -690,9 +690,7 @@
+ {
+     assert(decisionLevel() == 0);
+ 
+-    if (!ok || propagate() != CRef_Undef)/*auto*/{
+-        return ok = false;
+-}/*auto*/
++    
+ 
+     if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
+         return true;
+
+2023-07-11 10:13:17,823	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 633), ('core/Solver.cc.xml', 'stmt', 11))
+2023-07-11 10:13:17,824	[INFO]	8       SUCCESS              +983.625 (99.82%) [1 edit(s)] 
+2023-07-11 10:13:17,835	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1086,6 +1086,7 @@
+     // for (int i = 0; i < watches.size(); i++)
+     watches.cleanAll();
+     for (int v = 0; v < nVars(); v++)/*auto*/{
++        static DoubleOption  opt_random_var_freq   (_cat, "rnd-freq",    "The frequency with which the decision heuristic tries to choose a random variable", 0, DoubleRange(0, true, 1, true));
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+             // printf(" >>> RELOCING: %s%d\n", sign(p)?"-":"", var(p)+1);
+
+2023-07-11 10:13:17,835	[INFO]	-- rebuild --
+2023-07-11 10:29:47,100	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 282))
+2023-07-11 10:29:47,100	[INFO]	9       SUCCESS              +985.6135 (100.03%) [2 edit(s)] 
+2023-07-11 10:29:47,113	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -392,6 +392,7 @@
+     if (ccmin_mode == 2){
+         uint32_t abstract_level = 0;
+         for (i = 1; i < out_learnt.size(); i++)/*auto*/{
++            static double K, R;
+             abstract_level |= abstractLevel(var(out_learnt[i]));
+ }/*auto*/ // (maintain an abstraction of levels involved in conflict)
+ 
+@@ -690,9 +691,7 @@
+ {
+     assert(decisionLevel() == 0);
+ 
+-    if (!ok || propagate() != CRef_Undef)/*auto*/{
+-        return ok = false;
+-}/*auto*/
++    
+ 
+     if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
+         return true;
+
+2023-07-11 10:46:10,990	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 633), ('core/Solver.cc.xml', 'stmt', 11))
+2023-07-11 10:46:10,991	[INFO]	10      SUCCESS              +980.1091 (99.47%) [2 edit(s)] 
+2023-07-11 10:46:11,017	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -392,6 +392,7 @@
+     if (ccmin_mode == 2){
+         uint32_t abstract_level = 0;
+         for (i = 1; i < out_learnt.size(); i++)/*auto*/{
++            static double K, R;
+             abstract_level |= abstractLevel(var(out_learnt[i]));
+ }/*auto*/ // (maintain an abstraction of levels involved in conflict)
+ 
+@@ -1086,6 +1087,7 @@
+     // for (int i = 0; i < watches.size(); i++)
+     watches.cleanAll();
+     for (int v = 0; v < nVars(); v++)/*auto*/{
++        static DoubleOption  opt_random_var_freq   (_cat, "rnd-freq",    "The frequency with which the decision heuristic tries to choose a random variable", 0, DoubleRange(0, true, 1, true));
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+             // printf(" >>> RELOCING: %s%d\n", sign(p)?"-":"", var(p)+1);
+
+2023-07-11 11:02:43,475	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 601), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-11 11:02:43,475	[INFO]	11      SUCCESS              +988.501 (100.32%) [2 edit(s)] 
+2023-07-11 11:02:43,488	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -392,6 +392,7 @@
+     if (ccmin_mode == 2){
+         uint32_t abstract_level = 0;
+         for (i = 1; i < out_learnt.size(); i++)/*auto*/{
++            static double K, R;
+             abstract_level |= abstractLevel(var(out_learnt[i]));
+ }/*auto*/ // (maintain an abstraction of levels involved in conflict)
+ 
+@@ -1027,6 +1028,12 @@
+ {
+     // Handle case when solver is in contradictory state:
+     if (!ok){
++        if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+
+2023-07-11 11:19:22,310	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 216))
+2023-07-11 11:19:22,310	[INFO]	12      SUCCESS              +995.3047 (101.01%) [2 edit(s)] 
+2023-07-11 11:19:22,323	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -392,6 +392,7 @@
+     if (ccmin_mode == 2){
+         uint32_t abstract_level = 0;
+         for (i = 1; i < out_learnt.size(); i++)/*auto*/{
++            static double K, R;
+             abstract_level |= abstractLevel(var(out_learnt[i]));
+ }/*auto*/ // (maintain an abstraction of levels involved in conflict)
+ 
+@@ -550,7 +551,7 @@
+ {
+     CRef    confl     = CRef_Undef;
+     int     num_props = 0;
+-    watches.cleanAll();
++    
+ 
+     while (qhead < trail.size()){
+         Lit            p   = trail[qhead++];     // 'p' is enqueued fact to propagate.
+
+2023-07-11 11:36:03,165	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 421))
+2023-07-11 11:36:03,166	[INFO]	13      SUCCESS              +997.3632 (101.22%) [2 edit(s)] 
+2023-07-11 11:36:03,184	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -392,6 +392,7 @@
+     if (ccmin_mode == 2){
+         uint32_t abstract_level = 0;
+         for (i = 1; i < out_learnt.size(); i++)/*auto*/{
++            static double K, R;
+             abstract_level |= abstractLevel(var(out_learnt[i]));
+ }/*auto*/ // (maintain an abstraction of levels involved in conflict)
+ 
+@@ -1000,7 +1001,7 @@
+ 
+ void Solver::toDimacs(FILE* f, Clause& c, vec<Var>& map, Var& max)
+ {
+-    if (satisfied(c))/*auto*/{ return;
++    if (satisfied(c))/*auto*/{ 
+ }/*auto*/
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+
+2023-07-11 11:56:47,270	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 312), ('core/Solver.cc.xml', 'stmt', 363))
+2023-07-11 11:56:47,271	[INFO]	14      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-07-11 11:56:47,271	[INFO]	-- simplify --
+2023-07-11 11:56:47,279	[DEBUG]	
+2023-07-11 11:56:47,279	[INFO]	15      SUCCESS              +985.3553 (100.0%) [0 edit(s)] 
+2023-07-11 11:56:47,287	[DEBUG]	
+2023-07-11 11:56:47,297	[INFO]	==== END ====
+2023-07-11 11:56:47,297	[INFO]	Reason: validation end
+2023-07-11 11:56:47,297	[INFO]	
+2023-07-11 11:56:47,297	[INFO]	==== REPORT ====
+2023-07-11 11:56:47,297	[INFO]	Termination: validation end
+2023-07-11 11:56:47,298	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689055395.log
+2023-07-11 11:56:47,308	[INFO]	Patch file: _magpie_logs/minisat-hack_1689055395.patch
+2023-07-11 11:56:47,308	[INFO]	Diff file: _magpie_logs/minisat-hack_1689055395.diff
+2023-07-11 11:56:47,308	[INFO]	Best fitness: 968.2069
+2023-07-11 11:56:47,308	[INFO]	Best patch: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 185), ('core/Solver.cc.xml', 'stmt', 1))
+2023-07-11 11:56:47,308	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -392,6 +392,7 @@
+     if (ccmin_mode == 2){
+         uint32_t abstract_level = 0;
+         for (i = 1; i < out_learnt.size(); i++)/*auto*/{
++            static double K, R;
+             abstract_level |= abstractLevel(var(out_learnt[i]));
+ }/*auto*/ // (maintain an abstraction of levels involved in conflict)
+ 
+

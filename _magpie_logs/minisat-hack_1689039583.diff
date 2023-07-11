@@ -1,0 +1,11 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -708,7 +708,7 @@
+ 
+     // Remove satisfied clauses:
+     removeSatisfied(learnts);
+-    removeSatisfied(lF);
++    
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/

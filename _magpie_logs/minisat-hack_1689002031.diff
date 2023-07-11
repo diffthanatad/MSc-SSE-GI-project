@@ -1,0 +1,20 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -508,7 +508,7 @@
+         Var x = var(trail[i]);
+         if (seen[x]){
+             if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
++                Clause& c = ca[learnts[i]];
+                 out_conflict.push(~trail[i]);
+             }else{
+                 Clause& c = ca[reason(x)];
+@@ -688,7 +688,7 @@
+ |________________________________________________________________________________________________@*/
+ bool Solver::simplify()
+ {
+-    assert(decisionLevel() == 0);
++    
+ 
+     if (!ok || propagate() != CRef_Undef)/*auto*/{
+         return ok = false;

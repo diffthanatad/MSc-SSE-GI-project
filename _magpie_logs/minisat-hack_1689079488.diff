@@ -1,0 +1,23 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1028,7 +1028,8 @@
+     // Handle case when solver is in contradictory state:
+     if (!ok){
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+-        return; }
++        return;
++        static IntOption     opt_phase_saving      (_cat, "phase-saving", "Controls the level of phase saving (0=none, 1=limited, 2=full)", 2, IntRange(0, 2)); }
+ 
+     vec<Var> map; Var max = 0;
+ 
+@@ -1066,9 +1067,7 @@
+         toDimacs(f, ca[clauses[i]], map, max);
+ }/*auto*/
+ 
+-    if (verbosity > 0)/*auto*/{
+-        printf("Wrote %d clauses with %d variables.\n", cnt, max);
+-}/*auto*/
++    
+ }
+ 
+ 
