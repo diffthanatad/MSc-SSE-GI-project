@@ -1,0 +1,70 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -571,7 +571,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -699,11 +699,7 @@
+ }/*auto*/
+ 
+     #define V learnts
+-    for (i = j = 0; i < V.size(); i++)/*auto*/{
+-        if (ca[V[i]].mark() != 3)/*auto*/{
+-            V[j++] = V[i];
+-}/*auto*/
+-}/*auto*/
++    
+     V.shrink(i - j);
+ 
+     // Remove satisfied clauses:
+@@ -829,7 +825,7 @@
+ }/*auto*/
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+-                cp = conflicts + (int32_t)opt_cp_increase;
++                
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -1037,7 +1033,7 @@
+     int cnt = 0;
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         if (!satisfied(ca[clauses[i]]))/*auto*/{
+-            cnt++;
++            
+ }/*auto*/
+ }/*auto*/
+         
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
+-cp-increase := 15000
++lbd-cut-max := 9.321304424198921
++cp-increase := 5092
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -9,13 +9,13 @@
+ phase-saving := 2
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
+-verb := 1
++gc-frac := 0.46571175951801336
++verb := 0
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := 2556
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5

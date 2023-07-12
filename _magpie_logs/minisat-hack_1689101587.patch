@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'sub-lim'), 0) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 285)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 345)) | ParamSetting(('minisat.params', 'rcheck'), 'False')

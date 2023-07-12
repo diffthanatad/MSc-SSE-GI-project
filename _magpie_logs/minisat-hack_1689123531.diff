@@ -1,0 +1,77 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -251,7 +251,7 @@
+ 
+     detachClause(cr);
+     // Don't leave pointers to free'd memory!
+-    if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
++    if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;uint32_t abstract_level = 0;
+ }/*auto*/
+     c.mark(1); 
+     ca.free(cr);
+@@ -379,6 +379,7 @@
+ }/*auto*/
+         p     = trail[index+1];
+         confl = reason(var(p));
++        Watcher        *i, *j, *end;
+         seen[var(p)] = 0;
+         pathC--;
+ 
+@@ -416,6 +417,7 @@
+                         break; }
+ }/*auto*/
+             }
++            return true;
+         }
+     }else/*auto*/{
+         i = j = out_learnt.size();
+@@ -508,7 +510,7 @@
+         Var x = var(trail[i]);
+         if (seen[x]){
+             if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
++                
+                 out_conflict.push(~trail[i]);
+             }else{
+                 Clause& c = ca[reason(x)];
+@@ -820,7 +822,7 @@
+                 // Reached bound on number of conflicts:
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+-                cancelUntil(0);
++                
+                 return l_Undef; }
+ 
+             // Simplify the set of problem clauses:
+@@ -979,7 +981,7 @@
+         ok = false;
+ }/*auto*/
+ 
+-    cancelUntil(0);
++    
+     return status;
+ }
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5096
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -11,10 +11,10 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000

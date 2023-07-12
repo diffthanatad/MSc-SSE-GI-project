@@ -1,0 +1,54 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -695,7 +695,7 @@
+ }/*auto*/
+ 
+     if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
+-        return true;
++        
+ }/*auto*/
+ 
+     #define V learnts
+@@ -828,32 +828,7 @@
+                 return l_False;
+ }/*auto*/
+ 
+-            if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+-                cp = conflicts + (int32_t)opt_cp_increase;
+-                // Reduce the set of learnt clauses:
+-                reduceDB();
+-
+-                static int adjust = 0;
+-                if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+-                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+-}/*auto*/
+-
+-                    if (!luby_restart){
+-                        core_added = 0;
+-                        K = 1;
+-                        lS = 0, LQ.clear();
+-                        cancelUntil(0);
+-                        return l_Undef; }
+-                }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
+-}/*auto*/
+-                    LBD_cut = (int32_t)opt_lbd_cut + adjust;
+-                }
+-                core_added = 0;
+-            }
++            
+ 
+             Lit next = lit_Undef;
+             /*while (decisionLevel() < assumptions.size()){
+--- before: minisat.params
++++ after: minisat.params
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 0
+ simp-gc-frac := 0.5
