@@ -96,4 +96,14 @@ number: literal_number""",
         'offspring_mutation': 0.4,
         'uniform_rate': 0.5, # GeneticProgrammingUniformConcat and GeneticProgrammingUniformInter only
     },
+
+    # [search.ga]
+    'search.ga': {
+        'pop_size': 2,
+        'delete_prob': 0.5,
+        'offspring_elitism': 0.1,
+        'offspring_crossover': 0.5,
+        'offspring_mutation': 0.4,
+        'uniform_rate': 0.5,
+    },
 }
