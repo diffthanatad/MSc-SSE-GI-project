@@ -10,7 +10,7 @@ import magpie
 # ================================================================================
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Magpie Evolutionary Algorithm')
+    parser = argparse.ArgumentParser(description='Magpie particle swarm optimization')
     parser.add_argument('--scenario', type=pathlib.Path, required=True)
     parser.add_argument('--algo', type=str)
     parser.add_argument('--seed', type=int)
