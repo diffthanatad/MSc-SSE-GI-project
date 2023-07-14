@@ -1,0 +1,86 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -155,7 +155,7 @@
+ 
+ bool Solver::addClause_(vec<Lit>& ps)
+ {
+-    assert(decisionLevel() == 0);
++    
+     if (!ok)/*auto*/{ return false;
+ }/*auto*/
+ 
+@@ -197,7 +197,7 @@
+         return ok = false;
+ }/*auto*/
+     else if (ps.size() == 1){
+-        uncheckedEnqueue(ps[0]);
++        
+         return ok = (propagate() == CRef_Undef);
+     }else{
+         CRef cr = ca.alloc(ps, false);
+@@ -235,7 +235,7 @@
+ 
+     if (c.learnt())/*auto*/{ learnts_literals -= c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals -= c.size();
++    else/*auto*/{            
+ }/*auto*/ }
+ 
+ 
+@@ -599,7 +599,7 @@
+ }/*auto*/
+             }else/*auto*/{
+                 uncheckedEnqueue(first, cr);
+-}/*auto*/
++}/*auto*/model.clear();
+ 
+         NextClause:;
+         }
+@@ -694,9 +694,7 @@
+         return ok = false;
+ }/*auto*/
+ 
+-    if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
+-        return true;
+-}/*auto*/
++    
+ 
+     #define V learnts
+     for (i = j = 0; i < V.size(); i++)/*auto*/{
+@@ -776,6 +774,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -990,10 +989,7 @@
+ 
+ static Var mapVar(Var x, vec<Var>& map, Var& max)
+ {
+-    if (map.size() <= x || map[x] == -1){
+-        map.growTo(x+1, -1);
+-        map[x] = max++;
+-    }
++    
+     return map[x];
+ }
+ 
+@@ -1008,7 +1004,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+@@ -1131,5 +1127,5 @@
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+ }/*auto*/
+-    to.moveTo(ca);
+-}
++    
++}

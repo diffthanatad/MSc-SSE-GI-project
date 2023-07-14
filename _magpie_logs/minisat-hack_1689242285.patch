@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'phase-saving'), 0) | ParamSetting(('minisat.params', 'grow'), -1135) | ParamSetting(('minisat.params', 'cp-increase'), 5374) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 138), ('core/Solver.cc.xml', 'stmt', 348)) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.13058792949403297) | ParamSetting(('minisat.params', 'cl-lim'), 0)

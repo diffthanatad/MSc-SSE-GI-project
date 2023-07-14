@@ -1,0 +1,18 @@
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,11 +1,11 @@
+-lbd-cut := 5.0
+-lbd-cut-max := 10.0
+-cp-increase := 15000
++lbd-cut := 6.942093195700849
++lbd-cut-max := 29.071291355107938
++cp-increase := 5110
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+-ccmin-mode := 2
++ccmin-mode := 1
+ phase-saving := 2
+ rnd-init := 'False'
+ luby := 0

@@ -1,0 +1,55 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -117,6 +117,7 @@
+ {
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
++    vec<Var> map;
+     K = (double)opt_K;
+     R = (double)opt_R;
+ }
+@@ -499,7 +500,7 @@
+     out_conflict.push(p);
+ 
+     if (decisionLevel() == 0)/*auto*/{
+-        return;
++        
+ }/*auto*/
+ 
+     seen[var(p)] = 1;
+@@ -951,7 +952,7 @@
+     if (verbosity >= 1){
+         printf("c ============================[ Search Statistics ]==============================\n");
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+-        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        
+         printf("c ===============================================================================\n");
+     }
+ 
+@@ -1042,14 +1043,7 @@
+ }/*auto*/
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        if (!satisfied(ca[clauses[i]])){
+-            Clause& c = ca[clauses[i]];
+-            for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
+-}/*auto*/
+-        }
++        
+ }/*auto*/
+ 
+     // Assumptions are added as unit clauses:
+@@ -1066,9 +1060,7 @@
+         toDimacs(f, ca[clauses[i]], map, max);
+ }/*auto*/
+ 
+-    if (verbosity > 0)/*auto*/{
+-        printf("Wrote %d clauses with %d variables.\n", cnt, max);
+-}/*auto*/
++    
+ }
+ 
+ 

@@ -1,0 +1,63 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -372,6 +372,8 @@
+                     out_learnt.push(q);
+ }/*auto*/
+             }
++
++            checkGarbage();
+         }
+         
+         // Select next clause to look at:
+@@ -836,7 +838,7 @@
+                 static int adjust = 0;
+                 if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+                     if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
++                        return l_False;
+ }/*auto*/
+ 
+                     if (!luby_restart){
+@@ -1028,7 +1030,22 @@
+     // Handle case when solver is in contradictory state:
+     if (!ok){
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+-        return; }
++        return;
++        if (conflicts % 5000 == 0){
++                //learntsize_adjust_confl *= learntsize_adjust_inc;
++                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
++                //max_learnts             *= learntsize_inc;
++
++                if (verbosity >= 1)/*auto*/{
++                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
++                           (int)conflicts, 
++                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
++                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
++                           starts, conflicts / starts,
++                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
++                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
++}/*auto*/
++            } }
+ 
+     vec<Var> map; Var max = 0;
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -3,14 +3,14 @@
+ cp-increase := 15000
+ core-tolerance := 0.02
+ var-decay := 0.95
+-cla-decay := 0.999
++cla-decay := 0.8719980268532362
+ rnd-freq := 0.0
+ ccmin-mode := 2
+ phase-saving := 2
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+-verb := 1
++verb := 0
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'

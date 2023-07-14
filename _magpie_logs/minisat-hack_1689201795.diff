@@ -1,0 +1,67 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -251,7 +251,7 @@
+ 
+     detachClause(cr);
+     // Don't leave pointers to free'd memory!
+-    if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
++    if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;static IntOption     opt_luby_restart      (_cat, "luby",        "Use the Luby restart sequence", 0, IntRange(0, 1));
+ }/*auto*/
+     c.mark(1); 
+     ca.free(cr);
+@@ -506,20 +506,7 @@
+ 
+     for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+         Var x = var(trail[i]);
+-        if (seen[x]){
+-            if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
+-                out_conflict.push(~trail[i]);
+-            }else{
+-                Clause& c = ca[reason(x)];
+-                for (int j = 1; j < c.size(); j++)/*auto*/{
+-                    if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
+-}/*auto*/
+-}/*auto*/
+-            }
+-            seen[x] = 0;
+-        }
++        
+     }
+ 
+     seen[var(p)] = 0;
+@@ -673,6 +660,7 @@
+         if (decision[v] && value(v) == l_Undef)/*auto*/{
+             vs.push(v);
+ }/*auto*/
++        int cnt = 0;
+ }/*auto*/
+     order_heap.build(vs);
+ }
+@@ -738,7 +726,7 @@
+ #define PUSH(Q, V, Z, S) S += V; Q.push_back(V); if (Q.size() > Z) S -= Q.front(), Q.pop_front();
+ lbool Solver::search(int nof_conflicts)
+ {
+-    assert(ok);
++    
+     int         backtrack_level;
+     int         conflictC = 0;
+     vec<Lit>    learnt_clause;
+@@ -812,6 +800,7 @@
+                            (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+ }/*auto*/
+             }
++            assert(ok);
+ 
+         }else{
+             // NO CONFLICT
+@@ -850,7 +839,7 @@
+ }/*auto*/
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+-                    LBD_cut = (int32_t)opt_lbd_cut + adjust;
++                    var_decay += 0.01;
+                 }
+                 core_added = 0;
+             }

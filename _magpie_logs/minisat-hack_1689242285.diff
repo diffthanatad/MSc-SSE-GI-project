@@ -1,0 +1,38 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -423,6 +423,7 @@
+ 
+     max_literals += out_learnt.size();
+     out_learnt.shrink(i - j);
++    static int adjust = 0;
+     tot_literals += out_learnt.size();
+ 
+     LBD(out_learnt);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5374
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 0
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
+-cl-lim := 20
++grow := -1135
++cl-lim := 0
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.13058792949403297
