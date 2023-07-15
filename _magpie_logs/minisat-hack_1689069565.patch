@@ -1,1 +1,0 @@
-ParamSetting(('minisat.params', 'cp-increase'), 5271) | ParamSetting(('minisat.params', 'elim'), 'True')

@@ -1,1 +1,0 @@
-ParamSetting(('minisat.params', 'cp-increase'), 5120) | ParamSetting(('minisat.params', 'core-tolerance'), 0.7408662404800389) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.44455328912208536) | ParamSetting(('minisat.params', 'cl-lim'), 0) | ParamSetting(('minisat.params', 'rfirst'), 4.248694403332791) | ParamSetting(('minisat.params', 'grow'), 761)

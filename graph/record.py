@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-def main(LOGS, PHASE):
+def main(LOGS, NEXT_PHASE):
     records = list()
     for log in LOGS:
         file = "../_magpie_logs/{log}.log".format(log=log)
@@ -26,6 +26,15 @@ def main(LOGS, PHASE):
 
             for line in file:
                 contents = line.split()
+
+                if len(contents) == 3 and contents[0] == "algorithm":
+                    # print(contents)
+                    if contents[2] == "FirstImprovement" and NEXT_PHASE != "validate":
+                        print("Wrong algorithm =", log)
+                        continue
+                    elif contents[2] == "ValidRankingSimplify" and NEXT_PHASE != "test":
+                        print("Wrong algorithm =", log)
+                        continue
 
                 # k-fold
                 if len(contents) == 5 and contents[0] == "run_cmd":
@@ -58,7 +67,7 @@ def main(LOGS, PHASE):
     AC_GI_SCRIPT = ["_" for i in range(10)]
 
     for record in records:
-        if PHASE == "validate":
+        if NEXT_PHASE == "validate":
             if (record[1] == "AC"):
                 AC_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
                 AC_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_{K}.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
@@ -68,7 +77,7 @@ def main(LOGS, PHASE):
             elif (record[1] == "AC + GI"):
                 AC_GI_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
                 AC_GI_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_{K}.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
-        elif PHASE == "test":
+        elif NEXT_PHASE == "test":
             if (record[1] == "AC"):
                 AC_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
                 AC_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
@@ -79,7 +88,6 @@ def main(LOGS, PHASE):
                 AC_GI_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
                 AC_GI_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC_GI/test.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
         
-
     # for excel record
     np.savetxt("records.csv", records, delimiter=",", fmt='% s')
 
@@ -135,6 +143,8 @@ LOGS = [
     "minisat-hack_1689430900",
     "minisat-hack_1689435082",
     "minisat-hack_1689444628",
+    "minisat-hack_1689451548",
+    "minisat-hack_1689452370",
 ]
 
-main(LOGS, PHASE="test")
+main(LOGS, NEXT_PHASE="test")

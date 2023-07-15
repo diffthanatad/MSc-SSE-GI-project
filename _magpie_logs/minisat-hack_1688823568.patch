@@ -1,1 +1,0 @@
-ParamSetting(('minisat.params', 'cp-increase'), 5144) | ParamSetting(('minisat.params', 'lbd-cut-max'), 15.020811927043203) | ParamSetting(('minisat.params', 'rcheck'), 'True') | ParamSetting(('minisat.params', 'elim'), 'True') | ParamSetting(('minisat.params', 'phase-saving'), 0) | ParamSetting(('minisat.params', 'cp-increase'), 5222)
