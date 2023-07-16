@@ -271,5 +271,14 @@ class Algorithm(ABC):
         return full_edits
 
     def create_specific_edit(self, edit):
+        """
+            input class Edit
+            output class Edit
+        """
         target_file, param_id = edit.target[0], edit.target[1]
-        return edit.create_with_param(self.program, target_file, param_id)
+        
+        while True:
+            new_edit = edit.create_with_param(self.program, target_file, param_id)
+            if new_edit != edit:
+                break
+        return new_edit

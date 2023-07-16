@@ -65,36 +65,30 @@ class GeneticAlgorithm(Algorithm):
                 self.hook_main_loop()
                 offsprings = list()
                 
-                # selection, parents = [<magpie.base.patch.Patch object at 0x7f939cb3ac50>, ...]
+                # first, new offsprings from elitism
                 parents = self.select(pop)
-                
-                # elitism
                 copy_parents = copy.deepcopy(parents)
-                ELITISM_NUM = int(self.config['pop_size']*self.config['offspring_elitism'])
-                for parent in copy_parents[:ELITISM_NUM]:
+                k = int(self.config['pop_size']*self.config['offspring_elitism'])
+                for parent in copy_parents[:k]:
                     offsprings.append(parent)
+                
+                # second, new offsprings from two parents
+                for _ in range(self.config['pop_size'] - k):
+                    parent1 = self.tournament_selection(pop)                    # selection
+                    parent2 = self.tournament_selection(pop)
 
-                # crossover
-                copy_parents = copy.deepcopy(parents)
-                for parent1 in copy_parents:
-                    parent2 = copy.deepcopy(random.sample(parents, 1)[0])
                     if random.random() <= self.config['crossover_rate']:
-                        sol = self.crossover(parent1, parent2)
+                        sol = self.crossover(parent1, parent2)                  # crossover
+                        self.mutate(sol)                                        # mutation
+
                         offsprings.append(sol)
 
-                # mutation
-                for offspring in offsprings[ELITISM_NUM:]:
-                    self.mutate(offspring)
-                
-                # regrow                
+                # third, new offsprings from initialisation             
                 while len(offsprings) < self.config['pop_size']:
                     sol = self.create_solution()
                     if sol in pop:
                         continue
                     offsprings.append(sol)
-                
-                if len(offsprings) != self.config['pop_size']:
-                    print("****", len(offspring))
                 
                 # replace
                 pop.clear()
@@ -126,7 +120,7 @@ class GeneticAlgorithm(Algorithm):
             # the end
             self.hook_end()
 
-    def mutate(self, chromosome):
+    def mutate(self, chromosome: Patch) -> None:
         """ 
             chromosome = class Patch().edits
             gene = ParamSetting(('minisat_simplified.params', 'luby'), 'False')
@@ -138,25 +132,24 @@ class GeneticAlgorithm(Algorithm):
             if random.random() <= self.config['mutation_rate']:
                 genes[i] = self.create_specific_edit(genes[i])
 
-    def crossover(self, sol1, sol2):
+    def crossover(self, sol1: Patch, sol2: Patch) -> Patch:
         """"
             return a new solution of class Patch()
         """
         edits1 = copy.deepcopy(sol1.edits)
         edits2 = copy.deepcopy(sol2.edits)
-        N = len(edits1)
-        K = random.randrange(1, N - 1)
+        K = random.randint(1, len(edits1) - 1)
 
         offspring1 = Patch(edits1[:K] + edits2[K:])
         offspring2 = Patch(edits2[:K] + edits1[K:])
 
         return offspring1
         
-    def filter(self, pop):
+    def filter(self, pop: dict) -> set[Patch]:
         tmp = {sol for sol in pop if pop[sol].status == 'SUCCESS'}
         return tmp
 
-    def select(self, pop):
+    def select(self, pop: dict) -> list[Patch]:
         """ 
             returns possible parents, ordered by fitness 
         """
@@ -164,9 +157,23 @@ class GeneticAlgorithm(Algorithm):
         tmp = sorted(tmp, key=lambda sol: pop[sol].fitness)
         return tmp
     
-    def create_solution(self):
+    def create_solution(self) -> Patch:
         """
             create class Patch() which contains a list of class Edit() with random value for all parameters.
         """
         sol = self.create_all_edits()
         return Patch(sol)
+
+    def tournament_selection(self, pop: dict) -> Patch:
+        """
+            return class Patch() of the best solution in the previous population from the tournament.
+        """
+        best = None
+        best_fitness = None
+
+        for _ in range(self.config['tournament_size']):
+            sol = random.sample(list(pop), 1)[0]
+            if best is None or self.dominates(pop[sol].fitness, best_fitness):
+                best = sol
+                best_fitness = pop[sol].fitness
+        return best
