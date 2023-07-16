@@ -91,3 +91,23 @@ uniform_rate = 0.5
 
 
 2023-07-15 21:19:30,481	[INFO]	==== WARMUP ====
+2023-07-15 22:51:47,428	[INFO]	WARM    SUCCESS               5526.8945               
+2023-07-16 00:24:56,635	[INFO]	WARM    RUN_TIMEOUT           None                    
+2023-07-16 00:24:56,635	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-07-16 00:24:56,636	[INFO]	CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/minisat-hack_1689452370/minisat-hack
+2023-07-16 00:24:56,636	[INFO]	CMD: ['perf', 'stat', 'run-sh/test.sh', '-lbd-cut=5.0', '-lbd-cut-max=10.0', '-cp-increase=15000', '-core-tolerance=0.02', '-var-decay=0.95', '-cla-decay=0.999', '-rnd-freq=0.0', '-ccmin-mode=2', '-phase-saving=2', '-no-rnd-init', '-luby=0', '-gc-frac=0.2', '-verb=1', '-pre', '-no-asymm', '-no-rcheck', '-no-elim', '-grow=0', '-cl-lim=20', '-sub-lim=1000', '-simp-gc-frac=0.5']
+2023-07-16 00:24:56,636	[INFO]	STATUS: TIMEOUT
+2023-07-16 00:24:56,636	[INFO]	RETURN_CODE: -9
+2023-07-16 00:24:56,636	[INFO]	RUNTIME: 5585.77739906311
+2023-07-16 00:24:56,636	[INFO]	STDOUT:
+
+2023-07-16 00:24:56,636	[INFO]	STDERR:
+
+2023-07-16 00:24:56,636	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-07-16 00:24:56,636	[INFO]	Magpie stopped because it was unable to run the (unmodified) target software
+2023-07-16 00:24:56,636	[INFO]	Self-diagnostic:
+2023-07-16 00:24:56,637	[INFO]	The "run_cmd" command took too long to run
+2023-07-16 00:24:56,637	[INFO]	--> consider increasing "run_timeout"
+2023-07-16 00:24:56,637	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-07-16 00:24:56,637	[INFO]	==== END ====
+2023-07-16 00:24:56,637	[INFO]	Reason: None
