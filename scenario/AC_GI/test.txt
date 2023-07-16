@@ -13,7 +13,7 @@ setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 15
 run_cmd = perf stat run-sh/test.sh
-run_timeout = 5585
+run_timeout = 6585
 
 [search]
 algorithm = ValidTest

@@ -98,6 +98,10 @@ def main(LOGS, NEXT_PHASE):
 
     # for validation phase. creating scripts.
     ALL_SCRIPTS = AC_SCRIPT + GI_SCRIPT + AC_GI_SCRIPT
+    with open('g_all.sh','w') as file:
+        for i in range(len(ALL_SCRIPTS)):
+            file.write(ALL_SCRIPTS[i] + "\n")
+
     with open('g1.sh','w') as file:
         for i in range(0, 8):
             file.write(ALL_SCRIPTS[i] + "\n")
@@ -144,7 +148,7 @@ LOGS = [
     "minisat-hack_1689435082",
     "minisat-hack_1689444628",
     "minisat-hack_1689451548",
-    "minisat-hack_1689452370",
+    "minisat-hack_1689462349",
 ]
 
 main(LOGS, NEXT_PHASE="test")
