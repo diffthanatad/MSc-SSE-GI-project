@@ -21,7 +21,7 @@ if __name__ == "__main__":
     config.read_dict(magpie.bin.default_config)
     config.read(args.scenario)
 
-    # select GP algorithm
+    # select GA algorithm
     if args.algo is not None:
         config['search']['algorithm'] = args.algo
     if config['search']['algorithm']:
