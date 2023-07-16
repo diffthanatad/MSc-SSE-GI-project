@@ -17,6 +17,7 @@ class GeneticAlgorithm(Algorithm):
         
         self.config['crossover_rate'] = 0.5
         self.config['mutation_rate'] = 0.1
+        self.config['tournament_size'] = 3
 
     def reset(self):
         super().reset()
@@ -39,9 +40,8 @@ class GeneticAlgorithm(Algorithm):
             local_best = None
             local_best_fitness = None
             while len(pop) < self.config['pop_size']:
-                sol = self.initialise_solution()
+                sol = self.create_solution()
                 if sol in pop:
-                    print("**** duplicate solution")
                     continue
                 run = self.evaluate_patch(sol)
                 accept = best = False
@@ -60,17 +60,20 @@ class GeneticAlgorithm(Algorithm):
                 self.stats['steps'] += 1
 
             # main loop
-            # while not self.stopping_condition():
-            for i in range(1):
+            while not self.stopping_condition():
                 self.stats['gen'] += 1
                 self.hook_main_loop()
                 offsprings = list()
+                
+                # selection, parents = [<magpie.base.patch.Patch object at 0x7f939cb3ac50>, ...]
                 parents = self.select(pop)
+                
                 # elitism
                 copy_parents = copy.deepcopy(parents)
-                k = int(self.config['pop_size']*self.config['offspring_elitism'])
-                for parent in copy_parents[:k]:
+                ELITISM_NUM = int(self.config['pop_size']*self.config['offspring_elitism'])
+                for parent in copy_parents[:ELITISM_NUM]:
                     offsprings.append(parent)
+
                 # crossover
                 copy_parents = copy.deepcopy(parents)
                 for parent1 in copy_parents:
@@ -79,46 +82,42 @@ class GeneticAlgorithm(Algorithm):
                         sol = self.crossover(parent1, parent2)
                         offsprings.append(sol)
 
-                    # if random.random() <= 0.5:
-                    #     sol = self.crossover(parent, sol)
-                    # else:
-                    #     sol = self.crossover(sol, parent)
-                    # offsprings.append(sol)
-            #     # mutation
-            #     copy_parents = copy.deepcopy(parents)
-            #     k = int(self.config['pop_size']*self.config['offspring_mutation'])
-            #     for parent in copy_parents[:k]:
-            #         self.mutate(parent)
-            #         offsprings.append(parent)
-            #     # regrow
-            #     while len(offsprings) < self.config['pop_size']:
-            #         sol = Patch()
-            #         self.mutate(sol)
-            #         if sol in pop:
-            #             continue
-            #         offsprings.append(sol)
-            #     # replace
-            #     pop.clear()
-            #     local_best = None
-            #     local_best_fitness = None
-            #     for sol in offsprings:
-            #         if self.stopping_condition():
-            #             break
-            #         run = self.evaluate_patch(sol)
-            #         accept = best = False
-            #         if run.status == 'SUCCESS':
-            #             if self.dominates(run.fitness, local_best_fitness):
-            #                 self.program.logger.debug(self.program.diff_patch(sol))
-            #                 local_best_fitness = run.fitness
-            #                 local_best = sol
-            #                 accept = True
-            #                 if self.dominates(run.fitness, self.report['best_fitness']):
-            #                     self.report['best_fitness'] = run.fitness
-            #                     self.report['best_patch'] = sol
-            #                     best = True
-            #         self.hook_evaluation(sol, run, accept, best)
-            #         pop[sol] = run
-            #         self.stats['steps'] += 1
+                # mutation
+                for offspring in offsprings[ELITISM_NUM:]:
+                    self.mutate(offspring)
+                
+                # regrow                
+                while len(offsprings) < self.config['pop_size']:
+                    sol = self.create_solution()
+                    if sol in pop:
+                        continue
+                    offsprings.append(sol)
+                
+                if len(offsprings) != self.config['pop_size']:
+                    print("****", len(offspring))
+                
+                # replace
+                pop.clear()
+                local_best = None
+                local_best_fitness = None
+                for sol in offsprings:
+                    if self.stopping_condition():
+                        break
+                    run = self.evaluate_patch(sol)
+                    accept = best = False
+                    if run.status == 'SUCCESS':
+                        if self.dominates(run.fitness, local_best_fitness):
+                            self.program.logger.debug(self.program.diff_patch(sol))
+                            local_best_fitness = run.fitness
+                            local_best = sol
+                            accept = True
+                            if self.dominates(run.fitness, self.report['best_fitness']):
+                                self.report['best_fitness'] = run.fitness
+                                self.report['best_patch'] = sol
+                                best = True
+                    self.hook_evaluation(sol, run, accept, best)
+                    pop[sol] = run
+                    self.stats['steps'] += 1
 
         except KeyboardInterrupt:
             self.report['stop'] = 'keyboard interrupt'
@@ -127,39 +126,47 @@ class GeneticAlgorithm(Algorithm):
             # the end
             self.hook_end()
 
-    def mutate(self, patch):
-        """ Needs to update to make it matches GA. """
-        if patch.edits and random.random() < self.config['delete_prob']:
-            del patch.edits[random.randrange(0, len(patch.edits))]
-        else:
-            patch.edits.append(self.create_edit())
+    def mutate(self, chromosome):
+        """ 
+            chromosome = class Patch().edits
+            gene = ParamSetting(('minisat_simplified.params', 'luby'), 'False')
+            Update gene by reference. So, no return.
+        """
+        genes = chromosome.edits
+        N = len(genes)
+        for i in range(N):
+            if random.random() <= self.config['mutation_rate']:
+                genes[i] = self.create_specific_edit(genes[i])
 
     def crossover(self, sol1, sol2):
-        
-        parent1 = copy.deepcopy(sol1.edits)
-        parent2 = copy.deepcopy(sol2.edits)
-        N = len(parent1.edits)
+        """"
+            return a new solution of class Patch()
+        """
+        edits1 = copy.deepcopy(sol1.edits)
+        edits2 = copy.deepcopy(sol2.edits)
+        N = len(edits1)
         K = random.randrange(1, N - 1)
 
-        print(type(parent1), type(parent2))
-        print(parent1, parent2)
+        offspring1 = Patch(edits1[:K] + edits2[K:])
+        offspring2 = Patch(edits2[:K] + edits1[K:])
 
-        offspring1 = Patch(parent1[:K] + parent2[K:])
-        offspring2 = Patch(parent2[:K] + parent1[K:])
-
-        print(offspring1, offspring2)
-        return offspring1, offspring2
+        return offspring1
         
     def filter(self, pop):
         tmp = {sol for sol in pop if pop[sol].status == 'SUCCESS'}
         return tmp
 
     def select(self, pop):
-        """ returns possible parents ordered by fitness """
+        """ 
+            returns possible parents, ordered by fitness 
+        """
         tmp = self.filter(pop)
         tmp = sorted(tmp, key=lambda sol: pop[sol].fitness)
         return tmp
     
-    def initialise_solution(self):
+    def create_solution(self):
+        """
+            create class Patch() which contains a list of class Edit() with random value for all parameters.
+        """
         sol = self.create_all_edits()
         return Patch(sol)

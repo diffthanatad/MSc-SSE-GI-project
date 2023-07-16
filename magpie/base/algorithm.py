@@ -256,3 +256,20 @@ class Algorithm(ABC):
                 self.report['stop'] = 'target fitness reached'
                 return True
         return False
+
+    def create_all_edits(self):
+        full_edits = []
+        edit_klass = self.config['possible_edits']
+        N = len(edit_klass)
+        for i in range(N):
+            tries = magpie_config.edit_retries
+            while (edits := edit_klass[i].create_all(self.program)) is None:
+                tries -= 1
+                if tries == 0:
+                    raise RuntimeError('unable to create an edit of class {}'.format(edit_klass.__name__))
+            full_edits += edits
+        return full_edits
+
+    def create_specific_edit(self, edit):
+        target_file, param_id = edit.target[0], edit.target[1]
+        return edit.create_with_param(self.program, target_file, param_id)

@@ -12,9 +12,10 @@ setup_cmd = ./compile.sh
 compile_cmd =
 test_cmd =
 run_cmd = ./run.sh
+run_timeout = 30
 
 [search]
-max_steps = 10
+max_steps = 40
 possible_edits = ParamSetting
-warmup = 1
+warmup = 3
 warmup_strategy = last
