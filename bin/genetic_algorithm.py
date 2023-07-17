@@ -10,7 +10,7 @@ import magpie
 # ================================================================================
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Magpie Evolutionary Algorithm')
+    parser = argparse.ArgumentParser(description='Magpie genetic algorithm')
     parser.add_argument('--scenario', type=pathlib.Path, required=True)
     parser.add_argument('--algo', type=str)
     parser.add_argument('--seed', type=int)
@@ -21,14 +21,16 @@ if __name__ == "__main__":
     config.read_dict(magpie.bin.default_config)
     config.read(args.scenario)
 
-    # select PSO algorithm
+    # select GA algorithm
     if args.algo is not None:
         config['search']['algorithm'] = args.algo
     if config['search']['algorithm']:
         algo = magpie.bin.algo_from_string(config['search']['algorithm'])
+        if not issubclass(algo, magpie.algo.GeneticAlgorithm):
+            raise RuntimeError('{} is not a GA algorithm'.format(args.algo))
     else:
-        config['search']['algorithm'] = 'ParticleSwarmOptimization'
-        algo = magpie.algo.ParticleSwarmOptimization
+        config['search']['algorithm'] = 'GeneticAlgorithm'
+        algo = magpie.algo.GeneticAlgorithm
 
     # setup protocol
     magpie.bin.setup(config)
