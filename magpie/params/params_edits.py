@@ -34,3 +34,30 @@ class ParamSetting(Edit):
     @classmethod
     def create_with_input_value(cls, target_file, param_id, value):
         return cls((target_file, param_id), value)
+
+    @classmethod
+    def create_all(cls, program, target_file=None):
+        """
+            Create a list of class Patsch() all possible parameter settings 
+            for a given *.params file.
+        """
+        if target_file is None:
+            target_file = program.random_file(AbstractParamsEngine)
+
+        configurations = list()
+        engine = program.engines[target_file]
+        for param_id in program.contents[target_file]['space']:
+            data = engine.random_value(program.contents[target_file], param_id)
+            configurations.append(cls((target_file, param_id), data))
+
+        return configurations
+    
+    @classmethod
+    def create_with_param(cls, program, target_file, param_id):
+        """
+            Create an class Edit for a given *.params file and parameter id.
+            This is used in the mutation operator for gene that is a parameter.
+        """
+        engine = program.engines[target_file]
+        data = engine.random_value(program.contents[target_file], param_id)
+        return cls((target_file, param_id), data)
