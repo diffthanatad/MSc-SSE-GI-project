@@ -4,6 +4,7 @@ import random
 import time
 
 from ..base import Algorithm, Patch
+from .. import  params as params
 
 class GeneticAlgorithm(Algorithm):
     def setup(self):
@@ -73,7 +74,7 @@ class GeneticAlgorithm(Algorithm):
 
                     if random.random() <= self.config['crossover_rate']:
                         sol1, sol2 = self.crossover(parent1, parent2)           # crossover
-                        self.mutate(sol2)                                       # mutation
+                        self.mutate(sol1)                                       # mutation     
                         self.mutate(sol2)
 
                         offsprings_temp.append(sol1)
@@ -133,9 +134,23 @@ class GeneticAlgorithm(Algorithm):
         """
         genes = chromosome.edits
         N = len(genes)
+        to_delete = list()
         for i in range(N):
             if random.random() <= self.config['mutation_rate']:
-                genes[i] = self.create_specific_edit(genes[i])
+                if isinstance(genes[i], params.ParamSetting):
+                    # mutate parameter value
+                    genes[i] = self.create_specific_edit(genes[i])
+                elif random.random() <= self.config['delete_prob']:
+                    # remove GI edit
+                    to_delete.append(genes[i])
+
+        for gene in to_delete:
+            genes.remove(gene)
+                                    
+        if random.random() <= self.config['offspring_mutation']:
+            # add new GI edit
+            new_edit = self.create_edit_except_AC()
+            genes.append(new_edit)
 
     def crossover(self, sol1: Patch, sol2: Patch) -> Patch:
         """"
@@ -143,7 +158,9 @@ class GeneticAlgorithm(Algorithm):
         """
         edits1 = copy.deepcopy(sol1.edits)
         edits2 = copy.deepcopy(sol2.edits)
-        K = random.randint(1, len(edits1) - 1)
+
+        minimum = min(len(edits1), len(edits2))
+        K = random.randint(1, minimum - 1)
 
         offspring1 = Patch(edits1[:K] + edits2[K:])
         offspring2 = Patch(edits2[:K] + edits1[K:])
