@@ -64,33 +64,38 @@ class GeneticAlgorithm(Algorithm):
                 self.stats['gen'] += 1
                 self.hook_main_loop()
                 offsprings = list()
+                offsprings_temp = list()
+
+                # first, new offsprings from two parents
+                for _ in range(self.config['pop_size']):
+                    parent1 = self.tournament_selection(pop)                    # selection
+                    parent2 = self.tournament_selection(pop)
+
+                    if random.random() <= self.config['crossover_rate']:
+                        sol1, sol2 = self.crossover(parent1, parent2)           # crossover
+                        self.mutate(sol2)                                       # mutation
+                        self.mutate(sol2)
+
+                        offsprings_temp.append(sol1)
+                        offsprings_temp.append(sol2)
+
+                # second, new offsprings from initialisation             
+                while len(offsprings_temp) < self.config['pop_size']:
+                    sol = self.create_solution()
+                    if sol in pop:
+                        continue
+                    offsprings_temp.append(sol)
                 
-                # first, new offsprings from elitism
+                # elitisim
                 parents = self.select(pop)
                 copy_parents = copy.deepcopy(parents)
                 k = int(self.config['pop_size']*self.config['offspring_elitism'])
                 for parent in copy_parents[:k]:
                     offsprings.append(parent)
-                
-                # second, new offsprings from two parents
-                for _ in range(self.config['pop_size'] - k):
-                    parent1 = self.tournament_selection(pop)                    # selection
-                    parent2 = self.tournament_selection(pop)
+                N = self.config['pop_size'] - len(offsprings)
+                offsprings += random.sample(offsprings_temp, N)
 
-                    if random.random() <= self.config['crossover_rate']:
-                        sol = self.crossover(parent1, parent2)                  # crossover
-                        self.mutate(sol)                                        # mutation
-
-                        offsprings.append(sol)
-
-                # third, new offsprings from initialisation             
-                while len(offsprings) < self.config['pop_size']:
-                    sol = self.create_solution()
-                    if sol in pop:
-                        continue
-                    offsprings.append(sol)
-                
-                # replace
+                # evaluate offsprings
                 pop.clear()
                 local_best = None
                 local_best_fitness = None
@@ -143,7 +148,7 @@ class GeneticAlgorithm(Algorithm):
         offspring1 = Patch(edits1[:K] + edits2[K:])
         offspring2 = Patch(edits2[:K] + edits1[K:])
 
-        return offspring1
+        return offspring1, offspring2
         
     def filter(self, pop: dict) -> set[Patch]:
         tmp = {sol for sol in pop if pop[sol].status == 'SUCCESS'}
