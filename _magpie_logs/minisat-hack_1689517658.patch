@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 5261) | ParamSetting(('minisat.params', 'sub-lim'), 113) | ParamSetting(('minisat.params', 'elim'), 'True')

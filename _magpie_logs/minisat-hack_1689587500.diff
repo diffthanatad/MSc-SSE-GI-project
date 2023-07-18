@@ -1,0 +1,21 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
