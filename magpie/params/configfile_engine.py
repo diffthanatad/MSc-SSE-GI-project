@@ -135,7 +135,8 @@ class ConfigFileParamsEngine(AbstractParamsEngine):
                 if m:
                     tmp = {}
                     for s in m.group(1).split(','):
-                        s1, s2 = s.split('=')
+                        s1, s2 = s.split('==')
+                        s1 = s1.strip()
                         if s1 not in contents['current'].keys():
                             raise ValueError('Illegal forbidden parameter: "{}"'.format(s1.strip()))
                         tmp[s1.strip()] = s2.strip()

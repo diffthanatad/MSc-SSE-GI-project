@@ -6,24 +6,21 @@ default_lengthout = 1e6
 path = code/sat4j
 target_files =
     org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
-    sat4j_1.params
-fitness = perf_time
+    sat4j.params
+fitness = time
 
 setup_cmd = ./compile.sh
 setup_timeout = 35
 compile_cmd = ./compile.sh
 compile_timeout = 35
-run_cmd = perf stat run-sh/train_9.sh
+run_cmd = run-sh/train_9.sh
 run_timeout = 120
 
 [search]
 warmup = 1
-max_steps = 10
+max_steps = 50
 max_time = 13230
 algorithm = FirstImprovement
 
 possible_edits =
-    StmtReplacement
-    StmtInsertion
-    StmtDeletion
     ParamSetting

@@ -234,7 +234,6 @@ class BasicProgram(magpie.base.AbstractProgram):
             if self.run_cmd:
                 cli = self.compute_local_cli('run')
                 run_cmd = '{} {}'.format(self.run_cmd, cli).strip()
-                print("run_cmd:", run_cmd)
                 timeout = self.run_timeout or magpie_config.default_timeout
                 lengthout = self.run_lengthout or magpie_config.default_lengthout
                 exec_result = self.exec_cmd(shlex.split(run_cmd),

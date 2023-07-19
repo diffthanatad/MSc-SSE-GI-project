@@ -1,3 +1,6 @@
+CLI_PREFIX  = ""
+
+# Parameters with no condition = [ RESTART, PHASE, CLADECAY, VARDECAY, SIMP, CLEANING ]
 RESTARTS                    {Glucose21Restarts, ArminRestarts, FixedPeriodRestarts, LubyRestarts, NoRestarts, MiniSATRestarts}[Glucose21Restarts]
 LUBYFACTOR                  g[16, 2048][512]
 FIXEDPERIOD                 g[1, 100000][100]
