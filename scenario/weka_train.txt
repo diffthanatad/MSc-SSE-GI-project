@@ -3,7 +3,7 @@ default_timeout = 30
 default_lengthout = 1e6
 
 [software]
-path = code/sat4j
+path = code/weka
 target_files =
     src/main/java/weka/classifiers/trees/RandomForest.java.xml
     src/main/java/weka/classifiers/trees/RandomTree.java.xml
