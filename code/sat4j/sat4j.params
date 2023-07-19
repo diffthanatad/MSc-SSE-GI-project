@@ -18,4 +18,3 @@ CONFLICTBOUNDINCFACTOR      | RESTARTS == [MiniSATRestarts]
 
 # forbidden
 {RESTARTS == Glucose21Restarts, CLEANING == ACTIVITY}
-
