@@ -5,7 +5,7 @@ ARGV=$@
 my_test() {
     FILENAME=$1
     EXPECTED=$2
-    command="java -jar ./dist/CUSTOM/sat4j-sat.jar $FILENAME PARAMS=SearchParams$ARGV > /dev/null"
+    command="java -jar ./dist/CUSTOM/sat4j-sat.jar $FILENAME -s Default -S PARAMS=SearchParams$ARGV > /dev/null"
     echo "******: " $command
     eval "$command"
     RETURN=$?
