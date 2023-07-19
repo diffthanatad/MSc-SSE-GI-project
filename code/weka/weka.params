@@ -1,5 +1,6 @@
-CLI_PREFIX = "-"
-CLI_GLUE = " "
+CLI_PREFIX  = "-"
+CLI_GLUE    = " "
+CLI_BOOLEAN = "hide"
 
 P                       (1, 200)[100]
 I                       (1, 200)[100]

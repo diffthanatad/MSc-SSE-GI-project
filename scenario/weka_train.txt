@@ -15,7 +15,7 @@ setup_timeout = 60
 compile_cmd = ./compile.sh
 compile_timeout = 60
 run_cmd = perf stat run-sh/train.sh
-run_timeout = 120
+run_timeout = 300
 
 [search]
 warmup = 3
