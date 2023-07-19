@@ -12,7 +12,8 @@ CLEANING                    {ACTIVITY, LBD, LBD2}[LBD2]
 # conditionals
 LUBYFACTOR                  | RESTARTS == [LubyRestarts]
 FIXEDPERIOD                 | RESTARTS == [FixedPeriodRestarts]
-INITCONFLICTBOUND           | RESTARTS == [MiniSATRestarts, ArminRestarts]
+INITCONFLICTBOUND           | RESTARTS == [MiniSATRestarts]
+INITCONFLICTBOUND           | RESTARTS == [ArminRestarts]
 CONFLICTBOUNDINCFACTOR      | RESTARTS == [MiniSATRestarts]
 
 # forbidden
