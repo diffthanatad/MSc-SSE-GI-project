@@ -1,0 +1,340 @@
+2023-07-19 10:49:21,346	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/sat4j
+target_files = 
+	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_9.sh
+run_timeout = 40
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 13230
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+max_step = 10
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+crossover_rate = 0.5
+mutation_rate = 0.1
+tournament_size = 3
+
+
+2023-07-19 10:49:21,370	[INFO]	==== WARMUP ====
+2023-07-19 10:49:55,355	[INFO]	WARM    SETUP_TIMEOUT         None                    
+2023-07-19 10:49:55,355	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-07-19 10:49:55,355	[INFO]	CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j
+2023-07-19 10:49:55,355	[INFO]	CMD: ['./compile.sh']
+2023-07-19 10:49:55,355	[INFO]	STATUS: TIMEOUT
+2023-07-19 10:49:55,356	[INFO]	RETURN_CODE: -9
+2023-07-19 10:49:55,356	[INFO]	RUNTIME: 30.124061346054077
+2023-07-19 10:49:55,356	[INFO]	STDOUT:
+Buildfile: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/build.xml
+
+clean:
+
+prepare:
+     [echo] Creating build and doc directories
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/core
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/sat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/pb
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/maxsat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/csp
+
+core:
+     [echo] Building core library to be embedded into Java applications
+
+clean:
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+
+prepare:
+     [echo] Creating build and doc directories
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/core
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/sat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/pb
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/maxsat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/csp
+
+build:
+     [echo] Compiling source code org.sat4j.core/src/main/java using target 1.8
+    [javac] Compiling 255 source files to /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [javac] Note: Some input files use or override a deprecated API.
+    [javac] Note: Recompile with -Xlint:deprecation for details.
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/minisat/core/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/tools/counting/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/minisat/restarts/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/minisat/constraints/card/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/minisat/constraints/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/opt/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/core/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/minisat/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/specs/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/reader/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/minisat/constraints/cnf/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/minisat/learning/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/tools/encoding/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/tools/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/minisat/orders/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/tools/xplain/package-info.class
+     [copy] Copying 6 files to /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+      [jar] Building jar: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/org.sat4j.core.jar
+
+source-package:
+      [jar] Building jar: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/org.sat4j.core-src.jar
+
+clean:
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+
+prepare:
+     [echo] Creating build and doc directories
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/core
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/sat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/pb
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/maxsat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/csp
+
+zip-bundle:
+      [zip] Building zip: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/sat4j-core-v20230719.zip
+
+pseudo:
+     [echo] Building Pseudo Boolean Solver
+
+clean:
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+
+prepare:
+     [echo] Creating build and doc directories
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/core
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/sat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/pb
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/maxsat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/csp
+
+build:
+     [echo] Compiling source code org.sat4j.pb/src/main/java using target 1.8
+    [javac] Compiling 181 source files to /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [javac] Note: Some input files use or override a deprecated API.
+    [javac] Note: Recompile with -Xlint:deprecation for details.
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/pb/reader/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/pb/core/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/pb/constraints/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/pb/constraints/pb/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/pb/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/pb/orders/package-info.class
+    [javac] Creating empty /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin/org/sat4j/pb/tools/package-info.class
+     [copy] Copying 4 files to /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+      [jar] Building jar: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/org.sat4j.pb.jar
+
+source-package:
+      [jar] Building jar: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/org.sat4j.pb-src.jar
+     [echo] Create All-In-One auto-executable package
+      [jar] Building jar: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/sat4j-pb.jar
+
+clean:
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+
+prepare:
+     [echo] Creating build and doc directories
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/core
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/sat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/pb
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/maxsat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/csp
+
+zip-bundle:
+      [zip] Building zip: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/sat4j-pb-v20230719.zip
+
+maxsat:
+     [echo] Building MAXSAT Solver
+
+clean:
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+
+prepare:
+     [echo] Creating build and doc directories
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/core
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/sat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/pb
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/maxsat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/csp
+
+build:
+     [echo] Compiling source code org.sat4j.maxsat/src/main/java using target 1.8
+    [javac] Compiling 9 source files to /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [javac] Note: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/org.sat4j.maxsat/src/main/java/org/sat4j/maxsat/MinCostDecorator.java uses or overrides a deprecated API.
+    [javac] Note: Recompile with -Xlint:deprecation for details.
+    [javac] Note: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/org.sat4j.maxsat/src/main/java/org/sat4j/maxsat/GenericOptLauncher.java uses unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+     [copy] Copying 3 files to /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+      [jar] Building jar: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/org.sat4j.maxsat.jar
+
+source-package:
+      [jar] Building jar: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/org.sat4j.maxsat-src.jar
+     [echo] Create All-In-One auto-executable package
+      [jar] Building jar: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/sat4j-maxsat.jar
+
+clean:
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+
+prepare:
+     [echo] Creating build and doc directories
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/core
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/sat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/pb
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/maxsat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/csp
+
+zip-bundle:
+      [zip] Building zip: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/dist/CUSTOM/sat4j-maxsat-v20230719.zip
+
+sat:
+     [echo] Building the Java SAT Solvers toolkit
+
+clean:
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+   [delete] Deleting directory /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+
+prepare:
+     [echo] Creating build and doc directories
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/bin
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/tests
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/core
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/sat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/pb
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/maxsat
+    [mkdir] Created dir: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1689760160/sat4j/api/csp
+
+build:
+     [echo] Compiling source code org.sat4j.sat/src/main/java using target 1.8
+ 
+2023-07-19 10:49:55,357	[INFO]	STDERR:
+
+2023-07-19 10:49:55,357	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-07-19 10:49:55,357	[INFO]	Magpie stopped because it was unable to run the (unmodified) target software
+2023-07-19 10:49:55,357	[INFO]	Self-diagnostic:
+2023-07-19 10:49:55,357	[INFO]	The "setup_cmd" command took too long to run
+2023-07-19 10:49:55,358	[INFO]	--> consider increasing "setup_timeout"
+2023-07-19 10:49:55,358	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
+2023-07-19 10:49:55,358	[INFO]	==== END ====
+2023-07-19 10:49:55,358	[INFO]	Reason: None

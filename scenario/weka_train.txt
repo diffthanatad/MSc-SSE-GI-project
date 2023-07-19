@@ -18,8 +18,8 @@ run_cmd = perf stat run-sh/train.sh
 run_timeout = 300
 
 [search]
-warmup = 3
-max_step = 10
+warmup = 1
+max_step = 4
 algorithm = FirstImprovement
 
 possible_edits =

@@ -1,0 +1,313 @@
+2023-07-19 11:01:32,062	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/sat4j
+target_files = 
+	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 60
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 60
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_9.sh
+run_timeout = 120
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = FirstImprovement
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 13230
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+max_step = 10
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+crossover_rate = 0.5
+mutation_rate = 0.1
+tournament_size = 3
+
+
+2023-07-19 11:01:32,062	[INFO]	==== WARMUP ====
+2023-07-19 11:03:37,701	[INFO]	WARM    SUCCESS               66.7174                 
+2023-07-19 11:03:37,702	[INFO]	INITIAL SUCCESS               66.7174                 
+2023-07-19 11:03:37,702	[INFO]	==== START: FirstImprovement ====
+2023-07-19 11:05:09,959	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305))
+2023-07-19 11:05:09,959	[INFO]	1       SUCCESS              *65.9241 (98.81%) [1 edit(s)] 
+2023-07-19 11:05:09,975	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -929,9 +929,7 @@
+             Constr c = lvoc.getReason(q);
+             lanalyzestack.pop();
+             if (c.canBePropagatedMultipleTimes()) {
+-                for (int j = top; j < lanalyzetoclear.size(); j++) {
+-                    seen[lanalyzetoclear.get(j) >> 1] = false;
+-                }
++                
+                 lanalyzetoclear.shrink(lanalyzetoclear.size() - top);
+                 return false;
+             }
+
+2023-07-19 11:05:09,990	[DEBUG]	
+2023-07-19 11:05:09,990	[INFO]	2       SUCCESS               66.7174 (100.0%) [0 edit(s)] 
+2023-07-19 11:06:42,223	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 208))
+2023-07-19 11:06:42,223	[INFO]	3       SUCCESS               66.1659 (99.17%) [2 edit(s)] 
+2023-07-19 11:06:53,490	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 900), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 665))
+2023-07-19 11:06:53,490	[INFO]	4       COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-07-19 11:07:04,032	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1203), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 455))
+2023-07-19 11:07:04,032	[INFO]	5       COMPILE_CODE_ERROR    None  [2 edit(s)]       
+2023-07-19 11:08:36,520	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118))
+2023-07-19 11:08:36,521	[INFO]	6       SUCCESS              *65.081 (97.55%) [2 edit(s)] 
+2023-07-19 11:08:36,558	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -453,7 +453,7 @@
+                     "Can only remove latest added constraint!!!"); //$NON-NLS-1$
+         }
+         Constr c = (Constr) co;
+-        c.remove(this);
++        
+         this.constrs.pop();
+         String type = c.getClass().getName();
+         this.constrTypes.get(type).dec();
+@@ -929,9 +929,7 @@
+             Constr c = lvoc.getReason(q);
+             lanalyzestack.pop();
+             if (c.canBePropagatedMultipleTimes()) {
+-                for (int j = top; j < lanalyzetoclear.size(); j++) {
+-                    seen[lanalyzetoclear.get(j) >> 1] = false;
+-                }
++                
+                 lanalyzetoclear.shrink(lanalyzetoclear.size() - top);
+                 return false;
+             }
+
+2023-07-19 11:08:47,804	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 184))
+2023-07-19 11:08:47,805	[INFO]	7       COMPILE_CODE_ERROR    None  [3 edit(s)]       
+2023-07-19 11:10:17,129	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691))
+2023-07-19 11:10:17,129	[INFO]	8       SUCCESS              *64.5017 (96.68%) [3 edit(s)] 
+2023-07-19 11:10:17,149	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -453,7 +453,7 @@
+                     "Can only remove latest added constraint!!!"); //$NON-NLS-1$
+         }
+         Constr c = (Constr) co;
+-        c.remove(this);
++        
+         this.constrs.pop();
+         String type = c.getClass().getName();
+         this.constrTypes.get(type).dec();
+@@ -929,9 +929,7 @@
+             Constr c = lvoc.getReason(q);
+             lanalyzestack.pop();
+             if (c.canBePropagatedMultipleTimes()) {
+-                for (int j = top; j < lanalyzetoclear.size(); j++) {
+-                    seen[lanalyzetoclear.get(j) >> 1] = false;
+-                }
++                
+                 lanalyzetoclear.shrink(lanalyzetoclear.size() - top);
+                 return false;
+             }
+@@ -1804,7 +1802,7 @@
+                         getSolver().expireTimeout();
+                     }
+                 };
+-                this.conflictCount.add(conflictTimeout);
++                
+             }
+         }
+         if (!global || firstTimeGlobal) {
+
+2023-07-19 11:10:28,810	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 252), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 187))
+2023-07-19 11:10:28,811	[INFO]	9       COMPILE_CODE_ERROR    None  [4 edit(s)]       
+2023-07-19 11:12:01,866	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691))
+2023-07-19 11:12:01,866	[INFO]	10      SUCCESS               66.2782 (99.34%) [2 edit(s)] 
+2023-07-19 11:12:12,948	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 546))
+2023-07-19 11:12:12,949	[INFO]	11      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+2023-07-19 11:12:24,415	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 997), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 789))
+2023-07-19 11:12:24,416	[INFO]	12      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+2023-07-19 11:12:36,068	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 295))
+2023-07-19 11:12:36,069	[INFO]	13      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+2023-07-19 11:14:08,215	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691))
+2023-07-19 11:14:08,216	[INFO]	14      SUCCESS               66.0882 (99.06%) [2 edit(s)] 
+2023-07-19 11:14:19,320	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 865))
+2023-07-19 11:14:19,320	[INFO]	15      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+2023-07-19 11:14:30,561	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 112))
+2023-07-19 11:14:30,561	[INFO]	16      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+2023-07-19 11:16:36,186	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 200))
+2023-07-19 11:16:36,186	[INFO]	17      SUCCESS               98.1646 (147.13%) [4 edit(s)] 
+2023-07-19 11:16:38,314	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 673), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 247))
+2023-07-19 11:16:38,314	[INFO]	18      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+2023-07-19 11:18:09,204	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1012), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 562))
+2023-07-19 11:18:09,205	[INFO]	19      SUCCESS              *63.0147 (94.45%) [4 edit(s)] 
+2023-07-19 11:18:09,234	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -453,7 +453,7 @@
+                     "Can only remove latest added constraint!!!"); //$NON-NLS-1$
+         }
+         Constr c = (Constr) co;
+-        c.remove(this);
++        
+         this.constrs.pop();
+         String type = c.getClass().getName();
+         this.constrTypes.get(type).dec();
+@@ -929,9 +929,7 @@
+             Constr c = lvoc.getReason(q);
+             lanalyzestack.pop();
+             if (c.canBePropagatedMultipleTimes()) {
+-                for (int j = top; j < lanalyzetoclear.size(); j++) {
+-                    seen[lanalyzetoclear.get(j) >> 1] = false;
+-                }
++                
+                 lanalyzetoclear.shrink(lanalyzetoclear.size() - top);
+                 return false;
+             }
+@@ -1546,6 +1544,10 @@
+ 
+     public final LearnedConstraintsDeletionStrategy fixedSize(
+             final int maxsize) {
++        for (Iterator<Constr> iterator = this.learnts.iterator(); iterator
++                .hasNext();) {
++            iterator.next().remove(this);
++        }
+         return new LearnedConstraintsDeletionStrategy() {
+ 
+             private static final long serialVersionUID = 1L;
+@@ -1804,7 +1806,7 @@
+                         getSolver().expireTimeout();
+                     }
+                 };
+-                this.conflictCount.add(conflictTimeout);
++                
+             }
+         }
+         if (!global || firstTimeGlobal) {
+
+2023-07-19 11:18:20,476	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1012), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 562)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 106), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 897))
+2023-07-19 11:18:20,476	[INFO]	20      COMPILE_CODE_ERROR    None  [5 edit(s)]       
+2023-07-19 11:19:24,026	[INFO]	==== END ====
+2023-07-19 11:19:24,026	[INFO]	Reason: keyboard interrupt
+2023-07-19 11:19:24,026	[INFO]	
+2023-07-19 11:19:24,026	[INFO]	==== REPORT ====
+2023-07-19 11:19:24,026	[INFO]	Termination: keyboard interrupt
+2023-07-19 11:19:24,026	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/sat4j_1689760868.log
+2023-07-19 11:19:24,057	[INFO]	Patch file: _magpie_logs/sat4j_1689760868.patch
+2023-07-19 11:19:24,057	[INFO]	Diff file: _magpie_logs/sat4j_1689760868.diff
+2023-07-19 11:19:24,057	[INFO]	Best fitness: 63.0147
+2023-07-19 11:19:24,057	[INFO]	Best patch: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 305)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 118)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 691)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1012), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 562))
+2023-07-19 11:19:24,057	[INFO]	Diff:
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -453,7 +453,7 @@
+                     "Can only remove latest added constraint!!!"); //$NON-NLS-1$
+         }
+         Constr c = (Constr) co;
+-        c.remove(this);
++        
+         this.constrs.pop();
+         String type = c.getClass().getName();
+         this.constrTypes.get(type).dec();
+@@ -929,9 +929,7 @@
+             Constr c = lvoc.getReason(q);
+             lanalyzestack.pop();
+             if (c.canBePropagatedMultipleTimes()) {
+-                for (int j = top; j < lanalyzetoclear.size(); j++) {
+-                    seen[lanalyzetoclear.get(j) >> 1] = false;
+-                }
++                
+                 lanalyzetoclear.shrink(lanalyzetoclear.size() - top);
+                 return false;
+             }
+@@ -1546,6 +1544,10 @@
+ 
+     public final LearnedConstraintsDeletionStrategy fixedSize(
+             final int maxsize) {
++        for (Iterator<Constr> iterator = this.learnts.iterator(); iterator
++                .hasNext();) {
++            iterator.next().remove(this);
++        }
+         return new LearnedConstraintsDeletionStrategy() {
+ 
+             private static final long serialVersionUID = 1L;
+@@ -1804,7 +1806,7 @@
+                         getSolver().expireTimeout();
+                     }
+                 };
+-                this.conflictCount.add(conflictTimeout);
++                
+             }
+         }
+         if (!global || firstTimeGlobal) {
+
