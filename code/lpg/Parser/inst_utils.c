@@ -312,7 +312,7 @@ calc_duration_of_actions (void)
 	break;
       }
   if (GpG.durative_actions_in_domain)
-    GpG.min_action_time = MAXFLOAT;
+    GpG.min_action_time = FLT_MAX;
   else
     GpG.min_action_time = STRIPS_ACTIONS_DURATION;
   for (i = 0; i < gnum_ef_conn; i++)
