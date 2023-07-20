@@ -33,7 +33,7 @@
 
 
 #include <math.h>
-#include <values.h>
+#include <float.h>
 #include "lpg.h"
 #include "parse.h"
 #include "memory.h"

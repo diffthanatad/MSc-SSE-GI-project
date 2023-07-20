@@ -30,7 +30,7 @@
 
 
 
-#include <values.h>
+#include <float.h>
 #include <math.h>
 #include "lpg.h"
 #include "inst_utils.h"
@@ -44,7 +44,7 @@
 #include "LpgTime.h"
 #include "LocalSearch.h"
 #include "ActionSubgraph.h"
-
+#include <limits.h>
 
 void
 allocate_reachability_information_data ()
@@ -1259,7 +1259,7 @@ remove_mutex_facts_in_bitvect_and_update_num_actions (int fact, int *bit_vect)
 	  k--;
 	  if (temp1 & FIRST_1)
 	    {
-	      Hvar.ri_num_actions_of_facts[i * 32 + k] = MAXINT;
+	      Hvar.ri_num_actions_of_facts[i * 32 + k] = INT_MAX;
 	    }
 
 	  temp1 <<= 1;

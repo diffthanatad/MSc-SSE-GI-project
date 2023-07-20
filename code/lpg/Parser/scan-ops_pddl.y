@@ -22,7 +22,8 @@
   extern int yydebug=1;
 
 
-#define YYPRINT(file, type, value)   yyprint (file, type, value)
+#define YYPRINT(file, type, value)   
+#define yyprint(file, type, value)
 #endif
    
 #include <stdio.h>
@@ -202,7 +203,6 @@ int supported( char *str )
 %type <pTokenList> variable_star
 %type <pPlNode> timed_adl_effect
 %type <pPlNode> timed_adl_effect_plus
-%type <pPlNode> da_adl_effect
 %type <pPlNode> binary_op
 %type <pPlNode> f_assign_da
 %type <pPlNode> assign_op
@@ -1238,7 +1238,7 @@ VARS_TOK  OPEN_PAREN  typed_list_variable  CLOSE_PAREN  durative_action_def_body
 DURATION_TOK duration_constraint
 {
 
-scur_op->duration = $2
+scur_op->duration = $2;
   
 }
 durative_action_def_body

@@ -23,7 +23,8 @@
 /*  extern int yydebug=1;*/
 #endif
 
-#define YYPRINT(file, type, value)   yyprint (file, type, value)
+#define YYPRINT(file, type, value)   
+
 
 #include <stdio.h>
 #include <string.h> 
@@ -180,7 +181,7 @@ void fcterr( int errno, char *par ) {
 %type <pPlNode> timed_adl_goal_description
 %type <pPlNode> timed_adl_goal_description_plus*/
 %type <pstring> function_symbol
-%type <pTokenList> name_star
+/*%type <pTokenList> name_star*/
 /*LAZZA:TOLTO%type <pTokenList> variable_star*/
 /*%type <pPlNode> timed_adl_effect*/
 /*%type <pPlNode> da_adl_effect
@@ -226,7 +227,7 @@ void fcterr( int errno, char *par ) {
 %token MINUS_TOK 
 %token MUL_TOK
 %token DIV_TOK
-%token EQUAL_TOK
+/*%token EQUAL_TOK*/
 %token GREATER_TOK
 %token LESS_THAN_TOK
 %token METRIC_TOK
@@ -1082,7 +1083,7 @@ TOTAL_TIME_TOK
 |
 OPEN_PAREN ground_f_exp CLOSE_PAREN
 {
-  $$ = $2
+  $$ = $2;
 }
 /*LAZZAaggiunta: combinazione num_exp e ground_f_exp*/
 |
@@ -1288,17 +1289,16 @@ void load_fct_file( char *filename )
 
 }
 
-     static void
-     yyprint (thisfile, mytype, value)
-         FILE *thisfile;
-          int mytype;
-          YYSTYPE value;
-     {
-         fprintf (thisfile, " %s", value.string);
-	 /*
-       if (type == VAR)
-         fprintf (file, " %s", value.tptr->name);
-       else if (type == NUM)
-         fprintf (file, " %d", value.val);
-	 */
-     }
+void yyprint (FILE *thisfile, int mytype, YYSTYPE value) 
+{
+
+  fprintf (thisfile, " %s", value.string);
+  
+  /*
+  if (type == VAR) {
+    fprintf (file, " %s", value.tptr->name);
+  } else if (type == NUM) {
+    fprintf (file, " %d", value.val);
+  }
+  */
+}

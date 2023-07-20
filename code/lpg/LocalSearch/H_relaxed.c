@@ -32,7 +32,7 @@
 
 
 
-#include <values.h>
+#include <float.h>
 #include <math.h>
 #include "lpg.h"
 #include "inst_utils.h"

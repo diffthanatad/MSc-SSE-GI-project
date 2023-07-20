@@ -34,7 +34,7 @@
 
 #include <sys/signal.h>
 #include <math.h>
-#include <values.h>
+#include <float.h>
 #include "lpg.h"
 #include "check.h"
 #include "mutex.h"
@@ -45,7 +45,7 @@
 #include "LpgTime.h"
 #include "numeric.h"
 #include "search.h"
-
+#include <limits.h>
 
 
 
@@ -712,8 +712,8 @@ initialize_preset_values (void)
   GpG.local = 0;
   GpG.fast_greedy = 1;
   GpG.delta = 0.1;
-  GpG.partial_timeout = MAXINT;
-  GpG.timeout = MAXINT;
+  GpG.partial_timeout = INT_MAX;
+  GpG.timeout = INT_MAX;
 
   GpG.search_type = LOCAL;
   GpG.initialize = INIT_EMPTY_PLAN;
