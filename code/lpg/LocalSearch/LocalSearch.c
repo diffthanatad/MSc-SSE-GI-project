@@ -243,7 +243,7 @@ find_min (constraints_list inf_tofix, int *pos_temp_vect, int num,
 {
   register int i, j;
   int pos = 1, neg = 1, stop, stop1;
-  float cost, minor_cost = MAXFLOAT;
+  float cost, minor_cost = FLT_MAX;
   float max_act_incons, max_act_cost, max_act_time, weight, weight_c,
     weight_t;
   max_act_incons = 0.0;
@@ -251,15 +251,15 @@ find_min (constraints_list inf_tofix, int *pos_temp_vect, int num,
   max_act_time = 0.0;
   weight = weight_c = weight_t = 0.0;
 
-  local_search.best_cost = MAXFLOAT;
+  local_search.best_cost = FLT_MAX;
   local_search.num_actions = 0;
 
 
-  local_search.max_act_incons = MAXFLOAT;
-  local_search.max_act_cost = MAXFLOAT;
-  local_search.max_act_time = MAXFLOAT;
+  local_search.max_act_incons = FLT_MAX;
+  local_search.max_act_cost = FLT_MAX;
+  local_search.max_act_time = FLT_MAX;
 
-  local_search.best_cost = MAXFLOAT;
+  local_search.best_cost = FLT_MAX;
   for (i = num - 1; i >= 0; i--)
     {
 
@@ -1526,9 +1526,9 @@ choose_actions_dg_list (register inform_list inform_tofix, int initialize)
 
 	  total = 0.0;
 	  best_action = -1;
-	  best_n_cost.weight = MAXFLOAT;
-	  best_n_cost.act_cost = MAXFLOAT;
-	  best_n_cost.act_time = MAXFLOAT;
+	  best_n_cost.weight = FLT_MAX;
+	  best_n_cost.act_cost = FLT_MAX;
+	  best_n_cost.act_time = FLT_MAX;
 
 	  for (num_lev_neighb_act = 0, curr_level = level;
 	       curr_level > next_level; curr_level--)

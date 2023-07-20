@@ -1008,7 +1008,7 @@ dg_action_cost (neighb_list neighb_act)
 
 
 
-  Hvar.min_start_time = MAXFLOAT;
+  Hvar.min_start_time = FLT_MAX;
   local_search.ls_continue = TRUE;
 
 
@@ -2537,7 +2537,7 @@ dg_action_cost (neighb_list neighb_act)
 	  && GpG.advanced_temporal_setting > 0)
 	{
 
-	  if (Hvar.min_start_time < MAXFLOAT)
+	  if (Hvar.min_start_time < FLT_MAX)
 	    duration = Hvar.min_start_time;
 
 	  for (i = 0; i < Hvar.num_actions_define_cost; i++)
@@ -2761,9 +2761,9 @@ compute_dg_facts_cost (int Fact_position, int level, node_cost_list n_cost,
 
       total = 0.0;
       best_action = -1;
-      best_n_cost.weight = MAXFLOAT;
-      best_n_cost.act_cost = MAXFLOAT;
-      best_n_cost.act_time = MAXFLOAT;
+      best_n_cost.weight = FLT_MAX;
+      best_n_cost.act_cost = FLT_MAX;
+      best_n_cost.act_time = FLT_MAX;
 
 
 
