@@ -21,3 +21,5 @@ CONFLICTBOUNDINCFACTOR      | RESTARTS == [MiniSATRestarts]
 
 # forbidden
 {RESTARTS == Glucose21Restarts, CLEANING == ACTIVITY}
+
+# -s Default -S CLEANING={value},SIMP={value},PARAMS=SearchParams/claDecay:{value}/initConflictBound:{value}/varDecay:{value}/conflictBoundIncFactor:{value}
