@@ -157,7 +157,7 @@ class ConfigFileParamsEngine(AbstractParamsEngine):
                 # conditional parameters (single values)
                 m = re.match(r"^\s*([^|]+)\s*\|\s*([^{]+?)\s*==\s*(\S*)(?:\s*#.*)?$", line)
                 if m:
-                    tmp = [m.group(1).strip(), m.group(2).strip(), [m.group(2).strip()]]
+                    tmp = [m.group(1).strip(), m.group(2).strip(), [m.group(3)[1:-1:].strip()]]
                     if tmp[0] not in contents['current'].keys():
                         raise ValueError('Illegal conditional parameter: "{}"'.format(tmp[0]))
                     if tmp[1] not in contents['current'].keys():

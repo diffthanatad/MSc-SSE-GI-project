@@ -217,6 +217,38 @@ class AbstractProgram():
             if isinstance(engine, AbstractParamsEngine):
                 if step in engine.config['timing']:
                     cli = '{} {}'.format(cli, engine.resolve_cli(self.local_contents[target]))
+                    if self.basename == "sat4j":            
+                        temp = cli.split(" ")
+                        params = dict()
+                        for param in temp:
+                            if (param == "" or param == " "):
+                                continue
+                            key, value = param.split("=")
+                            value = value.replace("'", "")
+                            params[key] = value
+
+                        pstring = 'PARAMS=SearchParams'
+                        sstring = ''
+                        for key, value in params.items():
+                            if key == 'CLADECAY':
+                                pstring = '{}/claDecay:{}'.format(pstring, value)
+                                continue
+                            elif key == 'INITCONFLICTBOUND':
+                                pstring = '{}/initConflictBound:{}'.format(pstring, value)
+                                continue
+                            elif key == 'VARDECAY':
+                                pstring = '{}/varDecay:{}'.format(pstring, value)
+                                continue
+                            elif key == 'CONFLICTBOUNDINCFACTOR':
+                                pstring = '{}/conflictBoundIncFactor:{}'.format(pstring, value)
+                                continue
+                            sstring = '{}{}={}'.format(sstring, key, value)
+                            if value == 'LubyRestarts':
+                                sstring = '{}/factor:{}'.format(pstring, params['LUBYFACTOR'])
+                            elif value == 'FixedPeriodRestarts':
+                                sstring = '{}/factor:{}'.format(pstring, params['FIXEDPERIOD'])
+                            sstring = '{},'.format(sstring)
+                        cli = "{}{}".format(sstring, pstring)
         return cli
 
     def evaluate_local(self):

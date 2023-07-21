@@ -5,10 +5,12 @@ RESTARTS                    {Glucose21Restarts, ArminRestarts, FixedPeriodRestar
 LUBYFACTOR                  g[16, 2048][512]
 FIXEDPERIOD                 g[1, 100000][100]
 PHASE                       {NegativeLiteralSelectionStrategy, PositiveLiteralSelectionStrategy, RSATPhaseSelectionStrategy, UserFixedPhaseSelectionStrategy, RandomLiteralSelectionStrategy, RSATLastLearnedClausesPhaseSelectionStrategy, PhaseCachingAutoEraseStrategy, PhaseInLastLearnedClauseSelectionStrategy}[RSATPhaseSelectionStrategy]
+
 CLADECAY                    (0.0, 1.0)[0.999]
 INITCONFLICTBOUND           g[1, 1000][100]
 VARDECAY                    (0.0, 1.0)[0.95]
 CONFLICTBOUNDINCFACTOR      (1.5, 4)[2]
+
 SIMP                        {NO_SIMPLIFICATION, SIMPLE_SIMPLIFICATION, EXPENSIVE_SIMPLIFICATION}[EXPENSIVE_SIMPLIFICATION]
 CLEANING                    {ACTIVITY, LBD, LBD2}[LBD2]
 
