@@ -5,7 +5,7 @@ ARGV=$@
 my_test() {
     FILENAME=$1
     EXPECTED=$2
-    ./simp/minisat_HACK_999ED_CSSC $FILENAME $ARGV > /dev/null
+    java -jar ./dist/CUSTOM/sat4j-sat.jar $FILENAME -s Default -S $ARGV > /dev/null
     RETURN=$?
     if [ $RETURN -ne $((EXPECTED)) ]
     then
