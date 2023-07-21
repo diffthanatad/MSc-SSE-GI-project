@@ -57,6 +57,7 @@ $(OBJECTS): $(HEADERS)
 clean:
 	@ for i in $(SUB_DIRS); do $(MAKE) -C $$i clean; done
 	-rm -f *.o *~ $(PATH_HEADERS)/*~
+	rm lpg
 
 distclean:
 	@ for i in $(SUB_DIRS); do $(MAKE) -C $$i clean; done
