@@ -1,0 +1,40 @@
+CLI_PREFIX = "-"
+CLI_GLUE = "="
+CLI_BOOLEAN = "prefix"
+
+# core
+lbd-cut             [3, 10][5]
+lbd-cut-max         [4, 30][10]
+cp-increase         g[5000, 50000][15000]
+core-tolerance      (0.0, 1.0)[0.02]
+K-val               (0.5, 1.0)[0.8]
+R-val               (1.0, 2.5)[1.4]
+var-decay           (0.0, 1.0)[0.95]
+cla-decay           (0.0, 1.0)[0.999]
+rnd-freq            (0.0, 1.0)[0.0]
+ccmin-mode          {0, 1, 2}[2]
+phase-saving        {0, 1, 2}[2]
+rnd-init            {True, False}[False]
+luby                [0, 1][0]
+rfirst              e(1, 32767)[100]
+rinc                e(1, 32767)[2]
+gc-frac             (0.0, 1.0)[0.2]
+
+# main
+verb                {0, 1, 2}[1]
+pre                 {True, False}[True]
+
+# simp
+asymm               {True, False}[False]
+rcheck              {True, False}[False]
+elim                {True, False}[False]
+grow                g[-65535, 65535][0]
+cl-lim              g[-1, 65535][20]
+sub-lim             g[-1, 65535][1000]
+simp-gc-frac        (0.0, 1.0)[0.5]
+
+# conditionals
+rfirst  | luby == [1]
+rinc    | luby == [1]
+K-val   | luby == [1]
+R-val   | luby == [0]
