@@ -3,16 +3,16 @@ default_timeout = 30
 default_lengthout = 1e6
 
 [software]
-path = code/minisat-hack
+path = examples/code/minisat
 target_files =
-    minisat.params
+    minisat_simplified.params
 fitness = time
 
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
-compile_timeout = 9
-run_cmd = run-sh/train_1.sh
-run_timeout = 52
+compile_timeout = 10
+run_cmd = ./test.sh
+run_timeout = 20
 
 [search]
 warmup = 1
