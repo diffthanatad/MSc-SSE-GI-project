@@ -14,10 +14,10 @@ setup_timeout = 36
 compile_cmd = ./compile.sh
 compile_timeout = 36
 run_cmd = perf stat run-sh/train_9.sh
-run_timeout = 40
+run_timeout = 94
 
 [search]
-max_time = 13230
+max_time = 42230
 algorithm = FirstImprovement
 
 possible_edits =
