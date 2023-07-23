@@ -1,27 +1,22 @@
 [magpie]
 default_timeout = 30
 default_lengthout = 1e6
-local_original_copy = True
 
 [software]
-path = examples/code/minisat
-target_files = 
-    minisat_simplified.params
-    core/Solver.cc.xml
+path = code/minisat-hack
+target_files =
+    minisat.params
 fitness = time
 
 setup_cmd = ./compile.sh
-compile_cmd =
-test_cmd =
-run_cmd = ./run.sh
-run_timeout = 25
+compile_cmd = ./compile.sh
+compile_timeout = 15
+run_cmd = run-sh/train_1.sh
+run_timeout = 56
 
 [search]
-max_steps = 1000
-possible_edits = 
+max_time = 13230
+algorithm = GeneticAlgorithm
+
+possible_edits =
     ParamSetting
-    StmtReplacement
-    StmtInsertion
-    StmtDeletion
-warmup = 1
-warmup_strategy = last
