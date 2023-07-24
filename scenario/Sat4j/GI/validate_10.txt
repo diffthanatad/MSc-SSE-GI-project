@@ -10,7 +10,6 @@ target_files =
 fitness = perf_time
 
 setup_cmd = ./compile.sh
-setup_timeout = 36
 compile_cmd = ./compile.sh
 compile_timeout = 36
 run_cmd = perf stat run-sh/validate_10.sh
