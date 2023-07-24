@@ -135,7 +135,8 @@ class ConfigFileParamsEngine(AbstractParamsEngine):
                 if m:
                     tmp = {}
                     for s in m.group(1).split(','):
-                        s1, s2 = s.split('=')
+                        s1, s2 = s.split('==')
+                        s1 = s1.strip()
                         if s1 not in contents['current'].keys():
                             raise ValueError('Illegal forbidden parameter: "{}"'.format(s1.strip()))
                         tmp[s1.strip()] = s2.strip()
@@ -156,7 +157,7 @@ class ConfigFileParamsEngine(AbstractParamsEngine):
                 # conditional parameters (single values)
                 m = re.match(r"^\s*([^|]+)\s*\|\s*([^{]+?)\s*==\s*(\S*)(?:\s*#.*)?$", line)
                 if m:
-                    tmp = [m.group(1).strip(), m.group(2).strip(), [m.group(2).strip()]]
+                    tmp = [m.group(1).strip(), m.group(2).strip(), [m.group(3)[1:-1:].strip()]]
                     if tmp[0] not in contents['current'].keys():
                         raise ValueError('Illegal conditional parameter: "{}"'.format(tmp[0]))
                     if tmp[1] not in contents['current'].keys():

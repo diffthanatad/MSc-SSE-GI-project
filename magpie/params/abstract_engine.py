@@ -66,7 +66,18 @@ class AbstractParamsEngine(AbstractEngine):
 
     def resolve_cli(self, file_contents):
         params = file_contents['current']
-        return ' '.join([s for s in [self.resolve_cli_param(params, k, v) for k,v in params.items() if not self.would_be_ignored(file_contents, k, v)] if s != ''])
+        # original
+        # return ' '.join([s for s in [self.resolve_cli_param(params, k, v) for k,v in params.items() if not self.would_be_ignored(file_contents, k, v)] if s != ''])
+        
+        temp = list()
+        cli = ""
+        for k,v in params.items():
+            if not self.would_be_ignored(file_contents, k, v):
+                temp.append(self.resolve_cli_param(params, k, v))
+        for s in temp:
+            if s != "":
+                cli = '{} {}'.format(cli, s)
+        return cli 
 
     def resolve_cli_param(self, all_params, param, value):
         if param.startswith(self.config['silent_prefix']):
@@ -88,9 +99,20 @@ class AbstractParamsEngine(AbstractEngine):
         return '{}{}{}{}'.format(self.config['cli_prefix'], cli_param, self.config['cli_glue'], repr(value))
 
     def would_be_ignored(self, file_contents, key, value):
-        return any(file_contents['current'][_k2] not in _vals for (_k1, _k2, _vals) in file_contents['conditionals'] if _k1 == key)
+        """ For conditional parameters. """
+        # original code.
+        # return any(file_contents['current'][_k2] not in _vals for (_k1, _k2, _vals) in file_contents['conditionals'] if _k1 == key)
+        
+        # Add str() to file_contents['current'][_k2] to fix bug.
+        results = list()
+        for (_k1, _k2, _vals) in file_contents['conditionals']:
+            if _k1 == key:
+                temp = str(file_contents['current'][_k2]) not in _vals
+                results.append(temp)
+        return any(results)
 
     def would_be_valid(self, file_contents, key, value):
+        """ For forbidden parameters. """
         for d in file_contents['forbidden']:
             forbidden = True
             for k in d.keys():
@@ -104,7 +126,24 @@ class AbstractParamsEngine(AbstractEngine):
     def do_set(self, contents, locations, new_contents, new_locations, target, value):
         file_contents = new_contents[target[0]]
         key = target[1]
-        used = self.would_be_valid(file_contents, key, value) and not self.would_be_ignored(file_contents, key, value)
+        
+        # Check for forbidden parameters
+        forbidden = False
+        for dictionary in file_contents['forbidden']:
+            # The key is part of forbidden parameter set and the value matches.
+            if key in dictionary and str(value) == str(dictionary[key]):
+                # Loop through the forbidden set.
+                for f_param, f_value in dictionary.items():
+                    # Check for a match between current configuration with the incoming parameter setting.
+                    if f_param != key and str(f_value) == str(file_contents['current'][f_param]):
+                        # There is a conflict as the incoming parameter match the forbidden value
+                        # and there is also a match for other forbidden parameters.
+                        forbidden = True
+                        break
+            if forbidden == True:
+                break
+
+        used = self.would_be_valid(file_contents, key, value) and not self.would_be_ignored(file_contents, key, value) and not forbidden
         if used:
             file_contents['current'][key] = value
         return used

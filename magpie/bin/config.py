@@ -109,4 +109,13 @@ number: literal_number""",
         'mutation_rate': 0.1,
         'tournament_size': 3,
     },
+
+    # [search.pso]
+    'search.pso': {
+        'pop_size': 10,
+        'speed_min': -3,
+        'speed_max': 3,
+        'c1': 1.49,
+        'c2': 1.49,
+    },
 }
