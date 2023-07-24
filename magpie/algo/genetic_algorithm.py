@@ -134,23 +134,9 @@ class GeneticAlgorithm(Algorithm):
         """
         genes = chromosome.edits
         N = len(genes)
-        to_delete = list()
         for i in range(N):
             if random.random() <= self.config['mutation_rate']:
-                if isinstance(genes[i], params.ParamSetting):
-                    # mutate parameter value
-                    genes[i] = self.create_specific_edit(genes[i])
-                elif random.random() <= self.config['delete_prob']:
-                    # remove GI edit
-                    to_delete.append(genes[i])
-
-        for gene in to_delete:
-            genes.remove(gene)
-                                    
-        if random.random() <= self.config['offspring_mutation']:
-            # add new GI edit
-            new_edit = self.create_edit_except_AC()
-            genes.append(new_edit)
+                genes[i] = self.create_specific_edit(genes[i])
 
     def crossover(self, sol1: Patch, sol2: Patch) -> Patch:
         """"
