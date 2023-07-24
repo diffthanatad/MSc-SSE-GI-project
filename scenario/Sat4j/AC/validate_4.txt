@@ -14,7 +14,7 @@ setup_timeout = 36
 compile_cmd = ./compile.sh
 compile_timeout = 36
 run_cmd = perf stat run-sh/validate_4.sh
-run_timeout = 1240
+run_timeout = 3757
 
 [search]
 algorithm = ValidRankingSimplify

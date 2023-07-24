@@ -17,7 +17,7 @@ run_cmd = perf stat run-sh/train_1.sh
 run_timeout = 189
 
 [search]
-max_time = 42230
+max_time = 35970
 algorithm = FirstImprovement
 
 possible_edits =
