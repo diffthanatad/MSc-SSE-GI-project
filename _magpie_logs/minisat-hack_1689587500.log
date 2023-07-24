@@ -1,0 +1,158 @@
+2023-07-17 10:51:49,163	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/test.sh
+run_timeout = 6585
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-17 10:51:49,164	[INFO]	==== WARMUP ====
+2023-07-17 12:29:41,480	[INFO]	WARM    SUCCESS               5862.9715               
+2023-07-17 14:06:04,456	[INFO]	WARM    SUCCESS               5779.4064               
+2023-07-17 15:43:20,743	[INFO]	WARM    SUCCESS               5832.6193               
+2023-07-17 15:43:20,744	[INFO]	INITIAL SUCCESS               5832.6193               
+2023-07-17 15:43:20,744	[INFO]	==== START: ValidTest ====
+2023-07-17 15:43:20,788	[DEBUG]	CLEAN_PATCH: ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)
+2023-07-17 15:43:20,788	[DEBUG]	CLEAN_SIZE: 3 (was 3)
+2023-07-17 17:30:44,329	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)
+2023-07-17 17:30:44,329	[INFO]	1       SUCCESS              *6440.0652 (110.41%) [3 edit(s)] 
+2023-07-17 17:30:44,340	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-17 17:30:44,350	[INFO]	==== END ====
+2023-07-17 17:30:44,350	[INFO]	Reason: validation end
+2023-07-17 17:30:44,350	[INFO]	
+2023-07-17 17:30:44,350	[INFO]	==== REPORT ====
+2023-07-17 17:30:44,351	[INFO]	Termination: validation end
+2023-07-17 17:30:44,351	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689587500.log
+2023-07-17 17:30:44,360	[INFO]	Patch file: _magpie_logs/minisat-hack_1689587500.patch
+2023-07-17 17:30:44,361	[INFO]	Diff file: _magpie_logs/minisat-hack_1689587500.diff
+2023-07-17 17:30:44,361	[INFO]	Best fitness: 6440.0652
+2023-07-17 17:30:44,361	[INFO]	Best patch: ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)
+2023-07-17 17:30:44,361	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+

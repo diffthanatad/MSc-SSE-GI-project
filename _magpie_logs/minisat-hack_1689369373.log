@@ -1,0 +1,312 @@
+2023-07-14 22:16:13,435	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_3.sh
+run_timeout = 1266
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-14 22:16:13,435	[INFO]	==== WARMUP ====
+2023-07-14 22:32:51,600	[INFO]	WARM    SUCCESS               989.7751                
+2023-07-14 22:49:26,380	[INFO]	WARM    SUCCESS               991.1955                
+2023-07-14 23:06:13,758	[INFO]	WARM    SUCCESS               1003.8765               
+2023-07-14 23:06:13,759	[INFO]	INITIAL SUCCESS               1003.8765               
+2023-07-14 23:06:13,759	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-14 23:06:13,835	[DEBUG]	CLEAN_PATCH: ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'cla-decay'), 0.6430380316680031) | ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.2027280648215093) | ParamSetting(('minisat.params', 'luby'), 1) | ParamSetting(('minisat.params', 'cp-increase'), 5927)
+2023-07-14 23:06:13,835	[DEBUG]	CLEAN_SIZE: 6 (was 7)
+2023-07-14 23:26:00,187	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'cla-decay'), 0.6430380316680031) | ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.2027280648215093) | ParamSetting(('minisat.params', 'luby'), 1) | ParamSetting(('minisat.params', 'R-val'), 1.602689985652568) | ParamSetting(('minisat.params', 'cp-increase'), 5927)
+2023-07-14 23:26:00,188	[INFO]	1       SUCCESS              *1182.5256 (117.8%) [7 edit(s)] 
+2023-07-14 23:26:00,197	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,14 +1,14 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
+-cp-increase := 15000
++lbd-cut-max := 8.301655519825687
++cp-increase := 5927
+ core-tolerance := 0.02
+ var-decay := 0.95
+-cla-decay := 0.999
++cla-decay := 0.6430380316680031
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+-luby := 0
++luby := 1
+ gc-frac := 0.2
+ verb := 1
+ pre := 'True'
+@@ -18,4 +18,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.2027280648215093
+
+2023-07-14 23:26:00,197	[INFO]	-- ranking --
+2023-07-14 23:43:11,870	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), 1)
+2023-07-14 23:43:11,870	[INFO]	2       SUCCESS              *1027.8424 (102.39%) [1 edit(s)] 
+2023-07-14 23:43:11,881	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -6,7 +6,7 @@
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+
+2023-07-15 00:04:22,136	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.6430380316680031)
+2023-07-15 00:04:22,137	[INFO]	3       RUN_TIMEOUT           None  [1 edit(s)]       
+2023-07-15 00:21:03,066	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687)
+2023-07-15 00:21:03,066	[INFO]	4       SUCCESS              *997.3903 (99.35%) [1 edit(s)] 
+2023-07-15 00:21:03,076	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,5 +1,5 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
++lbd-cut-max := 8.301655519825687
+ cp-increase := 15000
+ core-tolerance := 0.02
+ var-decay := 0.95
+
+2023-07-15 00:38:05,137	[DEBUG]	ParamSetting(('minisat.params', 'simp-gc-frac'), 0.2027280648215093)
+2023-07-15 00:38:05,137	[INFO]	5       SUCCESS              +1018.4473 (101.45%) [1 edit(s)] 
+2023-07-15 00:38:05,146	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -18,4 +18,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.2027280648215093
+
+2023-07-15 00:56:09,372	[DEBUG]	ParamSetting(('minisat.params', 'luby'), 1)
+2023-07-15 00:56:09,373	[INFO]	6       SUCCESS              +1080.1377 (107.6%) [1 edit(s)] 
+2023-07-15 00:56:09,382	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -8,7 +8,7 @@
+ ccmin-mode := 2
+ phase-saving := 2
+ rnd-init := 'False'
+-luby := 0
++luby := 1
+ gc-frac := 0.2
+ verb := 1
+ pre := 'True'
+
+2023-07-15 00:56:09,391	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.602689985652568)
+2023-07-15 00:56:09,391	[INFO]	7       SUCCESS              +1003.8765 (100.0%) [1 edit(s)] 
+2023-07-15 00:56:09,399	[DEBUG]	
+2023-07-15 01:14:32,046	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5927)
+2023-07-15 01:14:32,046	[INFO]	8       SUCCESS              +1098.9068 (109.47%) [1 edit(s)] 
+2023-07-15 01:14:32,055	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5927
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 01:14:32,055	[INFO]	-- rebuild --
+2023-07-15 01:14:32,069	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687) | ParamSetting(('minisat.params', 'R-val'), 1.602689985652568)
+2023-07-15 01:14:32,069	[INFO]	9       SUCCESS              +997.3903 (99.35%) [2 edit(s)] 
+2023-07-15 01:14:32,081	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,5 +1,5 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
++lbd-cut-max := 8.301655519825687
+ cp-increase := 15000
+ core-tolerance := 0.02
+ var-decay := 0.95
+
+2023-07-15 01:31:16,925	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.2027280648215093)
+2023-07-15 01:31:16,926	[INFO]	10      SUCCESS              +1001.1848 (99.73%) [2 edit(s)] 
+2023-07-15 01:31:16,935	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,5 +1,5 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
++lbd-cut-max := 8.301655519825687
+ cp-increase := 15000
+ core-tolerance := 0.02
+ var-decay := 0.95
+@@ -18,4 +18,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.2027280648215093
+
+2023-07-15 01:48:25,519	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687) | ParamSetting(('minisat.params', 'phase-saving'), 1)
+2023-07-15 01:48:25,519	[INFO]	11      SUCCESS              +1024.3877 (102.04%) [2 edit(s)] 
+2023-07-15 01:48:25,529	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
++lbd-cut-max := 8.301655519825687
+ cp-increase := 15000
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+
+2023-07-15 02:06:14,321	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687) | ParamSetting(('minisat.params', 'luby'), 1)
+2023-07-15 02:06:14,322	[INFO]	12      SUCCESS              +1064.9772 (106.09%) [2 edit(s)] 
+2023-07-15 02:06:14,332	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,5 +1,5 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
++lbd-cut-max := 8.301655519825687
+ cp-increase := 15000
+ core-tolerance := 0.02
+ var-decay := 0.95
+@@ -8,7 +8,7 @@
+ ccmin-mode := 2
+ phase-saving := 2
+ rnd-init := 'False'
+-luby := 0
++luby := 1
+ gc-frac := 0.2
+ verb := 1
+ pre := 'True'
+
+2023-07-15 02:24:02,144	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687) | ParamSetting(('minisat.params', 'cp-increase'), 5927)
+2023-07-15 02:24:02,144	[INFO]	13      SUCCESS              +1064.3224 (106.02%) [2 edit(s)] 
+2023-07-15 02:24:02,159	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
+-cp-increase := 15000
++lbd-cut-max := 8.301655519825687
++cp-increase := 5927
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 02:45:12,281	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687) | ParamSetting(('minisat.params', 'cla-decay'), 0.6430380316680031)
+2023-07-15 02:45:12,281	[INFO]	14      RUN_TIMEOUT           None  [2 edit(s)]       
+2023-07-15 02:45:12,282	[INFO]	-- simplify --
+2023-07-15 02:45:12,290	[DEBUG]	
+2023-07-15 02:45:12,290	[INFO]	15      SUCCESS              +1003.8765 (100.0%) [0 edit(s)] 
+2023-07-15 02:45:12,298	[DEBUG]	
+2023-07-15 02:45:12,306	[INFO]	==== END ====
+2023-07-15 02:45:12,306	[INFO]	Reason: validation end
+2023-07-15 02:45:12,306	[INFO]	
+2023-07-15 02:45:12,306	[INFO]	==== REPORT ====
+2023-07-15 02:45:12,306	[INFO]	Termination: validation end
+2023-07-15 02:45:12,306	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689369373.log
+2023-07-15 02:45:12,314	[INFO]	Patch file: _magpie_logs/minisat-hack_1689369373.patch
+2023-07-15 02:45:12,314	[INFO]	Diff file: _magpie_logs/minisat-hack_1689369373.diff
+2023-07-15 02:45:12,314	[INFO]	Best fitness: 997.3903
+2023-07-15 02:45:12,314	[INFO]	Best patch: ParamSetting(('minisat.params', 'lbd-cut-max'), 8.301655519825687)
+2023-07-15 02:45:12,315	[INFO]	Diff:
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,5 +1,5 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
++lbd-cut-max := 8.301655519825687
+ cp-increase := 15000
+ core-tolerance := 0.02
+ var-decay := 0.95
+

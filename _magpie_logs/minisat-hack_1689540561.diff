@@ -1,0 +1,9 @@
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,5 +1,5 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
++lbd-cut-max := 8.301655519825687
+ cp-increase := 15000
+ core-tolerance := 0.02
+ var-decay := 0.95

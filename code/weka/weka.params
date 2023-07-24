@@ -1,0 +1,14 @@
+CLI_PREFIX  = "-"
+CLI_GLUE    = " "
+CLI_BOOLEAN = "hide"
+
+P                       [1, 200][100]
+I                       [1, 200][100]
+K                       [0, 100][0]
+M                       [1, 10][1]
+V                       e(0, 0.1)[0.001]
+depth                   g[0, 100][0]
+N                       g[0, 100][0]
+U                       {True, False}[False]
+B                       {True, False}[False]
+num-decimal-places      [1, 5][2]

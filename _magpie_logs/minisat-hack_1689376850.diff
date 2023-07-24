@@ -1,0 +1,11 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -418,7 +418,7 @@
+             }
+         }
+     }else/*auto*/{
+-        i = j = out_learnt.size();
++        
+ }/*auto*/
+ 
+     max_literals += out_learnt.size();

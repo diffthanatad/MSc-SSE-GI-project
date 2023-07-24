@@ -1,0 +1,494 @@
+2023-07-14 13:22:03,264	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_7.sh
+run_timeout = 1290
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-14 13:22:03,264	[INFO]	==== WARMUP ====
+2023-07-14 13:39:31,223	[INFO]	WARM    SUCCESS               1033.5448               
+2023-07-14 13:56:38,039	[INFO]	WARM    SUCCESS               1022.4377               
+2023-07-14 14:13:41,312	[INFO]	WARM    SUCCESS               1019.6132               
+2023-07-14 14:13:41,312	[INFO]	INITIAL SUCCESS               1019.6132               
+2023-07-14 14:13:41,312	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-14 14:13:41,490	[DEBUG]	CLEAN_PATCH: StmtDeletion(('core/Solver.cc.xml', 'stmt', 52)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 37)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 476)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 284)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 312), ('core/Solver.cc.xml', 'stmt', 385)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 416)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 74)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27))
+2023-07-14 14:13:41,490	[DEBUG]	CLEAN_SIZE: 9 (was 9)
+2023-07-14 14:19:03,977	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 52)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 37)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 476)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 284)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 312), ('core/Solver.cc.xml', 'stmt', 385)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 416)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 74)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27))
+2023-07-14 14:19:03,978	[INFO]	1       RUN_CODE_ERROR        None  [9 edit(s)]       
+2023-07-14 14:19:03,978	[INFO]	-- ranking --
+2023-07-14 14:23:46,634	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 52))
+2023-07-14 14:23:46,634	[INFO]	2       RUN_CODE_ERROR        None  [1 edit(s)]       
+2023-07-14 14:40:59,209	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 37))
+2023-07-14 14:40:59,209	[INFO]	3       SUCCESS              *1028.3205 (100.85%) [1 edit(s)] 
+2023-07-14 14:40:59,219	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -155,7 +155,7 @@
+ 
+ bool Solver::addClause_(vec<Lit>& ps)
+ {
+-    assert(decisionLevel() == 0);
++    
+     if (!ok)/*auto*/{ return false;
+ }/*auto*/
+ 
+
+2023-07-14 14:58:04,522	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310))
+2023-07-14 14:58:04,522	[INFO]	4       SUCCESS              *1021.2099 (100.16%) [1 edit(s)] 
+2023-07-14 14:58:04,532	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1008,7 +1008,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+
+2023-07-14 15:15:11,444	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 476))
+2023-07-14 15:15:11,445	[INFO]	5       SUCCESS              +1023.409 (100.37%) [1 edit(s)] 
+2023-07-14 15:15:11,457	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1131,5 +1131,5 @@
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+ }/*auto*/
+-    to.moveTo(ca);
+-}
++    
++}
+
+2023-07-14 15:32:38,522	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 284))
+2023-07-14 15:32:38,522	[INFO]	6       SUCCESS              +1042.9652 (102.29%) [1 edit(s)] 
+2023-07-14 15:32:38,534	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -694,9 +694,7 @@
+         return ok = false;
+ }/*auto*/
+ 
+-    if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
+-        return true;
+-}/*auto*/
++    
+ 
+     #define V learnts
+     for (i = j = 0; i < V.size(); i++)/*auto*/{
+
+2023-07-14 15:49:57,540	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 312), ('core/Solver.cc.xml', 'stmt', 385))
+2023-07-14 15:49:57,540	[INFO]	7       SUCCESS              +1035.4579 (101.55%) [1 edit(s)] 
+2023-07-14 15:49:57,553	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -599,7 +599,7 @@
+ }/*auto*/
+             }else/*auto*/{
+                 uncheckedEnqueue(first, cr);
+-}/*auto*/
++}/*auto*/model.clear();
+ 
+         NextClause:;
+         }
+
+2023-07-14 16:07:30,681	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 416))
+2023-07-14 16:07:30,681	[INFO]	8       SUCCESS              +1049.539 (102.94%) [1 edit(s)] 
+2023-07-14 16:07:30,690	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -990,10 +990,7 @@
+ 
+ static Var mapVar(Var x, vec<Var>& map, Var& max)
+ {
+-    if (map.size() <= x || map[x] == -1){
+-        map.growTo(x+1, -1);
+-        map[x] = max++;
+-    }
++    
+     return map[x];
+ }
+ 
+
+2023-07-14 16:24:43,758	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 74))
+2023-07-14 16:24:43,758	[INFO]	9       SUCCESS              +1029.4918 (100.97%) [1 edit(s)] 
+2023-07-14 16:24:43,768	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -235,7 +235,7 @@
+ 
+     if (c.learnt())/*auto*/{ learnts_literals -= c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals -= c.size();
++    else/*auto*/{            
+ }/*auto*/ }
+ 
+ 
+
+2023-07-14 16:41:41,419	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27))
+2023-07-14 16:41:41,419	[INFO]	10      SUCCESS              *1014.0022 (99.45%) [1 edit(s)] 
+2023-07-14 16:41:41,431	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+
+2023-07-14 16:41:41,431	[INFO]	-- rebuild --
+2023-07-14 16:58:37,625	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310))
+2023-07-14 16:58:37,625	[INFO]	11      SUCCESS              *1012.156 (99.27%) [2 edit(s)] 
+2023-07-14 16:58:37,649	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1008,7 +1009,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+
+2023-07-14 17:16:03,414	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 476))
+2023-07-14 17:16:03,414	[INFO]	12      SUCCESS              +1042.24 (102.22%) [3 edit(s)] 
+2023-07-14 17:16:03,435	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1008,7 +1009,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+@@ -1131,5 +1132,5 @@
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+ }/*auto*/
+-    to.moveTo(ca);
+-}
++    
++}
+
+2023-07-14 17:33:29,687	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 37))
+2023-07-14 17:33:29,688	[INFO]	13      SUCCESS              +1042.264 (102.22%) [3 edit(s)] 
+2023-07-14 17:33:29,702	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -155,7 +155,7 @@
+ 
+ bool Solver::addClause_(vec<Lit>& ps)
+ {
+-    assert(decisionLevel() == 0);
++    
+     if (!ok)/*auto*/{ return false;
+ }/*auto*/
+ 
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1008,7 +1009,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+
+2023-07-14 17:50:51,036	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 74))
+2023-07-14 17:50:51,036	[INFO]	14      SUCCESS              +1037.2869 (101.73%) [3 edit(s)] 
+2023-07-14 17:50:51,051	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -235,7 +235,7 @@
+ 
+     if (c.learnt())/*auto*/{ learnts_literals -= c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals -= c.size();
++    else/*auto*/{            
+ }/*auto*/ }
+ 
+ 
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1008,7 +1009,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+
+2023-07-14 18:08:01,489	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 312), ('core/Solver.cc.xml', 'stmt', 385))
+2023-07-14 18:08:01,490	[INFO]	15      SUCCESS              +1026.7976 (100.7%) [3 edit(s)] 
+2023-07-14 18:08:01,507	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -599,7 +599,7 @@
+ }/*auto*/
+             }else/*auto*/{
+                 uncheckedEnqueue(first, cr);
+-}/*auto*/
++}/*auto*/model.clear();
+ 
+         NextClause:;
+         }
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1008,7 +1009,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+
+2023-07-14 18:25:17,352	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 284))
+2023-07-14 18:25:17,352	[INFO]	16      SUCCESS              +1032.2946 (101.24%) [3 edit(s)] 
+2023-07-14 18:25:17,366	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -694,9 +694,7 @@
+         return ok = false;
+ }/*auto*/
+ 
+-    if (nAssigns() == simpDB_assigns || (simpDB_props > 0))/*auto*/{
+-        return true;
+-}/*auto*/
++    
+ 
+     #define V learnts
+     for (i = j = 0; i < V.size(); i++)/*auto*/{
+@@ -776,6 +774,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1008,7 +1007,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+
+2023-07-14 18:42:31,675	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 416))
+2023-07-14 18:42:31,676	[INFO]	17      SUCCESS              +1030.8791 (101.1%) [3 edit(s)] 
+2023-07-14 18:42:31,689	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -990,10 +991,7 @@
+ 
+ static Var mapVar(Var x, vec<Var>& map, Var& max)
+ {
+-    if (map.size() <= x || map[x] == -1){
+-        map.growTo(x+1, -1);
+-        map[x] = max++;
+-    }
++    
+     return map[x];
+ }
+ 
+@@ -1008,7 +1006,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+
+2023-07-14 18:47:10,444	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 52))
+2023-07-14 18:47:10,445	[INFO]	18      RUN_CODE_ERROR        None  [3 edit(s)]       
+2023-07-14 18:47:10,445	[INFO]	-- simplify --
+2023-07-14 18:47:10,456	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310))
+2023-07-14 18:47:10,457	[INFO]	19      SUCCESS              +1021.2099 (100.16%) [1 edit(s)] 
+2023-07-14 18:47:10,466	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1008,7 +1008,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+
+2023-07-14 18:47:10,477	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27))
+2023-07-14 18:47:10,477	[INFO]	20      SUCCESS              +1014.0022 (99.45%) [1 edit(s)] 
+2023-07-14 18:47:10,487	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+
+2023-07-14 18:47:10,499	[INFO]	==== END ====
+2023-07-14 18:47:10,499	[INFO]	Reason: validation end
+2023-07-14 18:47:10,499	[INFO]	
+2023-07-14 18:47:10,499	[INFO]	==== REPORT ====
+2023-07-14 18:47:10,499	[INFO]	Termination: validation end
+2023-07-14 18:47:10,499	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689337313.log
+2023-07-14 18:47:10,512	[INFO]	Patch file: _magpie_logs/minisat-hack_1689337313.patch
+2023-07-14 18:47:10,512	[INFO]	Diff file: _magpie_logs/minisat-hack_1689337313.diff
+2023-07-14 18:47:10,512	[INFO]	Best fitness: 1012.156
+2023-07-14 18:47:10,512	[INFO]	Best patch: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 446), ('core/Solver.cc.xml', 'stmt', 27)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 425), ('core/Solver.cc.xml', 'stmt', 310))
+2023-07-14 18:47:10,513	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1008,7 +1009,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 
+

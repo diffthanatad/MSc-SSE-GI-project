@@ -1,0 +1,109 @@
+2023-07-17 04:10:18,154	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/test.sh
+run_timeout = 6585
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-17 04:10:18,154	[INFO]	==== WARMUP ====
+2023-07-17 05:46:57,811	[INFO]	WARM    SUCCESS               5788.2068               
+2023-07-17 07:25:21,871	[INFO]	WARM    SUCCESS               5900.0266               
+2023-07-17 09:01:51,189	[INFO]	WARM    SUCCESS               5785.633                
+2023-07-17 09:01:51,190	[INFO]	INITIAL SUCCESS               5785.633                
+2023-07-17 09:01:51,190	[INFO]	==== START: ValidTest ====
+2023-07-17 09:01:51,294	[DEBUG]	CLEAN_PATCH: ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-17 09:01:51,294	[DEBUG]	CLEAN_SIZE: 7 (was 7)
+2023-07-17 10:51:39,900	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-17 10:51:39,901	[INFO]	1       RUN_TIMEOUT           None  [7 edit(s)]       
+2023-07-17 10:51:39,901	[INFO]	==== END ====
+2023-07-17 10:51:39,901	[INFO]	Reason: validation end
+2023-07-17 10:51:39,901	[INFO]	
+2023-07-17 10:51:39,901	[INFO]	==== REPORT ====
+2023-07-17 10:51:39,901	[INFO]	Termination: validation end
+2023-07-17 10:51:39,901	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689563413.log

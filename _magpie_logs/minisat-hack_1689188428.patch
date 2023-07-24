@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cla-decay'), 0.3402029759130577) | ParamSetting(('minisat.params', 'gc-frac'), 0.9647686623545326) | ParamSetting(('minisat.params', 'cl-lim'), 0) | ParamSetting(('minisat.params', 'R-val'), 2.4870186253799114) | ParamSetting(('minisat.params', 'cp-increase'), 5363) | ParamSetting(('minisat.params', 'cl-lim'), 491)

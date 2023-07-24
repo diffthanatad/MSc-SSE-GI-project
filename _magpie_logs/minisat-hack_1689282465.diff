@@ -1,0 +1,71 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -818,6 +818,7 @@
+             if (luby_restart && conflictC >= nof_conflicts ||
+                !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+                 // Reached bound on number of conflicts:
++                conflict.clear();
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+@@ -848,7 +849,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1010,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5

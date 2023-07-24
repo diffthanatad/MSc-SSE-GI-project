@@ -1,0 +1,206 @@
+2023-07-17 17:30:45,761	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/test.sh
+run_timeout = 6585
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-17 17:30:45,761	[INFO]	==== WARMUP ====
+2023-07-17 19:08:08,577	[INFO]	WARM    SUCCESS               5834.3755               
+2023-07-17 20:44:10,889	[INFO]	WARM    SUCCESS               5758.8652               
+2023-07-17 22:20:38,993	[INFO]	WARM    SUCCESS               5784.5351               
+2023-07-17 22:20:38,994	[INFO]	INITIAL SUCCESS               5784.5351               
+2023-07-17 22:20:38,994	[INFO]	==== START: ValidTest ====
+2023-07-17 22:20:39,085	[DEBUG]	CLEAN_PATCH: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-17 22:20:39,086	[DEBUG]	CLEAN_SIZE: 6 (was 6)
+2023-07-17 23:42:29,361	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-17 23:42:29,362	[INFO]	1       SUCCESS              *4906.4895 (84.82%) [6 edit(s)] 
+2023-07-17 23:42:29,375	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-17 23:42:29,387	[INFO]	==== END ====
+2023-07-17 23:42:29,387	[INFO]	Reason: validation end
+2023-07-17 23:42:29,388	[INFO]	
+2023-07-17 23:42:29,388	[INFO]	==== REPORT ====
+2023-07-17 23:42:29,388	[INFO]	Termination: validation end
+2023-07-17 23:42:29,388	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689611444.log
+2023-07-17 23:42:29,400	[INFO]	Patch file: _magpie_logs/minisat-hack_1689611444.patch
+2023-07-17 23:42:29,400	[INFO]	Diff file: _magpie_logs/minisat-hack_1689611444.diff
+2023-07-17 23:42:29,400	[INFO]	Best fitness: 4906.4895
+2023-07-17 23:42:29,401	[INFO]	Best patch: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-17 23:42:29,401	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+

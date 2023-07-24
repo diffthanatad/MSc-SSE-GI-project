@@ -1,0 +1,1638 @@
+2023-07-15 07:37:31,989	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_8.sh
+run_timeout = 1263
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-15 07:37:31,989	[INFO]	==== WARMUP ====
+2023-07-15 07:54:49,363	[INFO]	WARM    SUCCESS               1028.9233               
+2023-07-15 08:11:59,336	[INFO]	WARM    SUCCESS               1026.5979               
+2023-07-15 08:29:24,165	[INFO]	WARM    SUCCESS               1040.8077               
+2023-07-15 08:29:24,166	[INFO]	INITIAL SUCCESS               1040.8077               
+2023-07-15 08:29:24,166	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-15 08:29:24,328	[DEBUG]	CLEAN_PATCH: ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 468), ('core/Solver.cc.xml', 'stmt', 386)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 08:29:24,328	[DEBUG]	CLEAN_SIZE: 8 (was 10)
+2023-07-15 08:42:03,904	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 468), ('core/Solver.cc.xml', 'stmt', 386)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | ParamSetting(('minisat.params', 'asymm'), 'False') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 08:42:03,904	[INFO]	1       SUCCESS              *755.8599 (72.62%) [10 edit(s)] 
+2023-07-15 08:42:03,920	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -818,6 +818,7 @@
+             if (luby_restart && conflictC >= nof_conflicts ||
+                !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+                 // Reached bound on number of conflicts:
++                conflict.clear();
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+@@ -848,7 +849,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1010,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 08:42:03,920	[INFO]	-- ranking --
+2023-07-15 08:58:32,015	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159)
+2023-07-15 08:58:32,016	[INFO]	2       SUCCESS              +984.578 (94.6%) [1 edit(s)] 
+2023-07-15 08:58:32,024	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 09:15:34,349	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 361))
+2023-07-15 09:15:34,350	[INFO]	3       SUCCESS              +1018.7047 (97.88%) [1 edit(s)] 
+2023-07-15 09:15:34,367	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+
+2023-07-15 09:33:08,300	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 468), ('core/Solver.cc.xml', 'stmt', 386))
+2023-07-15 09:33:08,301	[INFO]	4       SUCCESS              +1050.1027 (100.89%) [1 edit(s)] 
+2023-07-15 09:33:08,312	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -818,6 +818,7 @@
+             if (luby_restart && conflictC >= nof_conflicts ||
+                !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+                 // Reached bound on number of conflicts:
++                conflict.clear();
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+
+2023-07-15 09:50:24,764	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 297))
+2023-07-15 09:50:24,765	[INFO]	5       SUCCESS              +1032.624 (99.21%) [1 edit(s)] 
+2023-07-15 09:50:24,774	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+
+2023-07-15 10:08:17,807	[DEBUG]	ParamSetting(('minisat.params', 'elim'), 'True')
+2023-07-15 10:08:17,808	[INFO]	6       SUCCESS              +1069.3787 (102.75%) [1 edit(s)] 
+2023-07-15 10:08:17,817	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-15 10:26:06,874	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 130))
+2023-07-15 10:26:06,875	[INFO]	7       SUCCESS              +1065.3247 (102.36%) [1 edit(s)] 
+2023-07-15 10:26:06,885	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+
+2023-07-15 10:26:06,893	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332)
+2023-07-15 10:26:06,893	[INFO]	8       SUCCESS              +1040.8077 (100.0%) [1 edit(s)] 
+2023-07-15 10:26:06,901	[DEBUG]	
+2023-07-15 10:43:23,283	[DEBUG]	ParamSetting(('minisat.params', 'sub-lim'), 551)
+2023-07-15 10:43:23,283	[INFO]	9       SUCCESS              +1032.3528 (99.19%) [1 edit(s)] 
+2023-07-15 10:43:23,292	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 10:43:23,300	[DEBUG]	ParamSetting(('minisat.params', 'asymm'), 'False')
+2023-07-15 10:43:23,300	[INFO]	10      SUCCESS              +1040.8077 (100.0%) [1 edit(s)] 
+2023-07-15 10:43:23,308	[DEBUG]	
+2023-07-15 11:00:39,656	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 11:00:39,657	[INFO]	11      SUCCESS              +1032.0718 (99.16%) [1 edit(s)] 
+2023-07-15 11:00:39,679	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+
+2023-07-15 11:00:39,680	[INFO]	-- rebuild --
+2023-07-15 11:18:07,186	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361))
+2023-07-15 11:18:07,186	[INFO]	12      SUCCESS              +1043.9371 (100.3%) [2 edit(s)] 
+2023-07-15 11:18:07,197	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 11:34:58,249	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 11:34:58,249	[INFO]	13      SUCCESS              +1007.5963 (96.81%) [2 edit(s)] 
+2023-07-15 11:34:58,262	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 11:51:22,203	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | ParamSetting(('minisat.params', 'sub-lim'), 551)
+2023-07-15 11:51:22,203	[INFO]	14      SUCCESS              +979.9353 (94.15%) [2 edit(s)] 
+2023-07-15 11:51:22,213	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 12:07:58,414	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297))
+2023-07-15 12:07:58,415	[INFO]	15      SUCCESS              +992.3262 (95.34%) [3 edit(s)] 
+2023-07-15 12:07:58,427	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 12:07:58,437	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | ParamSetting(('minisat.params', 'sub-lim'), 551) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332)
+2023-07-15 12:07:58,437	[INFO]	16      SUCCESS              +979.9353 (94.15%) [3 edit(s)] 
+2023-07-15 12:07:58,446	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 12:07:58,456	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | ParamSetting(('minisat.params', 'sub-lim'), 551) | ParamSetting(('minisat.params', 'asymm'), 'False')
+2023-07-15 12:07:58,456	[INFO]	17      SUCCESS              +979.9353 (94.15%) [3 edit(s)] 
+2023-07-15 12:07:58,466	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 12:24:35,593	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 468), ('core/Solver.cc.xml', 'stmt', 386))
+2023-07-15 12:24:35,593	[INFO]	18      SUCCESS              +992.3955 (95.35%) [3 edit(s)] 
+2023-07-15 12:24:35,611	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -818,6 +818,7 @@
+             if (luby_restart && conflictC >= nof_conflicts ||
+                !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+                 // Reached bound on number of conflicts:
++                conflict.clear();
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 12:39:48,903	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130))
+2023-07-15 12:39:48,903	[INFO]	19      SUCCESS              +909.581 (87.39%) [3 edit(s)] 
+2023-07-15 12:39:48,914	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 12:52:59,038	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'elim'), 'True')
+2023-07-15 12:52:59,039	[INFO]	20      SUCCESS              +786.6124 (75.58%) [4 edit(s)] 
+2023-07-15 12:52:59,050	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 12:52:59,050	[INFO]	-- simplify --
+2023-07-15 13:13:01,567	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 468), ('core/Solver.cc.xml', 'stmt', 386)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | ParamSetting(('minisat.params', 'asymm'), 'False') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 13:13:01,567	[INFO]	21      SUCCESS              +1198.9687 (115.2%) [9 edit(s)] 
+2023-07-15 13:13:01,584	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -818,6 +818,7 @@
+             if (luby_restart && conflictC >= nof_conflicts ||
+                !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+                 // Reached bound on number of conflicts:
++                conflict.clear();
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+@@ -848,7 +849,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1010,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 13:26:18,736	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 468), ('core/Solver.cc.xml', 'stmt', 386)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | ParamSetting(('minisat.params', 'asymm'), 'False') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 13:26:18,737	[INFO]	22      SUCCESS              +793.4912 (76.24%) [9 edit(s)] 
+2023-07-15 13:26:18,754	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -818,6 +818,7 @@
+             if (luby_restart && conflictC >= nof_conflicts ||
+                !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+                 // Reached bound on number of conflicts:
++                conflict.clear();
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+@@ -1009,6 +1010,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 13:38:50,559	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | ParamSetting(('minisat.params', 'asymm'), 'False') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 13:38:50,559	[INFO]	23      SUCCESS              *748.3977 (71.91%) [9 edit(s)] 
+2023-07-15 13:38:50,574	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 13:38:50,588	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 13:38:50,588	[INFO]	24      SUCCESS              *748.3977 (71.91%) [8 edit(s)] 
+2023-07-15 13:38:50,602	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 13:59:06,312	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 13:59:06,313	[INFO]	25      SUCCESS              +1212.0548 (116.45%) [7 edit(s)] 
+2023-07-15 13:59:06,327	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 14:12:24,562	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 14:12:24,562	[INFO]	26      SUCCESS              +794.7768 (76.36%) [7 edit(s)] 
+2023-07-15 14:12:24,576	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 14:25:04,612	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 14:25:04,613	[INFO]	27      SUCCESS              +756.6318 (72.7%) [7 edit(s)] 
+2023-07-15 14:25:04,626	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 14:41:29,301	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 14:41:29,301	[INFO]	28      SUCCESS              +981.1167 (94.26%) [7 edit(s)] 
+2023-07-15 14:41:29,315	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 14:56:12,431	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | ParamSetting(('minisat.params', 'K-val'), 0.5286948664606332) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 14:56:12,432	[INFO]	29      SUCCESS              +879.6712 (84.52%) [7 edit(s)] 
+2023-07-15 14:56:12,446	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 14:56:12,464	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 14:56:12,464	[INFO]	30      SUCCESS              *748.3977 (71.91%) [7 edit(s)] 
+2023-07-15 14:56:12,478	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 14:56:12,493	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 14:56:12,493	[INFO]	31      SUCCESS              +756.6318 (72.7%) [6 edit(s)] 
+2023-07-15 14:56:12,508	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 14:56:12,522	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 14:56:12,523	[INFO]	32      SUCCESS              +981.1167 (94.26%) [6 edit(s)] 
+2023-07-15 14:56:12,537	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 14:56:12,551	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 14:56:12,551	[INFO]	33      SUCCESS              +879.6712 (84.52%) [6 edit(s)] 
+2023-07-15 14:56:12,565	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 15:08:57,925	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 15:08:57,926	[INFO]	34      SUCCESS              +761.1615 (73.13%) [6 edit(s)] 
+2023-07-15 15:08:57,940	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-15 15:21:38,927	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551)
+2023-07-15 15:21:38,927	[INFO]	35      SUCCESS              +757.2999 (72.76%) [6 edit(s)] 
+2023-07-15 15:21:38,950	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 15:21:38,975	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 15:21:38,976	[INFO]	36      SUCCESS              +1212.0548 (116.45%) [6 edit(s)] 
+2023-07-15 15:21:39,001	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 15:21:39,027	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 15:21:39,027	[INFO]	37      SUCCESS              +794.7768 (76.36%) [6 edit(s)] 
+2023-07-15 15:21:39,052	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+
+2023-07-15 15:21:39,078	[INFO]	==== END ====
+2023-07-15 15:21:39,079	[INFO]	Reason: validation end
+2023-07-15 15:21:39,079	[INFO]	
+2023-07-15 15:21:39,079	[INFO]	==== REPORT ====
+2023-07-15 15:21:39,079	[INFO]	Termination: validation end
+2023-07-15 15:21:39,079	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689403051.log
+2023-07-15 15:21:39,097	[INFO]	Patch file: _magpie_logs/minisat-hack_1689403051.patch
+2023-07-15 15:21:39,098	[INFO]	Diff file: _magpie_logs/minisat-hack_1689403051.diff
+2023-07-15 15:21:39,098	[INFO]	Best fitness: 748.3977
+2023-07-15 15:21:39,098	[INFO]	Best patch: ParamSetting(('minisat.params', 'cp-increase'), 5159) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 361)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 297)) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | ParamSetting(('minisat.params', 'sub-lim'), 551) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 575), ('core/Solver.cc.xml', 'stmt', 394))
+2023-07-15 15:21:39,098	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -716,7 +716,7 @@
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+-    simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
++       // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+ }
+@@ -848,7 +848,7 @@
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
++                    if (adjust == 0)/*auto*/{ 
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+@@ -1009,6 +1009,12 @@
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
++    if (verbosity >= 1){
++        printf("c ============================[ Search Statistics ]==============================\n");
++        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
++        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        printf("c ===============================================================================\n");
++    }
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5159
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,8 +14,8 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 551
+ simp-gc-frac := 0.5
+

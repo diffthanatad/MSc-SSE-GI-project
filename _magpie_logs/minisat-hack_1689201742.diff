@@ -1,0 +1,55 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -1084,7 +1086,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
+-core-tolerance := 0.02
++cp-increase := 5170
++core-tolerance := 0.002230806431446908
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000

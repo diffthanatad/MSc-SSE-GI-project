@@ -1,0 +1,69 @@
+Phase Training
+    * First Improve
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC/train_1.txt
+
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/GI/train_1.txt
+
+/usr/local/bin/python3.10 -m bin.evolution_algorithm --scenario scenario/AC/train_1.txt
+
+/usr/local/bin/python3.10 -m bin.evolution_algorithm --scenario scenario/GI/train_1.txt
+
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_1.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_2.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_3.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_4.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_5.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_6.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_7.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_8.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_9.txt
+/usr/local/bin/python3.10 -m bin.local_search --scenario scenario/AC_GI/train_10.txt
+
+Phase Validation
+    * minify_patch
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/AC_1.txt --patch path/to/my/patch
+
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_1.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_2.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_3.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_4.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_5.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_6.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_7.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_8.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_9.txt --patch 
+/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_10.txt --patch 
+
+Phase Testing
+    * revalidate_patch
+
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689002027.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689021643.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689045418.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689064295.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689078341.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689002026.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689022206.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689037823.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689052340.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch minisat-hack_1689069565.patch
+
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689002028.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689026936.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689039930.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689055395.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689073007.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689002031.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689017955.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689039583.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689063952.patch
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch minisat-hack_1689079488.patch
+
+/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC_GI/test.txt --patch
+
+Commands
+    $ nohup ./my-scripts/g1.sh &
+    $ git push origin experiment
+    $ git fetch && git pull origin experiment 
+    $ git commit -m ":page_facing_up: minisat GI, AC Validation all folds."
+    $ git clean -f -x

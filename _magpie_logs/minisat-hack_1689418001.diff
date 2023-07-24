@@ -1,0 +1,10 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));

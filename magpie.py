@@ -26,4 +26,4 @@ if ((pref and pref != 'bin') or
     exit(1)
 
 # replace current process
-os.execlp('python3', 'python3', '-m', 'bin.{}'.format(stem), *argv)
+os.execlp('/usr/local/bin/python3.10', 'python3', '-m', 'bin.{}'.format(stem), *argv)

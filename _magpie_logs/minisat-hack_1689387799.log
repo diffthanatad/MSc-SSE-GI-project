@@ -1,0 +1,749 @@
+2023-07-15 03:23:19,940	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_1.sh
+run_timeout = 1294
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-15 03:23:19,940	[INFO]	==== WARMUP ====
+2023-07-15 03:41:18,776	[INFO]	WARM    SUCCESS               1070.1225               
+2023-07-15 03:59:13,335	[INFO]	WARM    SUCCESS               1070.9619               
+2023-07-15 04:17:04,317	[INFO]	WARM    SUCCESS               1067.4278               
+2023-07-15 04:17:04,317	[INFO]	INITIAL SUCCESS               1067.4278               
+2023-07-15 04:17:04,317	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-15 04:17:04,619	[DEBUG]	CLEAN_PATCH: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 333)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 448), ('core/Solver.cc.xml', 'stmt', 307)) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 350)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 200))
+2023-07-15 04:17:04,619	[DEBUG]	CLEAN_SIZE: 8 (was 10)
+2023-07-15 04:36:13,110	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 333)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 448), ('core/Solver.cc.xml', 'stmt', 307)) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 350)) | ParamSetting(('minisat.params', 'rinc'), 2.0491323181702996) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 449), ('core/Solver.cc.xml', 'stmt', 428)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 200))
+2023-07-15 04:36:13,111	[INFO]	1       SUCCESS              *1145.0249 (107.27%) [10 edit(s)] 
+2023-07-15 04:36:13,143	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -506,20 +506,7 @@
+ 
+     for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+         Var x = var(trail[i]);
+-        if (seen[x]){
+-            if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
+-                out_conflict.push(~trail[i]);
+-            }else{
+-                Clause& c = ca[reason(x)];
+-                for (int j = 1; j < c.size(); j++)/*auto*/{
+-                    if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
+-}/*auto*/
+-}/*auto*/
+-            }
+-            seen[x] = 0;
+-        }
++        
+     }
+ 
+     seen[var(p)] = 0;
+@@ -793,7 +780,7 @@
+               fprintf(output, "0\n");
+             }*/
+ 
+-            varDecayActivity();
++            
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+@@ -835,9 +822,7 @@
+ 
+                 static int adjust = 0;
+                 if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+-                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+-}/*auto*/
++                    
+ 
+                     if (!luby_restart){
+                         core_added = 0;
+@@ -973,7 +958,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1015,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+@@ -1057,10 +1042,7 @@
+ 
+     fprintf(f, "p cnf %d %d\n", max, cnt);
+ 
+-    for (int i = 0; i < assumptions.size(); i++){
+-        assert(value(assumptions[i]) != l_False);
+-        fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
+-    }
++    conflicts++;
+ 
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         toDimacs(f, ca[clauses[i]], map, max);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -11,7 +11,7 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+
+2023-07-15 04:36:13,143	[INFO]	-- ranking --
+2023-07-15 04:53:44,617	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452))
+2023-07-15 04:53:44,617	[INFO]	2       SUCCESS              *1047.6943 (98.15%) [1 edit(s)] 
+2023-07-15 04:53:44,629	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+
+2023-07-15 05:14:27,287	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 333))
+2023-07-15 05:14:27,287	[INFO]	3       SUCCESS              +1238.9679 (116.07%) [1 edit(s)] 
+2023-07-15 05:14:27,304	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -793,7 +793,7 @@
+               fprintf(output, "0\n");
+             }*/
+ 
+-            varDecayActivity();
++            
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+
+2023-07-15 05:32:16,256	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 448), ('core/Solver.cc.xml', 'stmt', 307))
+2023-07-15 05:32:16,256	[INFO]	4       SUCCESS              +1065.209 (99.79%) [1 edit(s)] 
+2023-07-15 05:32:16,274	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1057,10 +1057,7 @@
+ 
+     fprintf(f, "p cnf %d %d\n", max, cnt);
+ 
+-    for (int i = 0; i < assumptions.size(); i++){
+-        assert(value(assumptions[i]) != l_False);
+-        fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
+-    }
++    conflicts++;
+ 
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         toDimacs(f, ca[clauses[i]], map, max);
+
+2023-07-15 05:50:54,195	[DEBUG]	ParamSetting(('minisat.params', 'pre'), 'False')
+2023-07-15 05:50:54,195	[INFO]	5       SUCCESS              +1114.1014 (104.37%) [1 edit(s)] 
+2023-07-15 05:50:54,204	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -11,7 +11,7 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+
+2023-07-15 06:06:44,223	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425)
+2023-07-15 06:06:44,224	[INFO]	6       SUCCESS              *946.0418 (88.63%) [1 edit(s)] 
+2023-07-15 06:06:44,233	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 06:24:29,921	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 411))
+2023-07-15 06:24:29,921	[INFO]	7       SUCCESS              +1062.1131 (99.5%) [1 edit(s)] 
+2023-07-15 06:24:29,931	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+
+2023-07-15 06:42:13,281	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 350))
+2023-07-15 06:42:13,282	[INFO]	8       SUCCESS              +1059.7205 (99.28%) [1 edit(s)] 
+2023-07-15 06:42:13,292	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -835,9 +835,7 @@
+ 
+                 static int adjust = 0;
+                 if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+-                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+-}/*auto*/
++                    
+ 
+                     if (!luby_restart){
+                         core_added = 0;
+
+2023-07-15 06:42:13,301	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.0491323181702996)
+2023-07-15 06:42:13,302	[INFO]	9       SUCCESS              +1067.4278 (100.0%) [1 edit(s)] 
+2023-07-15 06:42:13,309	[DEBUG]	
+2023-07-15 06:42:13,767	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 449), ('core/Solver.cc.xml', 'stmt', 428))
+2023-07-15 06:42:13,767	[INFO]	10      COMPILE_CODE_ERROR    None  [1 edit(s)]       
+2023-07-15 06:59:58,593	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 200))
+2023-07-15 06:59:58,593	[INFO]	11      SUCCESS              +1061.2262 (99.42%) [1 edit(s)] 
+2023-07-15 06:59:58,603	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -506,20 +506,7 @@
+ 
+     for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+         Var x = var(trail[i]);
+-        if (seen[x]){
+-            if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
+-                out_conflict.push(~trail[i]);
+-            }else{
+-                Clause& c = ca[reason(x)];
+-                for (int j = 1; j < c.size(); j++)/*auto*/{
+-                    if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
+-}/*auto*/
+-}/*auto*/
+-            }
+-            seen[x] = 0;
+-        }
++        
+     }
+ 
+     seen[var(p)] = 0;
+
+2023-07-15 06:59:58,603	[INFO]	-- rebuild --
+2023-07-15 07:15:45,007	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452))
+2023-07-15 07:15:45,007	[INFO]	12      SUCCESS              *942.651 (88.31%) [2 edit(s)] 
+2023-07-15 07:15:45,019	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 07:31:59,609	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 350))
+2023-07-15 07:31:59,609	[INFO]	13      SUCCESS              +970.5631 (90.93%) [3 edit(s)] 
+2023-07-15 07:31:59,622	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -835,9 +835,7 @@
+ 
+                 static int adjust = 0;
+                 if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+-                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+-}/*auto*/
++                    
+ 
+                     if (!luby_restart){
+                         core_added = 0;
+@@ -1030,7 +1028,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 07:47:53,404	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 200))
+2023-07-15 07:47:53,405	[INFO]	14      SUCCESS              +949.7031 (88.97%) [3 edit(s)] 
+2023-07-15 07:47:53,417	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -506,20 +506,7 @@
+ 
+     for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+         Var x = var(trail[i]);
+-        if (seen[x]){
+-            if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
+-                out_conflict.push(~trail[i]);
+-            }else{
+-                Clause& c = ca[reason(x)];
+-                for (int j = 1; j < c.size(); j++)/*auto*/{
+-                    if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
+-}/*auto*/
+-}/*auto*/
+-            }
+-            seen[x] = 0;
+-        }
++        
+     }
+ 
+     seen[var(p)] = 0;
+@@ -1030,7 +1017,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 08:03:36,895	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411))
+2023-07-15 08:03:36,896	[INFO]	15      SUCCESS              *939.5417 (88.02%) [3 edit(s)] 
+2023-07-15 08:03:36,919	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 08:19:20,158	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 448), ('core/Solver.cc.xml', 'stmt', 307))
+2023-07-15 08:19:20,158	[INFO]	16      SUCCESS              +939.7528 (88.04%) [4 edit(s)] 
+2023-07-15 08:19:20,171	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+@@ -1057,10 +1057,7 @@
+ 
+     fprintf(f, "p cnf %d %d\n", max, cnt);
+ 
+-    for (int i = 0; i < assumptions.size(); i++){
+-        assert(value(assumptions[i]) != l_False);
+-        fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
+-    }
++    conflicts++;
+ 
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         toDimacs(f, ca[clauses[i]], map, max);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 08:19:20,183	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411)) | ParamSetting(('minisat.params', 'rinc'), 2.0491323181702996)
+2023-07-15 08:19:20,183	[INFO]	17      SUCCESS              +939.5417 (88.02%) [4 edit(s)] 
+2023-07-15 08:19:20,194	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 08:35:51,350	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411)) | ParamSetting(('minisat.params', 'pre'), 'False')
+2023-07-15 08:35:51,351	[INFO]	18      SUCCESS              +987.1632 (92.48%) [4 edit(s)] 
+2023-07-15 08:35:51,364	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -11,7 +11,7 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := 1
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+
+2023-07-15 08:53:54,563	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 333))
+2023-07-15 08:53:54,563	[INFO]	19      SUCCESS              +1079.6802 (101.15%) [4 edit(s)] 
+2023-07-15 08:53:54,577	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -793,7 +793,7 @@
+               fprintf(output, "0\n");
+             }*/
+ 
+-            varDecayActivity();
++            
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 08:53:55,239	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 449), ('core/Solver.cc.xml', 'stmt', 428))
+2023-07-15 08:53:55,239	[INFO]	20      COMPILE_CODE_ERROR    None  [4 edit(s)]       
+2023-07-15 08:53:55,239	[INFO]	-- simplify --
+2023-07-15 09:11:30,962	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411))
+2023-07-15 09:11:30,963	[INFO]	21      SUCCESS              +1051.693 (98.53%) [2 edit(s)] 
+2023-07-15 09:11:30,975	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+
+2023-07-15 09:27:25,137	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411))
+2023-07-15 09:27:25,138	[INFO]	22      SUCCESS              +950.5908 (89.05%) [2 edit(s)] 
+2023-07-15 09:27:25,148	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 09:27:25,159	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452))
+2023-07-15 09:27:25,159	[INFO]	23      SUCCESS              +942.651 (88.31%) [2 edit(s)] 
+2023-07-15 09:27:25,170	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 09:27:25,181	[INFO]	==== END ====
+2023-07-15 09:27:25,181	[INFO]	Reason: validation end
+2023-07-15 09:27:25,181	[INFO]	
+2023-07-15 09:27:25,181	[INFO]	==== REPORT ====
+2023-07-15 09:27:25,181	[INFO]	Termination: validation end
+2023-07-15 09:27:25,181	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689387799.log
+2023-07-15 09:27:25,192	[INFO]	Patch file: _magpie_logs/minisat-hack_1689387799.patch
+2023-07-15 09:27:25,193	[INFO]	Diff file: _magpie_logs/minisat-hack_1689387799.diff
+2023-07-15 09:27:25,193	[INFO]	Best fitness: 939.5417
+2023-07-15 09:27:25,193	[INFO]	Best patch: ParamSetting(('minisat.params', 'cp-increase'), 5425) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 592), ('core/Solver.cc.xml', 'stmt', 452)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 411))
+2023-07-15 09:27:25,193	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+

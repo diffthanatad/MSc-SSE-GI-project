@@ -1,0 +1,478 @@
+2023-07-15 02:37:06,937	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_7.sh
+run_timeout = 1290
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-15 02:37:06,937	[INFO]	==== WARMUP ====
+2023-07-15 02:54:22,957	[INFO]	WARM    SUCCESS               1026.6256               
+2023-07-15 03:11:36,554	[INFO]	WARM    SUCCESS               1029.8303               
+2023-07-15 03:28:59,579	[INFO]	WARM    SUCCESS               1039.44                 
+2023-07-15 03:28:59,579	[INFO]	INITIAL SUCCESS               1039.44                 
+2023-07-15 03:28:59,579	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-15 03:28:59,810	[DEBUG]	CLEAN_PATCH: StmtReplacement(('core/Solver.cc.xml', 'stmt', 334), ('core/Solver.cc.xml', 'stmt', 378)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 48), ('core/Solver.cc.xml', 'stmt', 215)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 334), ('core/Solver.cc.xml', 'stmt', 95)) | ParamSetting(('minisat.params', 'grow'), -409) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 268)) | ParamSetting(('minisat.params', 'rcheck'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 37))
+2023-07-15 03:28:59,811	[DEBUG]	CLEAN_SIZE: 7 (was 7)
+2023-07-15 03:49:04,800	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 334), ('core/Solver.cc.xml', 'stmt', 378)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 48), ('core/Solver.cc.xml', 'stmt', 215)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 334), ('core/Solver.cc.xml', 'stmt', 95)) | ParamSetting(('minisat.params', 'grow'), -409) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 268)) | ParamSetting(('minisat.params', 'rcheck'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 37))
+2023-07-15 03:49:04,801	[INFO]	1       SUCCESS              *1201.4974 (115.59%) [7 edit(s)] 
+2023-07-15 03:49:04,817	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -155,7 +155,7 @@
+ 
+ bool Solver::addClause_(vec<Lit>& ps)
+ {
+-    assert(decisionLevel() == 0);
++    
+     if (!ok)/*auto*/{ return false;
+ }/*auto*/
+ 
+@@ -202,6 +202,7 @@
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
++        int     num_props = 0;
+         attachClause(cr);
+     }
+ 
+@@ -598,6 +599,7 @@
+                     *j++ = *i++;
+ }/*auto*/
+             }else/*auto*/{
++                Var next = var_Undef;
+                 uncheckedEnqueue(first, cr);
+ }/*auto*/
+ 
+@@ -646,7 +648,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    
+ }
+ 
+ 
+@@ -794,7 +796,7 @@
+             }*/
+ 
+             varDecayActivity();
+-            claDecayActivity();
++            int size, seq;
+ 
+             //if (--learntsize_adjust_cnt == 0){
+             if (conflicts % 5000 == 0){
+--- before: minisat.params
++++ after: minisat.params
+@@ -13,9 +13,9 @@
+ verb := 1
+ pre := 'True'
+ asymm := 'False'
+-rcheck := 'False'
++rcheck := 'True'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 03:49:04,818	[INFO]	-- ranking --
+2023-07-15 04:08:03,174	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 334), ('core/Solver.cc.xml', 'stmt', 378))
+2023-07-15 04:08:03,175	[INFO]	2       SUCCESS              *1134.6177 (109.16%) [1 edit(s)] 
+2023-07-15 04:08:03,185	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -794,7 +794,7 @@
+             }*/
+ 
+             varDecayActivity();
+-            claDecayActivity();
++            int size, seq;
+ 
+             //if (--learntsize_adjust_cnt == 0){
+             if (conflicts % 5000 == 0){
+
+2023-07-15 04:25:24,556	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 48), ('core/Solver.cc.xml', 'stmt', 215))
+2023-07-15 04:25:24,557	[INFO]	3       SUCCESS              *1037.7194 (99.83%) [1 edit(s)] 
+2023-07-15 04:25:24,568	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -202,6 +202,7 @@
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
++        int     num_props = 0;
+         attachClause(cr);
+     }
+ 
+
+2023-07-15 04:42:41,287	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 334), ('core/Solver.cc.xml', 'stmt', 95))
+2023-07-15 04:42:41,288	[INFO]	4       SUCCESS              *1033.1929 (99.4%) [1 edit(s)] 
+2023-07-15 04:42:41,299	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -598,6 +598,7 @@
+                     *j++ = *i++;
+ }/*auto*/
+             }else/*auto*/{
++                Var next = var_Undef;
+                 uncheckedEnqueue(first, cr);
+ }/*auto*/
+ 
+
+2023-07-15 04:59:49,540	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -409)
+2023-07-15 04:59:49,540	[INFO]	5       SUCCESS              *1024.3654 (98.55%) [1 edit(s)] 
+2023-07-15 04:59:49,549	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 05:17:35,469	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 268))
+2023-07-15 05:17:35,470	[INFO]	6       SUCCESS              +1062.5126 (102.22%) [1 edit(s)] 
+2023-07-15 05:17:35,479	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -646,7 +646,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    
+ }
+ 
+ 
+
+2023-07-15 05:34:50,489	[DEBUG]	ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-07-15 05:34:50,490	[INFO]	7       SUCCESS              +1030.8045 (99.17%) [1 edit(s)] 
+2023-07-15 05:34:50,502	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -13,7 +13,7 @@
+ verb := 1
+ pre := 'True'
+ asymm := 'False'
+-rcheck := 'False'
++rcheck := 'True'
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+
+2023-07-15 05:51:58,609	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 37))
+2023-07-15 05:51:58,609	[INFO]	8       SUCCESS              +1024.535 (98.57%) [1 edit(s)] 
+2023-07-15 05:51:58,619	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -155,7 +155,7 @@
+ 
+ bool Solver::addClause_(vec<Lit>& ps)
+ {
+-    assert(decisionLevel() == 0);
++    
+     if (!ok)/*auto*/{ return false;
+ }/*auto*/
+ 
+
+2023-07-15 05:51:58,619	[INFO]	-- rebuild --
+2023-07-15 06:09:23,141	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -409) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 37))
+2023-07-15 06:09:23,142	[INFO]	9       SUCCESS              +1041.0646 (100.16%) [2 edit(s)] 
+2023-07-15 06:09:23,151	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -155,7 +155,7 @@
+ 
+ bool Solver::addClause_(vec<Lit>& ps)
+ {
+-    assert(decisionLevel() == 0);
++    
+     if (!ok)/*auto*/{ return false;
+ }/*auto*/
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 06:26:46,470	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -409) | ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-07-15 06:26:46,471	[INFO]	10      SUCCESS              +1039.4078 (100.0%) [2 edit(s)] 
+2023-07-15 06:26:46,487	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -13,9 +13,9 @@
+ verb := 1
+ pre := 'True'
+ asymm := 'False'
+-rcheck := 'False'
++rcheck := 'True'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 06:43:58,768	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -409) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 334), ('core/Solver.cc.xml', 'stmt', 95))
+2023-07-15 06:43:58,769	[INFO]	11      SUCCESS              +1028.7893 (98.98%) [2 edit(s)] 
+2023-07-15 06:43:58,790	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -598,6 +598,7 @@
+                     *j++ = *i++;
+ }/*auto*/
+             }else/*auto*/{
++                Var next = var_Undef;
+                 uncheckedEnqueue(first, cr);
+ }/*auto*/
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 07:01:05,386	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -409) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 48), ('core/Solver.cc.xml', 'stmt', 215))
+2023-07-15 07:01:05,387	[INFO]	12      SUCCESS              *1022.7908 (98.4%) [2 edit(s)] 
+2023-07-15 07:01:05,407	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -202,6 +202,7 @@
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
++        int     num_props = 0;
+         attachClause(cr);
+     }
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 07:18:37,237	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -409) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 48), ('core/Solver.cc.xml', 'stmt', 215)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 268))
+2023-07-15 07:18:37,238	[INFO]	13      SUCCESS              +1048.381 (100.86%) [3 edit(s)] 
+2023-07-15 07:18:37,250	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -202,6 +202,7 @@
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
++        int     num_props = 0;
+         attachClause(cr);
+     }
+ 
+@@ -646,7 +647,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 07:37:31,197	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -409) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 48), ('core/Solver.cc.xml', 'stmt', 215)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 334), ('core/Solver.cc.xml', 'stmt', 378))
+2023-07-15 07:37:31,198	[INFO]	14      SUCCESS              +1130.0577 (108.72%) [3 edit(s)] 
+2023-07-15 07:37:31,211	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -202,6 +202,7 @@
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
++        int     num_props = 0;
+         attachClause(cr);
+     }
+ 
+@@ -794,7 +795,7 @@
+             }*/
+ 
+             varDecayActivity();
+-            claDecayActivity();
++            int size, seq;
+ 
+             //if (--learntsize_adjust_cnt == 0){
+             if (conflicts % 5000 == 0){
+--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 07:37:31,211	[INFO]	-- simplify --
+2023-07-15 07:37:31,221	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 48), ('core/Solver.cc.xml', 'stmt', 215))
+2023-07-15 07:37:31,221	[INFO]	15      SUCCESS              +1037.7194 (99.83%) [1 edit(s)] 
+2023-07-15 07:37:31,232	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -202,6 +202,7 @@
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
++        int     num_props = 0;
+         attachClause(cr);
+     }
+ 
+
+2023-07-15 07:37:31,240	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -409)
+2023-07-15 07:37:31,241	[INFO]	16      SUCCESS              +1024.3654 (98.55%) [1 edit(s)] 
+2023-07-15 07:37:31,249	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 07:37:31,259	[INFO]	==== END ====
+2023-07-15 07:37:31,259	[INFO]	Reason: validation end
+2023-07-15 07:37:31,259	[INFO]	
+2023-07-15 07:37:31,259	[INFO]	==== REPORT ====
+2023-07-15 07:37:31,260	[INFO]	Termination: validation end
+2023-07-15 07:37:31,260	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689385026.log
+2023-07-15 07:37:31,270	[INFO]	Patch file: _magpie_logs/minisat-hack_1689385026.patch
+2023-07-15 07:37:31,270	[INFO]	Diff file: _magpie_logs/minisat-hack_1689385026.diff
+2023-07-15 07:37:31,270	[INFO]	Best fitness: 1022.7908
+2023-07-15 07:37:31,270	[INFO]	Best patch: ParamSetting(('minisat.params', 'grow'), -409) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 48), ('core/Solver.cc.xml', 'stmt', 215))
+2023-07-15 07:37:31,270	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -202,6 +202,7 @@
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
++        int     num_props = 0;
+         attachClause(cr);
+     }
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
