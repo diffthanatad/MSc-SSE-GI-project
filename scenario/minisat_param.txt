@@ -12,7 +12,7 @@ setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 9
 run_cmd = run-sh/train_1.sh
-run_timeout = 52
+run_timeout = 100
 
 [search]
 warmup = 1
