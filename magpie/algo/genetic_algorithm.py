@@ -16,8 +16,8 @@ class GeneticAlgorithm(Algorithm):
         self.config['pop_size'] = 10
         self.config['delete_prob'] = 0.5
 
-        self.config['cxpb_chrm'] = 0.9
-        self.config['cxpb_gene'] = 0.9
+        self.config['cxpb_chrm'] = 0.5
+        self.config['cxpb_gene'] = 0.5
         self.config['mutpb_chrm'] = 0.2
         self.config['mutpb_gene'] = 0.1
         
@@ -84,60 +84,35 @@ class GeneticAlgorithm(Algorithm):
                         # print()
                 for i in range(self.config['pop_size']):
                     if random.random() <= self.config['mutpb_chrm']:
+                        # print("before:", offsprings[i])
                         self.mutate(offsprings[i])
-                break
-
-                # first, new offsprings from two parents
-                # for _ in range(self.config['pop_size']):
-                #     parent1 = self.tournament_selection(pop)                    # selection
-                #     parent2 = self.tournament_selection(pop)
-
-                #     if random.random() <= self.config['crossover_rate']:
-                #         sol1, sol2 = self.crossover(parent1, parent2)           # crossover
-                #         self.mutate(sol1)                                       # mutation     
-                #         self.mutate(sol2)
-
-                #         offsprings_temp.append(sol1)
-                #         offsprings_temp.append(sol2)
-
-                # # second, new offsprings from initialisation             
-                # while len(offsprings_temp) < self.config['pop_size']:
-                #     sol = self.create_solution()
-                #     if sol in pop:
-                #         continue
-                #     offsprings_temp.append(sol)
+                        # print("after:", offsprings[i])
                 
-                # # elitisim
-                # parents = self.select(pop)
-                # copy_parents = copy.deepcopy(parents)
-                # k = int(self.config['pop_size']*self.config['offspring_elitism'])
-                # for parent in copy_parents[:k]:
-                #     offsprings.append(parent)
-                # N = self.config['pop_size'] - len(offsprings)
-                # offsprings += random.sample(offsprings_temp, N)
+                # print(len(offsprings), self.config['pop_size'], len(offsprings) == self.config['pop_size'])
+                # break
 
-                # # evaluate offsprings
-                # pop.clear()
-                # local_best = None
-                # local_best_fitness = None
-                # for sol in offsprings:
-                #     if self.stopping_condition():
-                #         break
-                #     run = self.evaluate_patch(sol)
-                #     accept = best = False
-                #     if run.status == 'SUCCESS':
-                #         if self.dominates(run.fitness, local_best_fitness):
-                #             self.program.logger.debug(self.program.diff_patch(sol))
-                #             local_best_fitness = run.fitness
-                #             local_best = sol
-                #             accept = True
-                #             if self.dominates(run.fitness, self.report['best_fitness']):
-                #                 self.report['best_fitness'] = run.fitness
-                #                 self.report['best_patch'] = sol
-                #                 best = True
-                #     self.hook_evaluation(sol, run, accept, best)
-                #     pop[sol] = run
-                #     self.stats['steps'] += 1
+                # evaluate offsprings
+                pop.clear()
+                local_best = None
+                local_best_fitness = None
+                for sol in offsprings:
+                    if self.stopping_condition():
+                        break
+                    run = self.evaluate_patch(sol)
+                    accept = best = False
+                    if run.status == 'SUCCESS':
+                        if self.dominates(run.fitness, local_best_fitness):
+                            self.program.logger.debug(self.program.diff_patch(sol))
+                            local_best_fitness = run.fitness
+                            local_best = sol
+                            accept = True
+                            if self.dominates(run.fitness, self.report['best_fitness']):
+                                self.report['best_fitness'] = run.fitness
+                                self.report['best_patch'] = sol
+                                best = True
+                    self.hook_evaluation(sol, run, accept, best)
+                    pop[sol] = run
+                    self.stats['steps'] += 1
 
         except KeyboardInterrupt:
             self.report['stop'] = 'keyboard interrupt'
@@ -156,6 +131,7 @@ class GeneticAlgorithm(Algorithm):
         N = len(edits)
         for i in range(N):
             if random.random() <= self.config['mutpb_gene']:
+                # print(edits[i].target[1])
                 if isinstance(edits[i], ParamSetting):
                     edits[i] = self.create_specific_edit(edits[i])
                 else:
@@ -198,18 +174,6 @@ class GeneticAlgorithm(Algorithm):
                 # GI
                 print("************ GI is here!!!, crossover();")
                 continue
-        
-    def filter(self, pop: dict) -> set[Patch]:
-        tmp = {sol for sol in pop if pop[sol].status == 'SUCCESS'}
-        return tmp
-
-    def select(self, pop: dict) -> list[Patch]:
-        """ 
-            returns possible parents, ordered by fitness 
-        """
-        tmp = self.filter(pop)
-        tmp = sorted(tmp, key=lambda sol: pop[sol].fitness)
-        return tmp
     
     def create_solution(self) -> Patch:
         """
