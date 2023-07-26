@@ -5,6 +5,7 @@ import time
 
 from .. import config as magpie_config
 from .patch import Patch
+from ..params import CategoricalRealm, GeometricRealm, UniformIntRealm
 
 class Algorithm(ABC):
     def __init__(self):
@@ -282,3 +283,31 @@ class Algorithm(ABC):
             if new_edit != edit:
                 break
         return new_edit
+    
+    def get_categorical_parameters(self):
+        parameters = list()
+        for target_file, contents in self.program.contents.items():
+            if target_file.endswith('.params') == False:
+                continue
+            for param_id, param_type in contents['space'].items():
+                if isinstance(param_type, CategoricalRealm):
+                    parameters.append(param_id)
+        return parameters
+    
+    def get_int_parameters(self):
+        parameters = list()
+        for target_file, contents in self.program.contents.items():
+            if target_file.endswith('.params') == False:
+                continue
+            for param_id, param_type in contents['space'].items():
+                if isinstance(param_type, (GeometricRealm, UniformIntRealm)):
+                    parameters.append(param_id)
+        return parameters
+
+    def get_target_file_for_parameter(self, target_param):
+        for target_file, locations in self.program.locations.items():
+            if target_file.endswith('.params') == False:
+                continue
+            for param_id in locations['param']:
+                if target_param == param_id:
+                    return target_file
