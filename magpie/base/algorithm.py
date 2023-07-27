@@ -6,6 +6,7 @@ import time
 from .. import config as magpie_config
 from .patch import Patch
 from ..params import CategoricalRealm, GeometricRealm, UniformIntRealm
+from ..params import edits as ParamEdits
 
 class Algorithm(ABC):
     def __init__(self):
@@ -259,17 +260,39 @@ class Algorithm(ABC):
         return False
 
     def create_all_edits(self):
-        full_edits = []
+        full_edits = list()
         edit_klass = self.config['possible_edits']
         N = len(edit_klass)
+        GI = False
+        # Create edit for all parameters.
         for i in range(N):
+            if edit_klass[i] not in [*ParamEdits]:
+                GI = True
+                continue
             tries = magpie_config.edit_retries
             while (edits := edit_klass[i].create_all(self.program)) is None:
                 tries -= 1
                 if tries == 0:
                     raise RuntimeError('unable to create an edit of class {}'.format(edit_klass.__name__))
             full_edits += edits
+        # Create 1 edit for GI if there is an associated possible_edits.
+        if GI:
+            GI_edit = self.create_GI_edit()
+            full_edits.append(GI_edit)
         return full_edits
+    
+    def create_GI_edit(self):
+        """ Create 1 GI related edit and return Class Edit. """
+        while True:
+            edit_klass = random.choice(self.config['possible_edits'])
+            if edit_klass not in [*ParamEdits]:
+                break
+        tries = magpie_config.edit_retries
+        while (edit := edit_klass.create(self.program)) is None:
+            tries -= 1
+            if tries == 0:
+                raise RuntimeError('unable to create an edit of class {}'.format(edit_klass.__name__))
+        return edit
 
     def create_specific_edit(self, edit):
         """
@@ -311,3 +334,9 @@ class Algorithm(ABC):
             for param_id in locations['param']:
                 if target_param == param_id:
                     return target_file
+    
+    def get_exist_GI_possible_edits(self):
+        for edit_klass in self.config['possible_edits']:
+            if edit_klass not in [*ParamEdits]:
+                return True
+        return False
