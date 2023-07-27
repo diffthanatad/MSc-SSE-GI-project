@@ -100,13 +100,11 @@ number: literal_number""",
     # [search.ga]
     'search.ga': {
         'pop_size': 10,
+        'cxpb_chrm': 0.5,
+        'cxpb_gene': 0.5,
+        'mutpb_chrm': 0.2,
+        'mutpb_gene': 0.1,
         'delete_prob': 0.5,
-        'offspring_elitism': 0.1,
-        'offspring_crossover': 0.5,
-        'offspring_mutation': 0.4,
-        'uniform_rate': 0.5,
-        'crossover_rate': 0.5,
-        'mutation_rate': 0.1,
         'tournament_size': 3,
     },
 
