@@ -120,11 +120,6 @@ class GeneticAlgorithm(Algorithm):
                     self.hook_evaluation(sol, run, accept, best)
                     pop.append(Chromosome(sol, run.fitness))
                     self.stats['steps'] += 1
-                print("offspring={}, pop={}".format(len(offsprings), len(pop)))
-                if len(offsprings) != len(pop):
-                    for i in pop:
-                        print("-", id(i))
-                print("--------------------")
 
         except KeyboardInterrupt:
             self.report['stop'] = 'keyboard interrupt'
