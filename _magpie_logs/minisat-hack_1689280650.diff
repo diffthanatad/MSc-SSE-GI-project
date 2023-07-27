@@ -1,0 +1,28 @@
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,14 +1,14 @@
+ lbd-cut := 5.0
+-lbd-cut-max := 10.0
+-cp-increase := 15000
++lbd-cut-max := 8.301655519825687
++cp-increase := 5927
+ core-tolerance := 0.02
+ var-decay := 0.95
+-cla-decay := 0.999
++cla-decay := 0.6430380316680031
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+-luby := 0
++luby := 1
+ gc-frac := 0.2
+ verb := 1
+ pre := 'True'
+@@ -18,4 +18,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.2027280648215093

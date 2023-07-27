@@ -1,0 +1,253 @@
+2023-07-15 01:17:38,558	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_2.sh
+run_timeout = 1267
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-15 01:17:38,559	[INFO]	==== WARMUP ====
+2023-07-15 01:35:22,453	[INFO]	WARM    SUCCESS               1055.7652               
+2023-07-15 01:52:44,316	[INFO]	WARM    SUCCESS               1038.3179               
+2023-07-15 02:09:56,114	[INFO]	WARM    SUCCESS               1027.7026               
+2023-07-15 02:09:56,115	[INFO]	INITIAL SUCCESS               1027.7026               
+2023-07-15 02:09:56,115	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-15 02:09:56,222	[DEBUG]	CLEAN_PATCH: StmtDeletion(('core/Solver.cc.xml', 'stmt', 441)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 453)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 196)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 2), ('core/Solver.cc.xml', 'stmt', 434)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 397))
+2023-07-15 02:09:56,222	[DEBUG]	CLEAN_SIZE: 5 (was 5)
+2023-07-15 02:27:17,238	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 441)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 453)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 196)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 2), ('core/Solver.cc.xml', 'stmt', 434)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 397))
+2023-07-15 02:27:17,239	[INFO]	1       SUCCESS              *1036.7305 (100.88%) [5 edit(s)] 
+2023-07-15 02:27:17,253	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -117,6 +117,7 @@
+ {
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
++    vec<Var> map;
+     K = (double)opt_K;
+     R = (double)opt_R;
+ }
+@@ -499,7 +500,7 @@
+     out_conflict.push(p);
+ 
+     if (decisionLevel() == 0)/*auto*/{
+-        return;
++        
+ }/*auto*/
+ 
+     seen[var(p)] = 1;
+@@ -951,7 +952,7 @@
+     if (verbosity >= 1){
+         printf("c ============================[ Search Statistics ]==============================\n");
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+-        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        
+         printf("c ===============================================================================\n");
+     }
+ 
+@@ -1042,14 +1043,7 @@
+ }/*auto*/
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        if (!satisfied(ca[clauses[i]])){
+-            Clause& c = ca[clauses[i]];
+-            for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
+-}/*auto*/
+-        }
++        
+ }/*auto*/
+ 
+     // Assumptions are added as unit clauses:
+@@ -1066,9 +1060,7 @@
+         toDimacs(f, ca[clauses[i]], map, max);
+ }/*auto*/
+ 
+-    if (verbosity > 0)/*auto*/{
+-        printf("Wrote %d clauses with %d variables.\n", cnt, max);
+-}/*auto*/
++    
+ }
+ 
+ 
+
+2023-07-15 02:27:17,253	[INFO]	-- ranking --
+2023-07-15 02:44:42,733	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 441))
+2023-07-15 02:44:42,734	[INFO]	2       SUCCESS              +1041.9084 (101.38%) [1 edit(s)] 
+2023-07-15 02:44:42,744	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1042,14 +1042,7 @@
+ }/*auto*/
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        if (!satisfied(ca[clauses[i]])){
+-            Clause& c = ca[clauses[i]];
+-            for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
+-}/*auto*/
+-        }
++        
+ }/*auto*/
+ 
+     // Assumptions are added as unit clauses:
+
+2023-07-15 03:01:58,401	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 453))
+2023-07-15 03:01:58,401	[INFO]	3       SUCCESS              *1032.0326 (100.42%) [1 edit(s)] 
+2023-07-15 03:01:58,411	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1066,9 +1066,7 @@
+         toDimacs(f, ca[clauses[i]], map, max);
+ }/*auto*/
+ 
+-    if (verbosity > 0)/*auto*/{
+-        printf("Wrote %d clauses with %d variables.\n", cnt, max);
+-}/*auto*/
++    
+ }
+ 
+ 
+
+2023-07-15 03:19:22,155	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 196))
+2023-07-15 03:19:22,155	[INFO]	4       SUCCESS              +1040.1779 (101.21%) [1 edit(s)] 
+2023-07-15 03:19:22,165	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -499,7 +499,7 @@
+     out_conflict.push(p);
+ 
+     if (decisionLevel() == 0)/*auto*/{
+-        return;
++        
+ }/*auto*/
+ 
+     seen[var(p)] = 1;
+
+2023-07-15 03:36:52,094	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 2), ('core/Solver.cc.xml', 'stmt', 434))
+2023-07-15 03:36:52,094	[INFO]	5       SUCCESS              +1046.0336 (101.78%) [1 edit(s)] 
+2023-07-15 03:36:52,105	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -117,6 +117,7 @@
+ {
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
++    vec<Var> map;
+     K = (double)opt_K;
+     R = (double)opt_R;
+ }
+
+2023-07-15 03:54:15,277	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 397))
+2023-07-15 03:54:15,278	[INFO]	6       SUCCESS              +1039.3108 (101.13%) [1 edit(s)] 
+2023-07-15 03:54:15,288	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -951,7 +951,7 @@
+     if (verbosity >= 1){
+         printf("c ============================[ Search Statistics ]==============================\n");
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+-        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        
+         printf("c ===============================================================================\n");
+     }
+ 
+
+2023-07-15 03:54:15,288	[INFO]	-- simplify --
+2023-07-15 03:54:15,296	[DEBUG]	
+2023-07-15 03:54:15,296	[INFO]	7       SUCCESS              *1027.7026 (100.0%) [0 edit(s)] 
+2023-07-15 03:54:15,304	[DEBUG]	
+2023-07-15 03:54:15,312	[INFO]	==== END ====
+2023-07-15 03:54:15,312	[INFO]	Reason: validation end
+2023-07-15 03:54:15,312	[INFO]	
+2023-07-15 03:54:15,313	[INFO]	==== REPORT ====
+2023-07-15 03:54:15,313	[INFO]	Termination: validation end
+2023-07-15 03:54:15,313	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689380258.log
+2023-07-15 03:54:15,321	[INFO]	Patch file: _magpie_logs/minisat-hack_1689380258.patch
+2023-07-15 03:54:15,321	[INFO]	Diff file: _magpie_logs/minisat-hack_1689380258.diff
+2023-07-15 03:54:15,321	[INFO]	Best fitness: 1027.7026
+2023-07-15 03:54:15,321	[INFO]	Best patch: 
+2023-07-15 03:54:15,321	[INFO]	Diff:
+

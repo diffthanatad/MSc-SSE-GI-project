@@ -1,0 +1,11 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -925,7 +925,7 @@
+ }/*auto*/
+ 
+     while (size-1 != x){
+-        size = (size-1)>>1;
++        
+         seq--;
+         x = x % size;
+     }

@@ -1,0 +1,1299 @@
+2023-07-15 21:05:53,222	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_10.sh
+run_timeout = 1187
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-15 21:05:53,222	[INFO]	==== WARMUP ====
+2023-07-15 21:21:37,329	[INFO]	WARM    SUCCESS               935.7426                
+2023-07-15 21:37:22,797	[INFO]	WARM    SUCCESS               941.9201                
+2023-07-15 21:53:01,501	[INFO]	WARM    SUCCESS               935.1201                
+2023-07-15 21:53:01,501	[INFO]	INITIAL SUCCESS               935.1201                
+2023-07-15 21:53:01,501	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-15 21:53:01,747	[DEBUG]	CLEAN_PATCH: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'core-tolerance'), 0.002230806431446908) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-15 21:53:01,747	[DEBUG]	CLEAN_SIZE: 8 (was 10)
+2023-07-15 22:06:58,086	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'core-tolerance'), 0.002230806431446908) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-15 22:06:58,087	[INFO]	1       SUCCESS              *832.6256 (89.04%) [10 edit(s)] 
+2023-07-15 22:06:58,102	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -1084,7 +1086,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
+-core-tolerance := 0.02
++cp-increase := 5170
++core-tolerance := 0.002230806431446908
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-15 22:06:58,102	[INFO]	-- ranking --
+2023-07-15 22:22:54,949	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22))
+2023-07-15 22:22:54,950	[INFO]	2       SUCCESS              +953.2321 (101.94%) [1 edit(s)] 
+2023-07-15 22:22:54,970	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+
+2023-07-15 22:39:09,300	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), 1)
+2023-07-15 22:39:09,300	[INFO]	3       SUCCESS              +970.8874 (103.82%) [1 edit(s)] 
+2023-07-15 22:39:09,309	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -6,7 +6,7 @@
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+
+2023-07-15 22:55:39,345	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702)
+2023-07-15 22:55:39,346	[INFO]	4       SUCCESS              +986.3263 (105.48%) [1 edit(s)] 
+2023-07-15 22:55:39,354	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,4 +1,4 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+ cp-increase := 15000
+ core-tolerance := 0.02
+
+2023-07-15 23:12:30,488	[DEBUG]	ParamSetting(('minisat.params', 'elim'), 'True')
+2023-07-15 23:12:30,488	[INFO]	5       SUCCESS              +1006.7971 (107.67%) [1 edit(s)] 
+2023-07-15 23:12:30,497	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-15 23:29:11,285	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32))
+2023-07-15 23:29:11,286	[INFO]	6       SUCCESS              +996.8561 (106.6%) [1 edit(s)] 
+2023-07-15 23:29:11,302	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -830,6 +830,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+
+2023-07-15 23:45:47,807	[DEBUG]	ParamSetting(('minisat.params', 'core-tolerance'), 0.002230806431446908)
+2023-07-15 23:45:47,808	[INFO]	7       SUCCESS              +992.6 (106.15%) [1 edit(s)] 
+2023-07-15 23:45:47,817	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,7 +1,7 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+ cp-increase := 15000
+-core-tolerance := 0.02
++core-tolerance := 0.002230806431446908
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+
+2023-07-16 00:02:33,148	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 457))
+2023-07-16 00:02:33,148	[INFO]	8       SUCCESS              +1001.4839 (107.1%) [1 edit(s)] 
+2023-07-16 00:02:33,158	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1084,7 +1084,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+
+2023-07-16 00:02:33,171	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457)
+2023-07-16 00:02:33,171	[INFO]	9       SUCCESS              +935.1201 (100.0%) [1 edit(s)] 
+2023-07-16 00:02:33,187	[DEBUG]	
+2023-07-16 00:19:30,237	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 00:19:30,238	[INFO]	10      SUCCESS              +1013.2463 (108.35%) [1 edit(s)] 
+2023-07-16 00:19:30,251	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-16 00:19:30,267	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 00:19:30,267	[INFO]	11      SUCCESS              +935.1201 (100.0%) [1 edit(s)] 
+2023-07-16 00:19:30,279	[DEBUG]	
+2023-07-16 00:19:30,279	[INFO]	-- simplify --
+2023-07-16 00:34:38,741	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'core-tolerance'), 0.002230806431446908) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 00:34:38,742	[INFO]	12      SUCCESS              +904.2444 (96.7%) [9 edit(s)] 
+2023-07-16 00:34:38,754	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -830,6 +830,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -1084,7 +1085,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
+-core-tolerance := 0.02
++cp-increase := 5170
++core-tolerance := 0.002230806431446908
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 00:49:16,688	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'core-tolerance'), 0.002230806431446908) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 00:49:16,689	[INFO]	13      SUCCESS              +874.3865 (93.51%) [9 edit(s)] 
+2023-07-16 00:49:16,704	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -1084,7 +1086,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,7 +1,7 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
+-core-tolerance := 0.02
++cp-increase := 5170
++core-tolerance := 0.002230806431446908
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 01:04:55,057	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'core-tolerance'), 0.002230806431446908) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 01:04:55,058	[INFO]	14      SUCCESS              +934.7013 (99.96%) [9 edit(s)] 
+2023-07-16 01:04:55,072	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -1084,7 +1086,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
+-core-tolerance := 0.02
++cp-increase := 5170
++core-tolerance := 0.002230806431446908
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 01:19:34,910	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'core-tolerance'), 0.002230806431446908) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 01:19:34,911	[INFO]	15      SUCCESS              +875.896 (93.67%) [9 edit(s)] 
+2023-07-16 01:19:34,925	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -1084,7 +1086,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
+-core-tolerance := 0.02
++cp-increase := 5170
++core-tolerance := 0.002230806431446908
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+
+2023-07-16 01:34:25,922	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | ParamSetting(('minisat.params', 'core-tolerance'), 0.002230806431446908) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 01:34:25,923	[INFO]	16      SUCCESS              +886.6961 (94.82%) [9 edit(s)] 
+2023-07-16 01:34:25,935	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -1084,7 +1085,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
+-core-tolerance := 0.02
++cp-increase := 5170
++core-tolerance := 0.002230806431446908
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 01:47:33,206	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 01:47:33,206	[INFO]	17      SUCCESS              *782.7176 (83.7%) [9 edit(s)] 
+2023-07-16 01:47:33,220	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -1084,7 +1086,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 02:00:49,098	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtDeletion(('core/Solver.cc.xml', 'stmt', 457)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 02:00:49,099	[INFO]	18      SUCCESS              +792.145 (84.71%) [8 edit(s)] 
+2023-07-16 02:00:49,111	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -1084,7 +1085,7 @@
+     // All watchers:
+     //
+     // for (int i = 0; i < watches.size(); i++)
+-    watches.cleanAll();
++    
+     for (int v = 0; v < nVars(); v++)/*auto*/{
+         for (int s = 0; s < 2; s++){
+             Lit p = mkLit(v, s);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 02:13:35,934	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170) | ParamSetting(('minisat.params', 'K-val'), 0.525824448410789)
+2023-07-16 02:13:35,935	[INFO]	19      SUCCESS              *762.9225 (81.59%) [8 edit(s)] 
+2023-07-16 02:13:35,953	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 02:13:35,966	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 02:13:35,966	[INFO]	20      SUCCESS              *762.9225 (81.59%) [7 edit(s)] 
+2023-07-16 02:13:35,979	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 02:26:53,651	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 02:26:53,651	[INFO]	21      SUCCESS              +794.094 (84.92%) [6 edit(s)] 
+2023-07-16 02:26:53,672	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -830,6 +830,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 02:39:48,415	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 02:39:48,416	[INFO]	22      SUCCESS              +770.7913 (82.43%) [6 edit(s)] 
+2023-07-16 02:39:48,429	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 02:54:32,088	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 02:54:32,089	[INFO]	23      SUCCESS              +880.1551 (94.12%) [6 edit(s)] 
+2023-07-16 02:54:32,103	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 03:09:52,124	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:09:52,125	[INFO]	24      SUCCESS              +916.3714 (98.0%) [6 edit(s)] 
+2023-07-16 03:09:52,139	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+
+2023-07-16 03:22:47,692	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | ParamSetting(('minisat.params', 'R-val'), 1.3261784131698457) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:22:47,693	[INFO]	25      SUCCESS              +772.0295 (82.56%) [6 edit(s)] 
+2023-07-16 03:22:47,714	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 03:22:47,739	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:22:47,739	[INFO]	26      SUCCESS              *762.9225 (81.59%) [6 edit(s)] 
+2023-07-16 03:22:47,762	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 03:22:47,776	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:22:47,776	[INFO]	27      SUCCESS              +770.7913 (82.43%) [5 edit(s)] 
+2023-07-16 03:22:47,790	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 03:22:47,803	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:22:47,803	[INFO]	28      SUCCESS              +880.1551 (94.12%) [5 edit(s)] 
+2023-07-16 03:22:47,815	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 03:22:47,827	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:22:47,828	[INFO]	29      SUCCESS              +916.3714 (98.0%) [5 edit(s)] 
+2023-07-16 03:22:47,840	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+
+2023-07-16 03:22:47,851	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:22:47,851	[INFO]	30      SUCCESS              +772.0295 (82.56%) [5 edit(s)] 
+2023-07-16 03:22:47,862	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 03:37:48,396	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32))
+2023-07-16 03:37:48,396	[INFO]	31      SUCCESS              +896.8084 (95.9%) [5 edit(s)] 
+2023-07-16 03:37:48,410	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,4 +1,4 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+ cp-increase := 15000
+ core-tolerance := 0.02
+@@ -6,7 +6,7 @@
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 03:37:48,421	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:37:48,421	[INFO]	32      SUCCESS              +794.094 (84.92%) [5 edit(s)] 
+2023-07-16 03:37:48,432	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -830,6 +830,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-07-16 03:37:48,446	[INFO]	==== END ====
+2023-07-16 03:37:48,446	[INFO]	Reason: validation end
+2023-07-16 03:37:48,446	[INFO]	
+2023-07-16 03:37:48,446	[INFO]	==== REPORT ====
+2023-07-16 03:37:48,446	[INFO]	Termination: validation end
+2023-07-16 03:37:48,446	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689451548.log
+2023-07-16 03:37:48,459	[INFO]	Patch file: _magpie_logs/minisat-hack_1689451548.patch
+2023-07-16 03:37:48,459	[INFO]	Diff file: _magpie_logs/minisat-hack_1689451548.diff
+2023-07-16 03:37:48,459	[INFO]	Best fitness: 762.9225
+2023-07-16 03:37:48,459	[INFO]	Best patch: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 318), ('core/Solver.cc.xml', 'stmt', 22)) | ParamSetting(('minisat.params', 'phase-saving'), 1) | ParamSetting(('minisat.params', 'lbd-cut'), 4.741522034379702) | ParamSetting(('minisat.params', 'elim'), 'True') | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 476), ('core/Solver.cc.xml', 'stmt', 32)) | ParamSetting(('minisat.params', 'cp-increase'), 5170)
+2023-07-16 03:37:48,460	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -578,6 +578,7 @@
+             Lit     first = c[0];
+             Watcher w     = Watcher(cr, first);
+             if (first != blocker && value(first) == l_True){
++                K = (double)opt_K;
+                 *j++ = w; continue; }
+ 
+             // Look for new watch:
+@@ -830,6 +831,7 @@
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
++                polarity .push(sign);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,12 +1,12 @@
+-lbd-cut := 5.0
++lbd-cut := 4.741522034379702
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5170
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := 2
+-phase-saving := 2
++phase-saving := 1
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+@@ -14,7 +14,7 @@
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'False'
++elim := 'True'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+

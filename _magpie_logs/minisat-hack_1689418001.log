@@ -1,0 +1,335 @@
+2023-07-15 11:46:42,377	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_3.sh
+run_timeout = 1266
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-15 11:46:42,378	[INFO]	==== WARMUP ====
+2023-07-15 12:02:52,875	[INFO]	WARM    SUCCESS               962.2992                
+2023-07-15 12:19:14,591	[INFO]	WARM    SUCCESS               977.9091                
+2023-07-15 12:35:27,496	[INFO]	WARM    SUCCESS               969.2697                
+2023-07-15 12:35:27,496	[INFO]	INITIAL SUCCESS               969.2697                
+2023-07-15 12:35:27,496	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-15 12:35:27,566	[DEBUG]	CLEAN_PATCH: ParamSetting(('minisat.params', 'cp-increase'), 5308) | ParamSetting(('minisat.params', 'sub-lim'), 700) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 51), ('core/Solver.cc.xml', 'stmt', 371)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 395))
+2023-07-15 12:35:27,566	[DEBUG]	CLEAN_SIZE: 5 (was 5)
+2023-07-15 12:53:28,040	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5308) | ParamSetting(('minisat.params', 'sub-lim'), 700) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 51), ('core/Solver.cc.xml', 'stmt', 371)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 358)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 395))
+2023-07-15 12:53:28,041	[INFO]	1       SUCCESS              *1076.6171 (111.08%) [5 edit(s)] 
+2023-07-15 12:53:28,053	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+@@ -846,8 +847,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+@@ -949,7 +949,7 @@
+     lbool   status            = l_Undef;
+ 
+     if (verbosity >= 1){
+-        printf("c ============================[ Search Statistics ]==============================\n");
++        
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+         printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+         printf("c ===============================================================================\n");
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5308
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 700
+ simp-gc-frac := 0.5
+
+2023-07-15 12:53:28,054	[INFO]	-- ranking --
+2023-07-15 13:11:02,626	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5308)
+2023-07-15 13:11:02,626	[INFO]	2       SUCCESS              *1051.0207 (108.43%) [1 edit(s)] 
+2023-07-15 13:11:02,637	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5308
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 13:27:32,247	[DEBUG]	ParamSetting(('minisat.params', 'sub-lim'), 700)
+2023-07-15 13:27:32,248	[INFO]	3       SUCCESS              *985.8218 (101.71%) [1 edit(s)] 
+2023-07-15 13:27:32,263	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 700
+ simp-gc-frac := 0.5
+
+2023-07-15 13:43:40,047	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 51), ('core/Solver.cc.xml', 'stmt', 371))
+2023-07-15 13:43:40,047	[INFO]	4       SUCCESS              *964.2778 (99.48%) [1 edit(s)] 
+2023-07-15 13:43:40,059	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+
+2023-07-15 14:00:26,375	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 358))
+2023-07-15 14:00:26,376	[INFO]	5       SUCCESS              +1002.8912 (103.47%) [1 edit(s)] 
+2023-07-15 14:00:26,385	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -846,8 +846,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+
+2023-07-15 14:16:43,855	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 395))
+2023-07-15 14:16:43,855	[INFO]	6       SUCCESS              +973.3915 (100.43%) [1 edit(s)] 
+2023-07-15 14:16:43,867	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -949,7 +949,7 @@
+     lbool   status            = l_Undef;
+ 
+     if (verbosity >= 1){
+-        printf("c ============================[ Search Statistics ]==============================\n");
++        
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+         printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+         printf("c ===============================================================================\n");
+
+2023-07-15 14:16:43,867	[INFO]	-- rebuild --
+2023-07-15 14:33:06,738	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 51), ('core/Solver.cc.xml', 'stmt', 371)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 395))
+2023-07-15 14:33:06,738	[INFO]	7       SUCCESS              +979.2473 (101.03%) [2 edit(s)] 
+2023-07-15 14:33:06,750	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+@@ -949,7 +950,7 @@
+     lbool   status            = l_Undef;
+ 
+     if (verbosity >= 1){
+-        printf("c ============================[ Search Statistics ]==============================\n");
++        
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+         printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+         printf("c ===============================================================================\n");
+
+2023-07-15 14:49:29,858	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 51), ('core/Solver.cc.xml', 'stmt', 371)) | ParamSetting(('minisat.params', 'sub-lim'), 700)
+2023-07-15 14:49:29,859	[INFO]	8       SUCCESS              +978.8936 (100.99%) [2 edit(s)] 
+2023-07-15 14:49:29,870	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+--- before: minisat.params
++++ after: minisat.params
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 700
+ simp-gc-frac := 0.5
+
+2023-07-15 15:06:04,584	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 51), ('core/Solver.cc.xml', 'stmt', 371)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 358))
+2023-07-15 15:06:04,584	[INFO]	9       SUCCESS              +991.238 (102.27%) [2 edit(s)] 
+2023-07-15 15:06:04,599	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+@@ -846,8 +847,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+
+2023-07-15 15:23:48,467	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 51), ('core/Solver.cc.xml', 'stmt', 371)) | ParamSetting(('minisat.params', 'cp-increase'), 5308)
+2023-07-15 15:23:48,468	[INFO]	10      SUCCESS              +1059.9678 (109.36%) [2 edit(s)] 
+2023-07-15 15:23:48,479	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5308
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 15:23:48,480	[INFO]	-- simplify --
+2023-07-15 15:23:48,489	[DEBUG]	
+2023-07-15 15:23:48,489	[INFO]	11      SUCCESS              +969.2697 (100.0%) [0 edit(s)] 
+2023-07-15 15:23:48,497	[DEBUG]	
+2023-07-15 15:23:48,510	[INFO]	==== END ====
+2023-07-15 15:23:48,510	[INFO]	Reason: validation end
+2023-07-15 15:23:48,511	[INFO]	
+2023-07-15 15:23:48,511	[INFO]	==== REPORT ====
+2023-07-15 15:23:48,511	[INFO]	Termination: validation end
+2023-07-15 15:23:48,511	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689418001.log
+2023-07-15 15:23:48,525	[INFO]	Patch file: _magpie_logs/minisat-hack_1689418001.patch
+2023-07-15 15:23:48,526	[INFO]	Diff file: _magpie_logs/minisat-hack_1689418001.diff
+2023-07-15 15:23:48,526	[INFO]	Best fitness: 964.2778
+2023-07-15 15:23:48,526	[INFO]	Best patch: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 51), ('core/Solver.cc.xml', 'stmt', 371))
+2023-07-15 15:23:48,526	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+

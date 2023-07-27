@@ -1,0 +1,221 @@
+2023-07-14 23:07:08,953	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_1.sh
+run_timeout = 1294
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-14 23:07:08,954	[INFO]	==== WARMUP ====
+2023-07-14 23:25:13,833	[INFO]	WARM    SUCCESS               1074.7682               
+2023-07-14 23:43:13,584	[INFO]	WARM    SUCCESS               1075.8921               
+2023-07-15 00:01:05,699	[INFO]	WARM    SUCCESS               1068.2636               
+2023-07-15 00:01:05,699	[INFO]	INITIAL SUCCESS               1068.2636               
+2023-07-15 00:01:05,699	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-15 00:01:05,747	[DEBUG]	CLEAN_PATCH: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 495), ('core/Solver.cc.xml', 'stmt', 276)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 22)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 198))
+2023-07-15 00:01:05,747	[DEBUG]	CLEAN_SIZE: 3 (was 3)
+2023-07-15 00:21:00,157	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 495), ('core/Solver.cc.xml', 'stmt', 276)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 22)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 198))
+2023-07-15 00:21:00,158	[INFO]	1       SUCCESS              *1190.7659 (111.47%) [3 edit(s)] 
+2023-07-15 00:21:00,172	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -117,7 +117,7 @@
+ {
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
+-    K = (double)opt_K;
++    
+     R = (double)opt_R;
+ }
+ 
+@@ -504,23 +504,7 @@
+ 
+     seen[var(p)] = 1;
+ 
+-    for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+-        Var x = var(trail[i]);
+-        if (seen[x]){
+-            if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
+-                out_conflict.push(~trail[i]);
+-            }else{
+-                Clause& c = ca[reason(x)];
+-                for (int j = 1; j < c.size(); j++)/*auto*/{
+-                    if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
+-}/*auto*/
+-}/*auto*/
+-            }
+-            seen[x] = 0;
+-        }
+-    }
++    
+ 
+     seen[var(p)] = 0;
+ }
+@@ -850,6 +834,7 @@
+ }/*auto*/
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
++                    vec<Var> vs;
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+                 core_added = 0;
+
+2023-07-15 00:21:00,172	[INFO]	-- ranking --
+2023-07-15 00:39:33,194	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 495), ('core/Solver.cc.xml', 'stmt', 276))
+2023-07-15 00:39:33,194	[INFO]	2       SUCCESS              *1109.4219 (103.85%) [1 edit(s)] 
+2023-07-15 00:39:33,207	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -850,6 +850,7 @@
+ }/*auto*/
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
++                    vec<Var> vs;
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+                 }
+                 core_added = 0;
+
+2023-07-15 00:59:23,665	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 22))
+2023-07-15 00:59:23,665	[INFO]	3       SUCCESS              +1186.0908 (111.03%) [1 edit(s)] 
+2023-07-15 00:59:23,674	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -117,7 +117,7 @@
+ {
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
+-    K = (double)opt_K;
++    
+     R = (double)opt_R;
+ }
+ 
+
+2023-07-15 01:17:37,111	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 198))
+2023-07-15 01:17:37,111	[INFO]	4       SUCCESS              *1089.7283 (102.01%) [1 edit(s)] 
+2023-07-15 01:17:37,123	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -504,23 +504,7 @@
+ 
+     seen[var(p)] = 1;
+ 
+-    for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+-        Var x = var(trail[i]);
+-        if (seen[x]){
+-            if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
+-                out_conflict.push(~trail[i]);
+-            }else{
+-                Clause& c = ca[reason(x)];
+-                for (int j = 1; j < c.size(); j++)/*auto*/{
+-                    if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
+-}/*auto*/
+-}/*auto*/
+-            }
+-            seen[x] = 0;
+-        }
+-    }
++    
+ 
+     seen[var(p)] = 0;
+ }
+
+2023-07-15 01:17:37,124	[INFO]	-- simplify --
+2023-07-15 01:17:37,131	[DEBUG]	
+2023-07-15 01:17:37,132	[INFO]	5       SUCCESS              *1068.2636 (100.0%) [0 edit(s)] 
+2023-07-15 01:17:37,139	[DEBUG]	
+2023-07-15 01:17:37,146	[INFO]	==== END ====
+2023-07-15 01:17:37,147	[INFO]	Reason: validation end
+2023-07-15 01:17:37,147	[INFO]	
+2023-07-15 01:17:37,147	[INFO]	==== REPORT ====
+2023-07-15 01:17:37,147	[INFO]	Termination: validation end
+2023-07-15 01:17:37,147	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689372417.log
+2023-07-15 01:17:37,156	[INFO]	Patch file: _magpie_logs/minisat-hack_1689372417.patch
+2023-07-15 01:17:37,156	[INFO]	Diff file: _magpie_logs/minisat-hack_1689372417.diff
+2023-07-15 01:17:37,156	[INFO]	Best fitness: 1068.2636
+2023-07-15 01:17:37,156	[INFO]	Best patch: 
+2023-07-15 01:17:37,156	[INFO]	Diff:
+

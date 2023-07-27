@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)

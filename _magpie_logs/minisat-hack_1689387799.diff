@@ -1,0 +1,30 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -973,7 +973,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
++        for (int i = 0; i < nVars(); i++)/*auto*/{ 
+ }/*auto*/
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+@@ -1030,7 +1030,7 @@
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+         return; }
+ 
+-    vec<Var> map; Var max = 0;
++    vec<Var> map; Var max = 0;toDimacs(f, ca[clauses[i]], map, max);
+ 
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5425
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999

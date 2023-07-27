@@ -1,0 +1,21 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -202,6 +202,7 @@
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
++        int     num_props = 0;
+         attachClause(cr);
+     }
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -409
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5

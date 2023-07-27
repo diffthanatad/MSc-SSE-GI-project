@@ -1,0 +1,20 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -514,6 +514,8 @@
+                 Clause& c = ca[reason(x)];
+                 for (int j = 1; j < c.size(); j++)/*auto*/{
+                     if (level(var(c[j])) > 0)/*auto*/{
++                        if (c.learnt())/*auto*/{ learnts_literals += c.size();
++}/*auto*/
+                         seen[var(c[j])] = 1;
+ }/*auto*/
+ }/*auto*/
+@@ -708,7 +710,7 @@
+ 
+     // Remove satisfied clauses:
+     removeSatisfied(learnts);
+-    removeSatisfied(lF);
++    
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/

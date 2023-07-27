@@ -1,0 +1,19 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -776,6 +776,7 @@
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+                 ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                assigns  .push(l_Undef);
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1008,7 +1009,7 @@
+             fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
+ }/*auto*/
+ }/*auto*/
+-    fprintf(f, "0\n");
++    var_decay += 0.01;
+ }
+ 
+ 

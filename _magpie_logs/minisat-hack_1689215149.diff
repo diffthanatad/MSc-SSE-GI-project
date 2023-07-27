@@ -1,0 +1,46 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,6 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
++    double  progress = 0;
+     assert(c.size() > 1);
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+@@ -846,8 +847,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
++                    
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+                     LBD_cut = (int32_t)opt_lbd_cut + adjust;
+@@ -949,7 +949,7 @@
+     lbool   status            = l_Undef;
+ 
+     if (verbosity >= 1){
+-        printf("c ============================[ Search Statistics ]==============================\n");
++        
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+         printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+         printf("c ===============================================================================\n");
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5308
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -17,5 +17,5 @@
+ elim := 'False'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 700
+ simp-gc-frac := 0.5

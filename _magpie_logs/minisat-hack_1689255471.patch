@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'lbd-cut'), 3.793079767119533) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.036323815755803346) | ParamSetting(('minisat.params', 'gc-frac'), 0.21553442609855578) | ParamSetting(('minisat.params', 'cp-increase'), 5308) | ParamSetting(('minisat.params', 'cl-lim'), 0)

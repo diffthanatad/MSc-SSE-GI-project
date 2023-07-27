@@ -1,0 +1,565 @@
+2023-07-15 15:21:41,188	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 15
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_9.sh
+run_timeout = 1284
+run_lengthout = 
+fitness = perf_time
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 3
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+
+2023-07-15 15:21:41,189	[INFO]	==== WARMUP ====
+2023-07-15 15:38:54,957	[INFO]	WARM    SUCCESS               1025.5097               
+2023-07-15 15:55:48,684	[INFO]	WARM    SUCCESS               1010.0148               
+2023-07-15 16:12:37,872	[INFO]	WARM    SUCCESS               1005.7972               
+2023-07-15 16:12:37,872	[INFO]	INITIAL SUCCESS               1005.7972               
+2023-07-15 16:12:37,872	[INFO]	==== START: ValidRankingSimplify ====
+2023-07-15 16:12:38,025	[DEBUG]	CLEAN_PATCH: StmtDeletion(('core/Solver.cc.xml', 'stmt', 390)) | ParamSetting(('minisat.params', 'cl-lim'), 212) | ParamSetting(('minisat.params', 'cp-increase'), 5724) | ParamSetting(('minisat.params', 'grow'), -149) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 600), ('core/Solver.cc.xml', 'stmt', 442)) | ParamSetting(('minisat.params', 'verb'), 0)
+2023-07-15 16:12:38,025	[DEBUG]	CLEAN_SIZE: 8 (was 8)
+2023-07-15 16:27:45,274	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 390)) | ParamSetting(('minisat.params', 'cl-lim'), 212) | ParamSetting(('minisat.params', 'cp-increase'), 5724) | ParamSetting(('minisat.params', 'grow'), -149) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 600), ('core/Solver.cc.xml', 'stmt', 442)) | ParamSetting(('minisat.params', 'verb'), 0)
+2023-07-15 16:27:45,274	[INFO]	1       SUCCESS              *903.6061 (89.84%) [8 edit(s)] 
+2023-07-15 16:27:45,288	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -943,7 +943,7 @@
+ 
+     solves++;
+ 
+-    max_learnts               = nClauses() * learntsize_factor;
++    
+     learntsize_adjust_confl   = learntsize_adjust_start_confl;
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+@@ -1069,6 +1070,8 @@
+     if (verbosity > 0)/*auto*/{
+         printf("Wrote %d clauses with %d variables.\n", cnt, max);
+ }/*auto*/
++
++    Clause& c = ca[clauses[i]];
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -10,12 +10,12 @@
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+-verb := 1
++verb := 0
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
+-cl-lim := 20
++grow := -149
++cl-lim := 212
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 16:27:45,289	[INFO]	-- ranking --
+2023-07-15 16:44:51,152	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 390))
+2023-07-15 16:44:51,153	[INFO]	2       SUCCESS              +1021.7686 (101.59%) [1 edit(s)] 
+2023-07-15 16:44:51,164	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -943,7 +943,7 @@
+ 
+     solves++;
+ 
+-    max_learnts               = nClauses() * learntsize_factor;
++    
+     learntsize_adjust_confl   = learntsize_adjust_start_confl;
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;
+
+2023-07-15 17:01:55,995	[DEBUG]	ParamSetting(('minisat.params', 'cl-lim'), 212)
+2023-07-15 17:01:55,996	[INFO]	3       SUCCESS              +1021.1526 (101.53%) [1 edit(s)] 
+2023-07-15 17:01:56,004	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -16,6 +16,6 @@
+ rcheck := 'False'
+ elim := 'False'
+ grow := 0
+-cl-lim := 20
++cl-lim := 212
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 17:17:52,962	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724)
+2023-07-15 17:17:52,963	[INFO]	4       SUCCESS              +953.5268 (94.8%) [1 edit(s)] 
+2023-07-15 17:17:52,974	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 17:34:47,117	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -149)
+2023-07-15 17:34:47,117	[INFO]	5       SUCCESS              +1010.3896 (100.46%) [1 edit(s)] 
+2023-07-15 17:34:47,125	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -149
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 17:51:33,574	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138))
+2023-07-15 17:51:33,574	[INFO]	6       SUCCESS              +1002.8247 (99.7%) [1 edit(s)] 
+2023-07-15 17:51:33,585	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+
+2023-07-15 18:10:07,643	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)
+2023-07-15 18:10:07,643	[INFO]	7       SUCCESS              +1110.5959 (110.42%) [1 edit(s)] 
+2023-07-15 18:10:07,652	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,4 +1,4 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+ cp-increase := 15000
+ core-tolerance := 0.02
+
+2023-07-15 18:27:14,661	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 600), ('core/Solver.cc.xml', 'stmt', 442))
+2023-07-15 18:27:14,661	[INFO]	8       SUCCESS              +1023.5685 (101.77%) [1 edit(s)] 
+2023-07-15 18:27:14,674	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -1069,6 +1069,8 @@
+     if (verbosity > 0)/*auto*/{
+         printf("Wrote %d clauses with %d variables.\n", cnt, max);
+ }/*auto*/
++
++    Clause& c = ca[clauses[i]];
+ }
+ 
+ 
+
+2023-07-15 18:44:22,623	[DEBUG]	ParamSetting(('minisat.params', 'verb'), 0)
+2023-07-15 18:44:22,624	[INFO]	9       SUCCESS              +1024.3422 (101.84%) [1 edit(s)] 
+2023-07-15 18:44:22,640	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -10,7 +10,7 @@
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+-verb := 1
++verb := 0
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+
+2023-07-15 18:44:22,641	[INFO]	-- rebuild --
+2023-07-15 18:59:52,343	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138))
+2023-07-15 18:59:52,343	[INFO]	10      SUCCESS              +925.9934 (92.07%) [2 edit(s)] 
+2023-07-15 18:59:52,354	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 19:15:24,716	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'grow'), -149)
+2023-07-15 19:15:24,717	[INFO]	11      SUCCESS              +928.7518 (92.34%) [3 edit(s)] 
+2023-07-15 19:15:24,727	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -15,7 +15,7 @@
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'False'
+-grow := 0
++grow := -149
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 19:30:57,235	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'cl-lim'), 212)
+2023-07-15 19:30:57,235	[INFO]	12      SUCCESS              +928.9777 (92.36%) [3 edit(s)] 
+2023-07-15 19:30:57,251	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -16,6 +16,6 @@
+ rcheck := 'False'
+ elim := 'False'
+ grow := 0
+-cl-lim := 20
++cl-lim := 212
+ sub-lim := 1000
+ simp-gc-frac := 0.5
+
+2023-07-15 19:46:32,303	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 390))
+2023-07-15 19:46:32,303	[INFO]	13      SUCCESS              +931.5339 (92.62%) [3 edit(s)] 
+2023-07-15 19:46:32,325	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -943,7 +943,7 @@
+ 
+     solves++;
+ 
+-    max_learnts               = nClauses() * learntsize_factor;
++    
+     learntsize_adjust_confl   = learntsize_adjust_start_confl;
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 20:02:04,738	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 600), ('core/Solver.cc.xml', 'stmt', 442))
+2023-07-15 20:02:04,738	[INFO]	14      SUCCESS              +928.9247 (92.36%) [3 edit(s)] 
+2023-07-15 20:02:04,753	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+@@ -1069,6 +1070,8 @@
+     if (verbosity > 0)/*auto*/{
+         printf("Wrote %d clauses with %d variables.\n", cnt, max);
+ }/*auto*/
++
++    Clause& c = ca[clauses[i]];
+ }
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 20:17:34,976	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'verb'), 0)
+2023-07-15 20:17:34,977	[INFO]	15      SUCCESS              +926.6797 (92.13%) [3 edit(s)] 
+2023-07-15 20:17:34,990	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+@@ -10,7 +10,7 @@
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+-verb := 1
++verb := 0
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+
+2023-07-15 20:32:25,028	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)
+2023-07-15 20:32:25,028	[INFO]	16      SUCCESS              *886.5893 (88.15%) [3 edit(s)] 
+2023-07-15 20:32:25,039	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 20:32:25,040	[INFO]	-- simplify --
+2023-07-15 20:50:52,291	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)
+2023-07-15 20:50:52,291	[INFO]	17      SUCCESS              +1103.4939 (109.71%) [2 edit(s)] 
+2023-07-15 20:50:52,303	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,4 +1,4 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+ cp-increase := 15000
+ core-tolerance := 0.02
+
+2023-07-15 21:05:47,733	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)
+2023-07-15 21:05:47,734	[INFO]	18      SUCCESS              +891.7715 (88.66%) [2 edit(s)] 
+2023-07-15 21:05:47,743	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 21:05:47,754	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138))
+2023-07-15 21:05:47,754	[INFO]	19      SUCCESS              +925.9934 (92.07%) [2 edit(s)] 
+2023-07-15 21:05:47,766	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5.0
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
+2023-07-15 21:05:47,779	[INFO]	==== END ====
+2023-07-15 21:05:47,779	[INFO]	Reason: validation end
+2023-07-15 21:05:47,780	[INFO]	
+2023-07-15 21:05:47,780	[INFO]	==== REPORT ====
+2023-07-15 21:05:47,780	[INFO]	Termination: validation end
+2023-07-15 21:05:47,780	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1689430900.log
+2023-07-15 21:05:47,790	[INFO]	Patch file: _magpie_logs/minisat-hack_1689430900.patch
+2023-07-15 21:05:47,791	[INFO]	Diff file: _magpie_logs/minisat-hack_1689430900.diff
+2023-07-15 21:05:47,791	[INFO]	Best fitness: 886.5893
+2023-07-15 21:05:47,791	[INFO]	Best patch: ParamSetting(('minisat.params', 'cp-increase'), 5724) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 558), ('core/Solver.cc.xml', 'stmt', 138)) | ParamSetting(('minisat.params', 'lbd-cut'), 4.932627441237257)
+2023-07-15 21:05:47,791	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -967,6 +967,7 @@
+ 
+     if (verbosity >= 1)/*auto*/{
+         printf("c ===============================================================================\n");
++        int i, j;
+ }/*auto*/
+ 
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5.0
++lbd-cut := 4.932627441237257
+ lbd-cut-max := 10.0
+-cp-increase := 15000
++cp-increase := 5724
+ core-tolerance := 0.02
+ var-decay := 0.95
+ cla-decay := 0.999
+
