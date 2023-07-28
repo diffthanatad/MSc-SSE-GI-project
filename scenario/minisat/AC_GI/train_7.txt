@@ -17,7 +17,6 @@ run_timeout = 42
 
 [search]
 max_time = 13230
-algorithm = FirstImprovement
 
 possible_edits =
     StmtReplacement
