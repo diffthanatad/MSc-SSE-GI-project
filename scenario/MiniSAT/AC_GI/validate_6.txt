@@ -11,7 +11,7 @@ fitness = perf_time
 
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
-compile_timeout = 15
+compile_timeout = 16
 run_cmd = perf stat run-sh/validate_6.sh
 run_timeout = 1251
 
