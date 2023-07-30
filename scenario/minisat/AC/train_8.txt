@@ -13,7 +13,7 @@ setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 16
 run_cmd = perf stat run-sh/train_8.sh
-run_timeout = 44
+run_timeout = 54
 
 [search]
 max_time = 4900
