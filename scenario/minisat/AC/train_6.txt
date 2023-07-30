@@ -16,7 +16,7 @@ run_cmd = perf stat run-sh/train_6.sh
 run_timeout = 50
 
 [search]
-max_time = 13230
+max_time = 4900
 
 possible_edits =
     ParamSetting
