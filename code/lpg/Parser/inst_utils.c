@@ -33,7 +33,7 @@
 
 
 #include <math.h>
-#include <values.h>
+#include <float.h>
 #include "lpg.h"
 #include "parse.h"
 #include "inst_easy.h"
@@ -102,9 +102,9 @@ int init_bit_table_const(unsigned long int max_size, int *n_bit, int *base, int 
    * Evaluate hash's rows size. Then number of row is evaluated 
    * tryng to have half the order of magnitude of max_size (at least 5)
    **
-   * bit_pos = posizione del bit più significativo di max_size
+   * bit_pos = posizione del bit piï¿½ significativo di max_size
    * In pratica la tabella ha un numero di righe avente ordine di
-   * grandezza pari alla metà dell'ordine di grandezza di max_size
+   * grandezza pari alla metï¿½ dell'ordine di grandezza di max_size
    * (ma come minimo 5)
    **/
   bit_pos = (int) (log((double)max_size)/M_LN2);
@@ -870,7 +870,7 @@ void add_numeric_cond_effects_to_comp_vars(CondEfConn *cef, PlNode *e)
 
 /*
 -----------------------------------------------------------------
-	DESCRIPTION	: Verifica se il fatto è booleano
+	DESCRIPTION	: Verifica se il fatto ï¿½ booleano
 	PARAMETER	: pln	nodo fatto
 	RETURN		: TRUE	fatto booleano
 			  FALSE	no booleano
@@ -1169,7 +1169,7 @@ add_effects_to_comp_vars (int from_ef_conn, int to_ef_conn)
 	      fct = gef_conn[i].A[pos];
 
 	     /*Effetto additivo At-end*/
-	      /* Rimuovo l'azione del vettore gft_conn[...].A solo se il fatto è nelle precondizioni */
+	      /* Rimuovo l'azione del vettore gft_conn[...].A solo se il fatto ï¿½ nelle precondizioni */
 	      if (is_fact_in_preconditions(i, fct) || is_fact_in_preconditions_overall(i, fct) || is_fact_in_preconditions_end(i, fct)) {
 		for (pos = 0; (pos < gft_conn[fct].num_A) && (i != gft_conn[fct].A[pos]); pos++);
 		if ((pos >= 0) && (pos < gft_conn[fct].num_A))
@@ -1206,7 +1206,7 @@ add_effects_to_comp_vars (int from_ef_conn, int to_ef_conn)
 	      gef_conn[i].sf->A_start[gef_conn[i].sf->num_A_start++] = fct;
 
 	      /*Effetto additivo At-start*/
-	      /* Rimuovo l'azione del vettore gft_conn[...].A solo se il fatto è nelle precondizioni at-start */
+	      /* Rimuovo l'azione del vettore gft_conn[...].A solo se il fatto ï¿½ nelle precondizioni at-start */
 	      if (is_fact_in_preconditions(i, fct)) {
 		for (pos = 0; (pos < gft_conn[fct].num_A) && (i != gft_conn[fct].A[pos]); pos++);
 		if ((pos >= 0) && (pos < gft_conn[fct].num_A))
@@ -1912,7 +1912,7 @@ void calc_cost_of_actions (int from_ef_conn, int to_ef_conn)
 	  if (!GpG.is_metric_present)
 	    {
 	      /*
-		Se non c'è metrica
+		Se non c'ï¿½ metrica
 	      */
 	      
 	      gef_conn[i].cost = STRIPS_ACTIONS_COST;
@@ -1958,7 +1958,7 @@ void calc_cost_of_actions (int from_ef_conn, int to_ef_conn)
       else
 	{
 	  /*
-	    Se l'azione non è numerica
+	    Se l'azione non ï¿½ numerica
 	  */
 	  if (!GpG.is_metric_present)
 	    gef_conn[i].cost = STRIPS_ACTIONS_COST; 
@@ -2100,10 +2100,10 @@ void resize_num_var_vects() {
 
   /*
     Rialloco i vettori realtivi alle variabili numeriche, tranne gfullnum_initial (fatti numerici iniziali) che ovviamente
-    non cresce più dopo la fase di instanziazione iniziale (inst_pre.c)
+    non cresce piï¿½ dopo la fase di instanziazione iniziale (inst_pre.c)
 
     gcomp_var_effects cresce in modo indipendente dagli altri vettori, quindi potrei riallocarlo in un
-    ciclo a parte. Lo faccio qui perchè in realtà mantiene sempre lo stesso ordine di grandezza di gcomp_var.
+    ciclo a parte. Lo faccio qui perchï¿½ in realtï¿½ mantiene sempre lo stesso ordine di grandezza di gcomp_var.
   */
 
   if ((gnum_comp_var >= (max_num_value - 1)) || (gnum_comp_var_effects >= (max_num_value - 1))) {
@@ -2122,9 +2122,9 @@ void resize_num_var_vects() {
     memset ( &gcomp_var_effects[max_num_value - MAX_NUM_INC], 0, MAX_NUM_INC * sizeof(CompositeNumVar));
 
     /*
-      NB !!! Faccio così perchè gis_inertial è un bitvector.
-      Se facessi come per gli altri vettori, la memset potrebbe resettare blocchi già
-      parzialmente utilizzati, perchè dovrei necessariamente resettare un numero intero
+      NB !!! Faccio cosï¿½ perchï¿½ gis_inertial ï¿½ un bitvector.
+      Se facessi come per gli altri vettori, la memset potrebbe resettare blocchi giï¿½
+      parzialmente utilizzati, perchï¿½ dovrei necessariamente resettare un numero intero
       di byte.
     */
     temp_inertial = (int *)calloc((max_num_value>>5) + 1, sizeof(int));
@@ -2907,7 +2907,7 @@ get_index_of_pred (char *arg)
     if (strcmp (gpredicates[i], arg) == SAME)
       return i;
 
-  // verifica se il predicato arg è stato trasformato in NOT-arg
+  // verifica se il predicato arg ï¿½ stato trasformato in NOT-arg
   
   if (memcmp (arg, STR_NOT_MINUS, strlen(STR_NOT_MINUS)) == 0) {
     not_arg = arg + strlen(STR_NOT_MINUS);
@@ -4910,7 +4910,7 @@ void create_new_split_precond(int start_ef, int end_ef) {
   gextended_ft_conn++;
 
   /* 
-     Aggiungo un fatto fittizio agli effetti dell'azione start_ef. Questo fatto è 
+     Aggiungo un fatto fittizio agli effetti dell'azione start_ef. Questo fatto ï¿½ 
      precondizione at-start ed effetto cancellante at-start dell'azione end_ef. 
   */
   gef_conn[start_ef].A[gef_conn[start_ef].num_A - 1] = 
@@ -5242,7 +5242,7 @@ void clean_numeric_preconditions(void)
 
 /*
  * Aggiunge alle strutture ft_conn gli indici delle azioni
- * che erano state saltate perchè contraddittorie
+ * che erano state saltate perchï¿½ contraddittorie
  */
 void add_suspected_ef_conns_effects( void )
 {

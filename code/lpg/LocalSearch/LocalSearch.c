@@ -31,7 +31,7 @@
 
 
 
-#include <values.h>
+#include <float.h>
 #include <math.h>
 #include "lpg.h"
 #include "LpgTime.h"
@@ -46,7 +46,7 @@
 #include "LpgOutput.h"
 #include "output.h"
 #include "derivedpred.h"
-
+#include <limits.h>
 
 //#define __TEST_MIXED__
 // #define __TEST_ADAPT__
@@ -1301,7 +1301,7 @@ void update_precond()
   for (false_fa_pos = 0; false_fa_pos < GpG.num_false_fa; false_fa_pos++) {
          inconsistenza = unsup_fact[false_fa_pos];
 	 /**
-	    Se la precondizione è nell'ultimo livello, significa che è una precondizione di un goal,quindi 
+	    Se la precondizione ï¿½ nell'ultimo livello, significa che ï¿½ una precondizione di un goal,quindi 
 	    viene aggiornato il moltiplicatore di Lagrange dell'azione fittizia memorizzato in 
 	    GpG.goal_lambda. Viene forzato il ritorno anticipato nel ciclo con continue.
 	    **
@@ -1317,22 +1317,22 @@ void update_precond()
 
 	 /**
 	    Nel caso in cui la precondizione si trovi in un livello sottostante a quello dei goals viene 
-	    aggiornato il moltplicatore dell'azione corrispondente a quel livello, sempre se tale azione è 
+	    aggiornato il moltplicatore dell'azione corrispondente a quel livello, sempre se tale azione ï¿½ 
 	    in uso
 	    **
 	    In case the precondition is in a level lower than the one of the goals, is updated the Lagrange
 	    multiplier of the action in that level
 	 **/
          /**
-	    controlla se l'azione che richiede la precondizione è in uso nel piano
+	    controlla se l'azione che richiede la precondizione ï¿½ in uso nel piano
 	    **
 	    checks if the action that request the precondition is in use in the plan
 	 **/
          if (GET_ACTION_OF_LEVEL (*inconsistenza->level)->w_is_used){ 
                action_pos = GET_ACTION_POSITION_OF_LEVEL(*inconsistenza->level);  
                /**
-		  *inconsistenza->level è il livello nel quale la precondizione non è supportata
-		  inconsistenza->action è l'azione che ha tale precondizione
+		  *inconsistenza->level ï¿½ il livello nel quale la precondizione non ï¿½ supportata
+		  inconsistenza->action ï¿½ l'azione che ha tale precondizione
 		  **
 		  *inconsistenza->level is the level in which the precondition is not supported
 		  inconsistenza->action is the action that has this precondition
@@ -1480,7 +1480,7 @@ void update_precond_multilevel ()
 
       inconsistenza = unsup_fact[false_fa_pos];
       /**
-	 Se la precondizione è nell'ultimo livello, significa che è una precondizione di un goal, quindi 
+	 Se la precondizione ï¿½ nell'ultimo livello, significa che ï¿½ una precondizione di un goal, quindi 
 	 viene aggiornato il moltiplicatore di Lagrange dell'azione fittizia memorizzato in 
 	 GpG.goal_lambda. Viene forzato il ritorno anticipato nel ciclo con continue.
 	 **
@@ -1495,16 +1495,16 @@ void update_precond_multilevel ()
       }
       /**
 	 Nel caso in cui la precondizione si trovi in un livello sottostante a quello dei goals viene 
-	 aggiornato il moltplicatore dell'azione corrispondente a quel livello, sempre se tale azione è in 
+	 aggiornato il moltplicatore dell'azione corrispondente a quel livello, sempre se tale azione ï¿½ in 
 	 uso
 	 **
 	 In case the precondition is in a lower level, then is updated the multiplier of the correspondent 
 	 action in that level, if this action is used
       **/
-      if (GET_ACTION_OF_LEVEL (*inconsistenza->level)->w_is_used){ //controlla se l'azione che richiede la precondizione è in uso nel piano
+      if (GET_ACTION_OF_LEVEL (*inconsistenza->level)->w_is_used){ //controlla se l'azione che richiede la precondizione ï¿½ in uso nel piano
 
-          //*inconsistenza->level è il livello nel quale la precondizione non è supportata
-          //inconsistenza->action è l'azione che ha tale precondizione
+          //*inconsistenza->level ï¿½ il livello nel quale la precondizione non ï¿½ supportata
+          //inconsistenza->action ï¿½ l'azione che ha tale precondizione
 	  action_pos = GET_ACTION_POSITION_OF_LEVEL(*inconsistenza->level);
           vectlevel[*inconsistenza->level]->lambda_prec[action_pos] = 
               check_value (vectlevel[*inconsistenza->level]->lambda_prec[action_pos] + step_prec_incr);
@@ -4060,7 +4060,7 @@ void create_neighborhood_for_compvar (int index, Bool Sign, Bool MulOrDiv,action
     case EQUAL_OP:
 
       // MODIFICATO X UGUALIANZA
-      // se il valore di first_op è minore di quello di second_op faccio vicinato come per GREATER_OR_EQUAL_OP
+      // se il valore di first_op ï¿½ minore di quello di second_op faccio vicinato come per GREATER_OR_EQUAL_OP
       // altrimenti faccio il vicinato come per LESS_THAN_OR_EQUAL_OP
 
       if (in_vect[gcomp_var[index].first_op] < in_vect[gcomp_var[index].second_op]) {
@@ -4295,7 +4295,7 @@ void create_remotion_neighborhood_for_compvar (int fct_pos, int level)
   temp_act.unsup_fact = fct_pos;
 
   /**
-     se non è un goal
+     se non ï¿½ un goal
      **
      if it is not a goal
   **/
@@ -4319,7 +4319,7 @@ void create_remotion_neighborhood_for_compvar (int fct_pos, int level)
       {
       case EQUAL_OP:
 	// MODIFICATO X UGUALIANZA
-	// se l'azione modifica il valore della variabile più di MAX_APPROX allora la metto nel vicinato x rimozione
+	// se l'azione modifica il valore della variabile piï¿½ di MAX_APPROX allora la metto nel vicinato x rimozione
 	if (fabs(vectlevel[indlevel]->numeric->values[var] - next_value) > MAX_APPROX) {
 	  temp_act.act_pos = vectlevel[indlevel]->action.position;
 	  temp_act.act_level = indlevel;
@@ -4406,7 +4406,7 @@ int choose_min_cost_unsup_fact ()
   if (GpG.inc_choice_type == MAX_COST_INC || GpG.inc_choice_type ==MIN_LEVEL_MAX_COST)
     min = 0.0;
 
-  min_step =MAXINT;
+  min_step = INT_MAX;
   min_slack = MAXFLOAT;
 
   best = best_in_tabu = -1;
@@ -4818,7 +4818,7 @@ constraints_list choose_random_inconsistence()
 {
   /* Questa funzione seleziona una inconsistenza in modo casuale da uno dei
      vettori contenenti ciascuno un tipo diverso di inconsistenza.
-     La probabilità di selezione di uno dei tipi viene fatta variare  
+     La probabilitï¿½ di selezione di uno dei tipi viene fatta variare  
      attraverso l'uso di pesi individuati da tali variabili: 
      GpG.k_weight_false_fa
      GpG.k_weight_false_num_fa
@@ -5085,7 +5085,7 @@ constraints_list choose_min_level_inconsistence()
 	    }
       }
     /**
-       Una volta trovate le inconsistenze presenti al livello più basso, casualmente se ne seleziona una
+       Una volta trovate le inconsistenze presenti al livello piï¿½ basso, casualmente se ne seleziona una
        **
        When the lower level inconsistence have been found, I randomly select one
     **/
@@ -5100,7 +5100,7 @@ constraints_list choose_min_level_inconsistence()
 
 /** OK 28-07-04
  * Name: choose_min_cost_inconsistence
- * Scopo: Questa funzione seleziona una inconsistenza scegliendone una casuale tra quelle che possiedono  il costo più basso
+ * Scopo: Questa funzione seleziona una inconsistenza scegliendone una casuale tra quelle che possiedono  il costo piï¿½ basso
  * Tipo: constraints_list
  * Input:
  * Output:
@@ -5592,7 +5592,7 @@ constraints_list choose_min_level_cost_inconsistence()
 	  }
     }
     /**
-       Una volta trovate le inconsistenze presenti al livello più basso, casualmente si seleziona la meno costosa
+       Una volta trovate le inconsistenze presenti al livello piï¿½ basso, casualmente si seleziona la meno costosa
        **
        When the lower level inconsistence have been found, I select the less expensive
     **/
@@ -6007,7 +6007,7 @@ constraints_list choose_min_level_constr_inconsistence()
 	  }
     }
     /**
-       Una volta trovate le inconsistenze presenti al livello più basso, si seleziona la meno costosa
+       Una volta trovate le inconsistenze presenti al livello piï¿½ basso, si seleziona la meno costosa
        **
        When the lower level inconsistence have been found, I select the less expensive
     **/
@@ -6269,7 +6269,7 @@ constraints_list choose_min_level_constr_max_cost_inconsistence()
 	  }
     }
     /**
-       Una volta trovate le inconsistenze presenti al livello più basso, si seleziona la meno costosa
+       Una volta trovate le inconsistenze presenti al livello piï¿½ basso, si seleziona la meno costosa
        **
        When the lower level inconsistence have been found, I select the less expensive
     **/
@@ -6650,7 +6650,7 @@ constraints_list choose_min_level_inconsistence_optimised()
 	    }
      }
     /**
-       Una volta trovate le inconsistenze presenti al livello più basso, casualmente se ne seleziona una
+       Una volta trovate le inconsistenze presenti al livello piï¿½ basso, casualmente se ne seleziona una
        **
        When the lower level inconsistences have been found, I randomly select one
     **/
@@ -7077,7 +7077,7 @@ int search_step(int num_try, int min_time, int numrestart, PlanAction ** plan_ac
   
   /** 
       Se i tre array contenenti inconsistenze sono vuoti, si controlla se si sta ottimizzando o se sono 
-      state trovate già altre soluzioni.
+      state trovate giï¿½ altre soluzioni.
       
       - nel caso in cui l'ottimizzazione sia disattivata o non sia stata ancora trovata una soluzione, si 
         esce dalla funzione ritornando 0.
@@ -7334,7 +7334,7 @@ int LocalSearch (State * start_state, State * end_state, PlanAction ** plan_acti
 #endif
 
 	  /**
-	     Questo è il numero totale dei fatti e delle azioni che erano false
+	     Questo ï¿½ il numero totale dei fatti e delle azioni che erano false
 	     **
 	     This is the total number of facts and actions that are false
 	  **/

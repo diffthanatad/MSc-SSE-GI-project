@@ -75,7 +75,7 @@
  * DEA - University of Brescia
  */
 
-#include <values.h>
+#include <float.h>
 #include "lpg.h" 
 #include "inst_utils.h"
 #include "check.h"
@@ -616,7 +616,7 @@ void perform_reachability_analysis( void )
      */
 
     /**
-     * Il flag "changed" è utilizzato per analizzare alternatamente i 
+     * Il flag "changed" ï¿½ utilizzato per analizzare alternatamente i 
      * template delle azioni e dei predicati derivati 
      **
      * The flag "changed" is use to switch from actions 
@@ -1139,7 +1139,7 @@ void perform_reachability_analysis( void )
   /**
    * Se sono stati istanziati dei template sospetti, 
    * sposto le azioni "sospette" in coda alla lista
-   * (servirà per poterle escludere in caso non siano
+   * (servirï¿½ per poterle escludere in caso non siano
    * necessarie)
    **
    * If suspected templates have been instantiating
@@ -1426,7 +1426,7 @@ int lnum_cond_effects;
 
 /**
  * Aggiungo ai relevant facts i fatti derivati (la parte riguardante i fatti
- * di base è in collect_facts())
+ * di base ï¿½ in collect_facts())
  **
  * Add the derived facts to the relevant facts array built by collect_facts()
  **/
@@ -1479,7 +1479,7 @@ void collect_relevant_facts( void )
 
 	/**
 	 * Controllo che il predicato derivato abbia delle precondizioni che possono
-	 * essere false (in caso contrario il suo effetto è tautologicamente vero
+	 * essere false (in caso contrario il suo effetto ï¿½ tautologicamente vero
 	 * e va aggiunto allo stato iniziale)
 	 **
 	 * Check if this derived predicate has some preconditions that can be false.
@@ -1518,7 +1518,7 @@ void collect_relevant_facts( void )
 
 
 	      /**
-	       * Se ho trovato almeno una precondizione che può essere falsa, continuo
+	       * Se ho trovato almeno una precondizione che puï¿½ essere falsa, continuo
 	       **
 	       * If there's some preconditions than can be false, check next derived predicate
 	       **/
@@ -2575,12 +2575,12 @@ void new_condef_conn(CondEfConn *ce, int nc, int na, int nd)
 
 /*
 -----------------------------------------------------------------
-	DESCRIPTION	: Verifica se un effetto di una azione è
+	DESCRIPTION	: Verifica se un effetto di una azione ï¿½
 			  condizionale (se abilitato)
 	PARAMETER	: *a	Azione
 			   effect Effetto
 	RETURN		: TRUE Effetto condizionale
-			  FALSE Non è effetto condizionale
+			  FALSE Non ï¿½ effetto condizionale
 -----------------------------------------------------------------
 */
 int is_implied_effect(Action *a, int effect)
@@ -2988,7 +2988,7 @@ void build_connectivity_graph( void )
 
       /*
        * Non inserisco l'azione tra quelle che supportano l'effetto se esso compare
-       * anche nelle precondizioni dell'azione e se il dominio è strips 
+       * anche nelle precondizioni dell'azione e se il dominio ï¿½ strips 
        * (quindi precondizioni at-start e effetti at-end)
        */
       if (!GpG.non_strips_domain 
@@ -3511,7 +3511,7 @@ void make_timed_fct_vector( void ) {
 
   if (num_timed != num)
     /**
-       Il numero di timed fact è diverso da quello definito facendo il parsing
+       Il numero di timed fact ï¿½ diverso da quello definito facendo il parsing
        **
        Wrong timed fact number
     **/

@@ -32,7 +32,7 @@
 
 
 
-#include <values.h>
+#include <float.h>
 #include <math.h>
 #include "lpg.h"
 #include "inst_utils.h"
@@ -117,7 +117,7 @@ float search_for_pc_intervals(float t, int act_pos, int lev, int *num_Timed_Prec
       if (pc < 0)
 	continue;
 
-      // Se so già che nn esiste un intervallo per questa precondizione, la salto
+      // Se so giï¿½ che nn esiste un intervallo per questa precondizione, la salto
       if (temp_PC_int[TIMED_IDX(pc)] < -1) 
 	continue;
       // Cerco un intervallo, eventualmente a partire da quello precedentemente assegnato
@@ -326,7 +326,7 @@ float get_cost_for_future_possibilities(int action, int level, float action_star
       else 
 	duration = MAX(0, (gtimed_fct_vect[tmd][j].end_time - action_end_time));
 
-      // Valuto quante volte l'azione può essere eseguita nel tempo stimato 
+      // Valuto quante volte l'azione puï¿½ essere eseguita nel tempo stimato 
       temp += (int)(duration / last_dur);
        
     }
@@ -1416,7 +1416,7 @@ s
 	
        default:
       
-       MSG_ERROR("Warning: Errore nel calcolo dei valori di raggiungibilità, la variabile non è una precondizione");
+       MSG_ERROR("Warning: Errore nel calcolo dei valori di raggiungibilitï¿½, la variabile non ï¿½ una precondizione");
       break;
     } 
 
@@ -1522,7 +1522,7 @@ int num_actions_unsup_num_precondition_in_common_level(int fact_pos, int level)
 	
        default:
       
-       MSG_ERROR("Warning: Errore nel calcolo dei valori di raggiungibilità, la variabile non è una precondizione");
+       MSG_ERROR("Warning: Errore nel calcolo dei valori di raggiungibilitï¿½, la variabile non ï¿½ una precondizione");
       break;
     } 
 
@@ -4008,15 +4008,15 @@ float numeric_goal_interference(int action, int level)
 	{
 	  toCheck = tmp->item;
 	  
-	  //se la variabile è w_is_goal 
+	  //se la variabile ï¿½ w_is_goal 
 	  if (vectlevel[level]->numeric->w_is_goal[toCheck] > 0)
 	    {
 
-	      //se la precondizione non è soddisfatta la salto
+	      //se la precondizione non ï¿½ soddisfatta la salto
 	      if (!is_num_prec_satisfied(toCheck, level))
 		continue;
 
-	      //se è soddisfatta controllo che lo resti dopo l'applicazione dell'azione
+	      //se ï¿½ soddisfatta controllo che lo resti dopo l'applicazione dell'azione
 	      //if (!(fabsf (values_after[toCheck] - 1)) < MAX_APPROX)
 	      if (!(fabsf (ri_eval_comp_var(&gcomp_var[toCheck], toCheck, values_after, values_after, TRUE) - 1)) < MAX_APPROX)
 		{

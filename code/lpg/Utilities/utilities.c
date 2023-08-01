@@ -33,7 +33,8 @@
 #include <sys/resource.h>
 
 #include <math.h>
-#include <values.h>
+#include <float.h>
+#include <limits.h>
 
 #ifdef __WINLPG__
 #include <time.h>
@@ -2176,7 +2177,7 @@ void initialize_preset_values (void)
   GpG.Twalkplan = FALSE;
 
   GpG.delta = 2;
-  GpG.partial_timeout = MAXINT;
+  GpG.partial_timeout = INT_MAX;
   GpG.timeout = MAXINT;
 
   GpG.search_type = LOCAL;
@@ -4851,7 +4852,7 @@ int is_action_applicable (int level, int pos)
 
 /** OK 03/08/04
  * Name: fact_is_supported 
- * Scopo: Ritorna TRUE se il fatto è supportato
+ * Scopo: Ritorna TRUE se il fatto ï¿½ supportato
  * Tipo: int
  * Input: int Fact_position
  *        int Fact_level
@@ -4884,7 +4885,7 @@ int fact_is_supported (int Fact_position, int Fact_level)
 
 /** OK 03/08/04
  * Name: is_fact_supported_in_relaxed_plan
- * Scopo: Ritorna TRUE se il fatto è supportato
+ * Scopo: Ritorna TRUE se il fatto ï¿½ supportato
  * Tipo: int
  * Input: int Fact_position
  *        int Fact_level
@@ -6926,7 +6927,7 @@ Bool verify_action_preconditions_at_level(int act_pos, int level)
 
 
       /** 
-	  Se il fatto è precondizione dell'azione al livello o è precondizione di un'altra azione 
+	  Se il fatto ï¿½ precondizione dell'azione al livello o ï¿½ precondizione di un'altra azione 
 	  **
 	  If the fact is precondition of the action in the level or is precondition of another action
       **/
@@ -6989,7 +6990,7 @@ Bool verify_action_preconditions_at_level(int act_pos, int level)
 	  infNoop = CONVERT_NOOP_TO_NODE (el, level);
 
 	  /**
-	     Se la precondizione OVERALL e' un effetto additivo AT_START della stessa azione allora non è 
+	     Se la precondizione OVERALL e' un effetto additivo AT_START della stessa azione allora non ï¿½ 
 	     un'inconsistenza 
 	    **
 	    If the OVERALL precondition is an additive AT_START effect of the same action, then it is not 
@@ -7000,7 +7001,7 @@ Bool verify_action_preconditions_at_level(int act_pos, int level)
 	    {
 
 	      /** 
-		  Se il fatto è precondizione dello stesso livello o supporta una azione 
+		  Se il fatto ï¿½ precondizione dello stesso livello o supporta una azione 
 		  nei livelli successivi
 		  **
 		  If the fact is precondition of the same level or supports one action
@@ -7010,7 +7011,7 @@ Bool verify_action_preconditions_at_level(int act_pos, int level)
 		{
 		  
 		  /** 
-		      Se il fatto è un fatto critico falso aggiorno il vettore dei fatti falsi 
+		      Se il fatto ï¿½ un fatto critico falso aggiorno il vettore dei fatti falsi 
 		      critici e lo inserisco nel'array dei fatti falsi
 		      **
 		      If the fact is critical I update the array of the false facts
@@ -7069,7 +7070,7 @@ Bool verify_action_preconditions_at_level(int act_pos, int level)
 	    {
 
 	      /** 
-		  Se il fatto non è precondizione dell'azione ma e' precondizione di una azione nei 
+		  Se il fatto non ï¿½ precondizione dell'azione ma e' precondizione di una azione nei 
 		  livelli successivi 
 		  **
 		  If the fact is not precondition of the action but is precondition of one action in the
