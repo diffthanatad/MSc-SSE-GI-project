@@ -1,4 +1,4 @@
-/*********************************************************************
+	/*********************************************************************
  * (C) Copyright 2002  Universita' degli Studi di Brescia
  *     Dipartimento di Elettronica per l'Automazione
  *     Via Branze 38, 25123 Brescia, Italy
@@ -38,27 +38,38 @@
 #include "output.h"
 #include "numeric.h"
 #include "H_relaxed.h"
+#include "derivedpred.h"
+
+
+/***************************************
+          ACTION FOR HEURISTIC
+ ***************************************/
+
+
+
 
 
 void
 remove_temp_action (int act_pos, int level)
 {
   int i;
+  int k;
+
   EfConn *act;
   static int first_call = 0, last_action = -1;
-  inform_list infAction;
+  ActNode_list infAction;
   noop_not_in *temp;
 
   if (first_call == 0)
     {
-
+      // alloco bitvector per fatti 
       new_true_facts = alloc_vect (gnum_ft_block);
       new_false_facts = alloc_vect (gnum_ft_block);
     }
 
   if (last_action >= 0)
     {
-
+      // azzero opportunamente i blocchi di interi resi precedentemente veri 
       memset (new_true_facts, 0, gnum_ft_block * sizeof (int));
 
       for (i = 0; i < gef_conn[last_action].num_A; i++)
@@ -68,24 +79,51 @@ remove_temp_action (int act_pos, int level)
 	    continue;
 
 	  new_false_facts[GUID_BLOCK (gef_conn[last_action].A[i])] = 0;
+	  
+	  if (GpG.derived_predicates) {
+	    // azzero i anche i blocchi corrispondenti a predicati derivati
+	    for (k = 0; k < gft_conn[gef_conn[last_action].A[i]].num_dp_PC; k++)
+	      new_false_facts[GUID_BLOCK((gdp_conn[gft_conn[gef_conn[last_action].A[i]].dp_PC[k]].add))] = 0;
+
+	  }
+	  
+	  
 	}
     }
 
   last_action = act_pos;
   act = &gef_conn[act_pos];
 
+#ifdef __TEST__
+
+  if (CHECK_ACTION_POSTION_OF_LEVEL (act_pos, level) == FALSE)
+    {
+      MSG_ERROR ("");
+      exit (0);
+    }
+#endif
+
+  // If the action is in the subgraph, we want to remove it, 
+  // else if the action is not in the subgraph, we want to insert it.   
   infAction = GET_ACTION_OF_LEVEL (level);
+
+#ifdef __TEST__
+  printf ("\nTEMP RA %s is_used %d time %d pos %d", act->name,
+	  infAction->w_is_used, level, infAction->position);
+#endif
 
   for (i = 0; i < gef_conn[last_action].num_A; i++)
     {
 
       if (gef_conn[last_action].A[i] < 0)
 	continue;
+
       new_false_facts[GUID_BLOCK (gef_conn[last_action].A[i])] |=
 	GUID_MASK (gef_conn[last_action].A[i]);
     }
 
 
+  /*  azioni durative */
   if (gef_conn[last_action].sf != NULL)
     {
       for (i = 0; i < gef_conn[last_action].sf->num_A_start; i++)
@@ -93,6 +131,7 @@ remove_temp_action (int act_pos, int level)
 
 	  if (gef_conn[last_action].sf->A_start[i] < 0)
 	    continue;
+
 	  new_false_facts[GUID_BLOCK (gef_conn[last_action].sf->A_start[i])]
 	    |= GUID_MASK (gef_conn[last_action].sf->A_start[i]);
 	}
@@ -106,6 +145,7 @@ remove_temp_action (int act_pos, int level)
       temp = temp->next;
     }
 
+  /* azioni durative */
   if (gef_conn[last_action].sf != NULL)
     {
 
@@ -130,7 +170,7 @@ remove_temp_action (int act_pos, int level)
 	    GUID_MASK (gef_conn[last_action].sf->D_start[i]);
 
 	}
-    }
+    } /* end azioni durative */
 
 }
 
@@ -141,8 +181,7 @@ remove_temp_action (int act_pos, int level)
 
 
 
-inline float
-fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
+float fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 {
   register int temp, i, *ptr;
   int diff;
@@ -150,6 +189,8 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
   float total, prec_par, excl_par, add_effect_par;
 
 
+  /* Define the alpha, beta, gamma coefficents of F() to  
+     remove the action act from the action subgraph */
   act = &gef_conn[act_pos];
 
   prec_par = GpG.prec_par;
@@ -165,6 +206,11 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
     printf ("\nFAST_INSERTION  Act: %s, level. %d",
 	    print_op_name_string (act_pos, temp_name), level);
 
+#ifdef __TEST__
+  printf ("\nFIC ");
+#endif
+
+  /* Counts unsatisfied Preconditions */
   if (prec_par)
     {
 
@@ -172,44 +218,36 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 	{
 	  for (i = 0, temp = 0; i < act->num_precond; i++)
 	    temp +=
-	      count_bit1 (act->bit_precond[i].
-			  uid_mask & (~vectlevel[level]->
-				      fact_vect[act->bit_precond[i].
-						uid_block]));
+	      count_bit1 (act->bit_precond[i].uid_mask & (~vectlevel[level]->fact_vect[act->bit_precond[i].uid_block]));
 
+	  /* precondizioni numeriche */
 	  for (i = 0; i < act->num_PC; i++)
 	    if (act->PC[i] < 0)
 	      if (!is_num_prec_satisfied_in_common_level (-act->PC[i]))
 		temp++;
 
+	  /* azioni durative */
 	  if (act->sf != NULL)
 	    {
 	      for (i = 0; i < act->sf->num_PC_overall; i++)
 
 		if (act->sf->PC_overall[i] >= 0)
 		  {
-		    if (vectlevel[level]->fact[act->sf->PC_overall[i]].
-			w_is_true <= 0
-			&& !is_fact_in_additive_effects_start (act_pos,
-							       act->sf->
-							       PC_overall[i]))
+		    if (vectlevel[level]->fact[act->sf->PC_overall[i]].w_is_true <= 0
+			&& !is_fact_in_additive_effects_start (act_pos, act->sf->PC_overall[i]))
 		      temp++;
 		  }
 		else
-		  if (!is_num_prec_satisfied_in_common_level
-		      (-act->sf->PC_overall[i]))
-		  temp++;
+		  if (!is_num_prec_satisfied_in_common_level(-act->sf->PC_overall[i]))
+		    temp++;
 
 
 	      for (i = 0; i < act->sf->num_PC_end; i++)
 
 		if (act->sf->PC_end[i] >= 0)
 		  {
-		    if (vectlevel[level]->fact[act->sf->PC_end[i]].
-			w_is_true <= 0
-			&& !is_fact_in_additive_effects_start (act_pos,
-							       act->sf->
-							       PC_end[i]))
+		    if (vectlevel[level]->fact[act->sf->PC_end[i]].w_is_true <= 0 &&
+			!is_fact_in_additive_effects_start(act_pos, act->sf->PC_end[i]))
 		      temp++;
 		  }
 		else if (!is_num_prec_satisfied (-act->sf->PC_end[i], level))
@@ -222,13 +260,9 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 	for (i = 0, temp = 0; i < act->num_precond; i++)
 	  temp +=
 	    count_bit1 (act->bit_precond[i].uid_mask &
-			(((~vectlevel[level]->
-			   fact_vect[act->bit_precond[i].
-				     uid_block]) & (~new_true_facts[act->
-								    bit_precond
-								    [i].
-								    uid_block]))
-			 | new_false_facts[act->bit_precond[i].uid_block]));
+			(((~vectlevel[level]->fact_vect[act->bit_precond[i].uid_block]) & 
+			  (~new_true_facts[act->bit_precond[i].uid_block])) |
+			 new_false_facts[act->bit_precond[i].uid_block]));
 
       total = prec_par * temp;
 
@@ -246,14 +280,8 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 	}
       else
 	for (temp = 0, i = 0; i < gnum_ft_block; i++)
-	  if (vectlevel[level]->prec_vect[i])
-	    temp +=
-	      count_bit1 (CONVERT_ACTION_TO_VERTEX (act_pos)->
-			  ft_exclusive_vect[i] &
-			  ((vectlevel[level]->
-			    fact_vect[i] | new_true_facts[i]) &
-			   (~new_false_facts[i])) & vectlevel[level]->
-			  prec_vect[i]);
+	  if (vectlevel[level]->prec_vect[i])	// Solo se sono diversi da 0 faccio il test 
+	    temp += count_bit1 (CONVERT_ACTION_TO_VERTEX (act_pos)->ft_exclusive_vect[i] & ((vectlevel[level]->fact_vect[i] | new_true_facts[i]) & (~new_false_facts[i])) & vectlevel[level]->prec_vect[i]);	// NOOP 
 
       total += excl_par * temp;
 
@@ -262,11 +290,18 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 	printf ("  ME: %d", temp);
 
     }
+  /* define the cost of Add_effect critics nodes */
+  /* a fact is a true critic node if it is precondition of almost an action */
+  /* of the next level and it's supported from only one action */
+
+  /* a fact is a false critic node if it is precondition of almost an action */
+  /* of the next level and it's not supported */
+
   if (add_effect_par)
     {
       level++;
 
-      ptr = vectlevel[level]->false_crit_vect;
+      ptr = vectlevel[level]->false_crit_vect;	/* Number of critics fact that should became true; positive aspect */
 
       if (level <= temp_removed_action)
 	{
@@ -276,6 +311,7 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 			  uid_mask & *(ptr +
 				       act->bit_add_effect[i].uid_block));
 
+	  /* azioni durative */
 	  if (act->sf != NULL)
 	    {
 	      for (i = 0; i < act->sf->num_A_start; i++)
@@ -289,6 +325,8 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 						     act->sf->A_start[i]))
 		    temp++;
 	    }
+	  /* end azioni durative */
+
 	}
       else
 	for (i = 0, temp = 0; i < act->num_add_effect; i++)
@@ -306,11 +344,17 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 	printf ("  Add-E: %d", temp);
     }
 
-  if (GpG.local == 2)
-    {
-      diff = num_try;
-      if (diff < GpG.tabu_length && diff > 0)
-	total += GpG.delta * (GpG.tabu_length - diff);
+  if (FALSE && GpG.Twalkplan && GpG.tabu_length >0)
+    {	       
+      /* 
+	 T_walkgraph: increase the cost function of act if it is in
+	 the tabu list 
+      */
+
+      diff = GpG.count_num_try - gef_conn[act->position].step;
+	  
+      if (diff < GpG.tabu_length)
+	total += GpG.delta * (GpG.tabu_length - num_try);
     }
 
 
@@ -328,15 +372,33 @@ fast_insertion_action_cost (int act_pos, int level, int temp_removed_action)
 
 
 
+/***************************************
+            MAX COST HEURISTC
+ ***************************************/
+
+// Sezione dedicata alle funzioni di MAX_COST 
+
+
+
+
+
+
+
+// Definisce utilizzando i bit array il costo per rendere vero Fact 
+// Quando viene richiamata all'interno di un  max_action_cost prende  
+// inconsiderazione anche le azioni utlizzate per render vere tutte le  
+// precondizioni dell'azione originaria 
+
 float
-compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
+compute_max_fact_cost (FctNode_list Fact, node_cost_list n_cost,
 		       int action_level)
 {
 
-  register int temp, k = 0, j;
+  register int  k = 0, j;
   register FtConn *tofix;
-  auto float total, cost, prec, mutex, prec_act_cost;
-  inform_list inf_fact, inf_noop;
+  auto float total, cost, prec, mutex, prec_act_cost, temp;
+  FctNode_list inf_fact;
+  NoopNode_list inf_noop;
   int best_action = -1, best_level = 0, best_act_type = 0, el, cel, level;
   node_cost loc_n_cost, best_n_cost;;
 
@@ -345,6 +407,16 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
   prec_act_cost = 0.0;
   inf_noop = NULL;
 
+#ifdef __TEST__
+  if (Fact->action_fact != IS_FACT)
+    {
+      MSG_ERROR ("compute_max_fact_cost; debug me please");
+      exit (0);
+    }
+#endif
+
+
+  // Se il fatto e' supportato il costo per renderlo vero e' zero 
   if (fact_is_supported (Fact->position, level) && level <= action_level)
     {
 
@@ -362,7 +434,7 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
       return (0.0);
     }
 
-
+  // Il costo e' stato precedentemente calcolato 
 
   if (DEBUG4)
     {
@@ -372,17 +444,24 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 
     }
 
-
+  /*
   total = get_fact_cost (Fact->position, *Fact->level, &loc_n_cost);
   if (total >= 0 && total < MAX_COST)
     {
+
+#ifdef __TEST__
+      tofix = &gft_conn[Fact->position];
+      printf ("\n Fatto %s, weight  %f cost %f time %f",
+	      print_ft_name_string (tofix->position, temp_name), total,
+	      loc_n_cost.act_cost, loc_n_cost.act_time);
+#endif
 
       n_cost->weight = loc_n_cost.weight;
       n_cost->act_cost = loc_n_cost.act_cost;
       n_cost->act_time = loc_n_cost.act_time;
       return total;
     }
-
+  */
   if (level <= 0)
     return 0;
 
@@ -392,8 +471,14 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
   best_n_cost.act_cost = MAX_COST;
   best_n_cost.act_time = MAX_COST;
 
-
+  // sceglie l'azione che rende vero Fact con il minimo costo di inserimento, considero anche le noop 
   tofix = &gft_conn[Fact->position];
+
+#ifdef __TEST__
+  printf ("\n\n <<<<<<<<<<<<<<<<<<<Comp_fact_cost  START %s  time %d pos %d ",
+	  print_ft_name_string (tofix->position, temp_name), level,
+	  tofix->position);
+#endif
 
   if (level <= 0)
     return 0;
@@ -401,23 +486,23 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
   if (CHECK_NOOP_POS (Fact->position, level - 1))
     {
       if (check_mutex_noop (Fact->position, level - 1) >= 0)
-	inf_noop = CONVERT_NOOP_TO_INFORM (Fact->position, level - 1);
+	inf_noop = CONVERT_NOOP_TO_NODE (Fact->position, level - 1);
       else
 	{
-	  inf_noop = CONVERT_NOOP_TO_INFORM (Fact->position, level - 1);
+	  inf_noop = CONVERT_NOOP_TO_NODE (Fact->position, level - 1);	// Used if   best_ation will be NULL 
 
 
 
 	  cost = 0.0;
 
 	  if (level >= action_level
-	      && CONVERT_FACT_TO_INFORM (Fact->position,
+	      && CONVERT_FACT_TO_NODE (Fact->position,
 					 level - 1)->w_is_true <= 1)
 	    cost++;
 	  else
-	    if (!CONVERT_FACT_TO_INFORM (Fact->position, level - 1)->
+	    if (!CONVERT_FACT_TO_NODE (Fact->position, level - 1)->
 		w_is_true)
-	    cost++;
+	    cost++;		// Precondizione non supportata  
 
 
 	  if (best_n_cost.weight >= cost)
@@ -426,9 +511,7 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 	      loc_n_cost.act_cost = 0.0;
 	      loc_n_cost.act_time = 0.0;
 
-	      if (!
-		  (best_n_cost.weight == cost
-		   && weight_cost (&best_n_cost) < weight_cost (&loc_n_cost)))
+	      if (!(best_n_cost.weight == cost && weight_cost (&best_n_cost) < weight_cost (&loc_n_cost)))
 		{
 		  best_action = inf_noop->position;
 		  best_level = *inf_noop->level;
@@ -437,6 +520,10 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 		  best_n_cost.act_cost = loc_n_cost.act_cost;
 		  best_n_cost.act_time = loc_n_cost.act_time;
 
+#ifdef __TEST__
+		  printf("\n\n Comp_fact_cost  BEST NOOP ACT %s  time %d inc %.2f act_cost %.2f act_time   %.2f ",
+		     print_noop_name_string (best_action, temp_name), best_level, best_n_cost.weight, best_n_cost.act_cost, best_n_cost.act_time);
+#endif
 		}
 	    }
 
@@ -460,7 +547,7 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 	  if (best_n_cost.weight >= cost)
 	    {
 
-	      loc_n_cost.act_cost = get_action_cost (cel);
+	      loc_n_cost.act_cost = get_action_cost (cel, level - 1, NULL);
 	      loc_n_cost.act_time = get_action_time (cel, level - 1);
 
 	      if (best_n_cost.weight == cost
@@ -474,10 +561,28 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 	      best_n_cost.act_cost = loc_n_cost.act_cost;
 	      best_n_cost.act_time = loc_n_cost.act_time;
 
+#ifdef __TEST__
+	      printf
+		("\n\n Comp_fact_cost  BEST ACT %s  time %d inc %.2f act_cost %.2f act_time %.2f  ",
+		 print_op_name_string (best_action, temp_name), best_level,
+		 best_n_cost.weight, best_n_cost.act_cost,
+		 best_n_cost.act_time);
+#endif
+
 	      if (best_n_cost.weight <= 0)
-		break;
+		break;		// Non esamino ulteriori candidati 
 	    }
 	}
+
+#ifdef __TEST__
+      else
+	{
+	  printf
+	    ("\n L'azione %s non puo' essere applicata al livello %d, lev: %d",
+	     print_op_name_string (cel, temp_name), level - 1,
+	     gef_conn[cel].level);
+	}
+#endif
 
     }
 
@@ -493,16 +598,39 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 	  n_cost->weight = 1.0;
 	  n_cost->act_cost = 1.0;
 
+#ifdef __TEST__
+	  printf
+	    ("\nL'unica azione che posso scegliere e' una noop weight %f cost %f",
+	     n_cost->weight, n_cost->act_cost);
+#endif
+
 	}
       else
 	{
 	  n_cost->weight = MAX_COST;
 	  n_cost->act_cost = MAX_COST;
 
+#ifdef __TEST__
+	  printf
+	    ("\nL'unica azione che posso scegliere e' una noop weight %f cost %f",
+	     n_cost->weight, n_cost->act_cost);
+#endif
+
 	  return (MAX_COST);
 	}
-
+      // Definisco il costo per rendere vere le precondizioni non supportate 
     }
+
+#ifdef __TEST__
+  if (best_act_type == IS_ACTION)
+    printf ("\n\n     BEST_action   %s  time %d pos %d ",
+	    print_op_name_string (best_action, temp_name), best_level,
+	    best_action);
+  else
+    printf ("\n\n     BEST_action   %s  time %d pos %d ",
+	    print_noop_name_string (best_action, temp_name), best_level,
+	    best_action);
+#endif
 
   n_cost->weight = 0.0;
   n_cost->act_cost = 0.0;
@@ -512,7 +640,15 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
   if (best_act_type != IS_ACTION)
     {
 
-      inf_fact = CONVERT_FACT_TO_INFORM (best_action, best_level);
+#ifdef __TEST__
+      if (DEBUG3)
+	printf
+	  ("\n %d +++++++++++ COMPUTE MAX COST ACT %s fact %s act duration 0",
+	   ++k, print_noop_name_string (best_action, temp_name),
+	   print_ft_name_string (best_action, temp_name));
+#endif
+
+      inf_fact = CONVERT_FACT_TO_NODE (best_action, best_level);
       temp = compute_max_fact_cost (inf_fact, &loc_n_cost, action_level);
 
       if (n_cost->act_cost < loc_n_cost.act_cost
@@ -526,12 +662,21 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
       prec = temp;
       n_cost->weight = loc_n_cost.weight;
 
+#ifdef __TEST__
+      if (DEBUG3)
+	printf
+	  ("\n %d +++++++++++++ END COMPUTE MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+	   k, print_noop_name_string (best_action, temp_name),
+	   print_ft_name_string (best_action, temp_name), prec,
+	   loc_n_cost.weight, loc_n_cost.act_cost, loc_n_cost.act_time);
+#endif
+
     }
   else
-    {
+    {				// azioni
 
 
-
+      // Precondizioni at start
       for (j = 0, k = 0, prec = 0.0; j < gef_conn[best_action].num_PC; j++)
 	{
 	  el = gef_conn[best_action].PC[j];
@@ -542,7 +687,14 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 	  if (CHECK_FACT_POS (el, best_level))
 	    {
 
-	      inf_fact = CONVERT_FACT_TO_INFORM (el, best_level);
+#ifdef __TEST__
+	      if (DEBUG3)
+		printf ("\n %d +++++++++++ COMPUTE MAX COST ACT %s fact %s",
+			++k, print_op_name_string (best_action, temp_name),
+			print_ft_name_string (el, temp_name));
+#endif
+
+	      inf_fact = CONVERT_FACT_TO_NODE (el, best_level);
 	      temp =
 		compute_max_fact_cost (inf_fact, &loc_n_cost, action_level);
 
@@ -559,10 +711,56 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 		      && loc_n_cost.act_time < MAX_COST)
 		    n_cost->act_time = loc_n_cost.act_time;
 
+#ifdef __TEST__
+		  if (DEBUG2)
+		    {
+		      if (best_act_type == IS_ACTION)
+			printf
+			  ("\n %d +++++++++++++ END COMPUTE MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f  act_duration %.2f",
+			   k, print_op_name_string (best_action, temp_name),
+			   print_ft_name_string (el, temp_name), prec,
+			   loc_n_cost.weight, loc_n_cost.act_cost,
+			   loc_n_cost.act_time, get_action_time (best_action,
+								 best_level));
+		      else
+			printf
+			  ("\n %d +++++++++++++ END COMPUTE MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f",
+			   k, print_noop_name_string (best_act_type,
+						      temp_name),
+			   print_ft_name_string (el, temp_name), prec,
+			   loc_n_cost.weight, loc_n_cost.act_cost,
+			   loc_n_cost.act_time);
+		    }
+#endif
+
 		  if (prec < temp)
 		    {
 		      prec = temp;
 		      n_cost->weight = loc_n_cost.weight;
+
+
+#ifdef __TEST__
+		      if (DEBUG2)
+			{
+			  if (best_act_type == IS_ACTION)
+			    printf
+			      ("\n %d BEST  MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+			       k, print_op_name_string (best_action,
+							temp_name),
+			       print_ft_name_string (el, temp_name), prec,
+			       n_cost->weight, n_cost->act_cost,
+			       n_cost->act_time);
+			  else
+			    printf
+			      ("\n %d BEST  MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+			       k, print_noop_name_string (best_action,
+							  temp_name),
+			       print_ft_name_string (el, temp_name), prec,
+			       n_cost->weight, n_cost->act_cost,
+			       n_cost->act_time);
+			}
+#endif
+
 
 
 		      if (FALSE
@@ -573,7 +771,7 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 
 			  if (DEBUG4)
 			    printf ("\n MAX_ACT_COST stop");
-			  return temp;
+			  return temp;	// Ho superato il cost limite e quindi non ricerco ulteriormente 
 			}
 
 		    }
@@ -586,17 +784,44 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 		    n_cost->act_time += loc_n_cost.act_time;
 
 
+#ifdef __TEST__
+		  if (DEBUG2)
+		    printf
+		      ("\n %d +++++++++++++ END COMPUTE ADD COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f  time  %.2f",
+		       k, print_op_name_string (best_action, temp_name),
+		       print_ft_name_string (el, temp_name), prec,
+		       loc_n_cost.weight, loc_n_cost.act_cost,
+		       loc_n_cost.act_time);
+#endif
+
 		  prec += temp;
 		  n_cost->weight += loc_n_cost.weight;
 
+
+#ifdef __TEST__
+		  if (DEBUG2)
+		    printf
+		      ("\n %d BEST  ADD COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+		       k, print_op_name_string (best_action, temp_name),
+		       print_ft_name_string (el, temp_name), prec,
+		       n_cost->weight, n_cost->act_cost, n_cost->act_time);
+#endif
 
 		}
 
 	    }
 
+#ifdef __TEST__
+	  else
+	    printf
+	      ("\n ERRORE 1002  Fatto %s non presente al corrispondente livello %d, first level %d",
+	       print_ft_name_string (el, temp_name), level - 1,
+	       CONVERT_FACT_TO_VERTEX (el)->level);
+#endif
+
 	}
 
-
+      // Precondizioni overall
       if (gef_conn[best_action].sf != NULL)
 	{
 	  for (j = 0; j < gef_conn[best_action].sf->num_PC_overall; j++)
@@ -616,7 +841,16 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 	      if (CHECK_FACT_POS (el, best_level))
 		{
 
-		  inf_fact = CONVERT_FACT_TO_INFORM (el, best_level);
+#ifdef __TEST__
+		  if (DEBUG2)
+
+		    printf
+		      ("\n %d +++++++++++ COMPUTE MAX COST ACT %s fact %s",
+		       ++k, print_op_name_string (best_action, temp_name),
+		       print_ft_name_string (el, temp_name));
+#endif
+
+		  inf_fact = CONVERT_FACT_TO_NODE (el, best_level);
 		  temp =
 		    compute_max_fact_cost (inf_fact, &loc_n_cost,
 					   action_level);
@@ -634,11 +868,56 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 			  && loc_n_cost.act_time < MAX_COST)
 			n_cost->act_time = loc_n_cost.act_time;
 
+#ifdef __TEST__
+		      if (DEBUG2)
+			{
+			  if (best_act_type == IS_ACTION)
+			    printf
+			      ("\n %d +++++++++++++ END COMPUTE MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f  act_duration %.2f",
+			       k, print_op_name_string (best_action,
+							temp_name),
+			       print_ft_name_string (el, temp_name), prec,
+			       loc_n_cost.weight, loc_n_cost.act_cost,
+			       loc_n_cost.act_time,
+			       get_action_time (best_action, best_level));
+			  else
+			    printf
+			      ("\n %d +++++++++++++ END COMPUTE MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f",
+			       k, print_noop_name_string (best_act_type,
+							  temp_name),
+			       print_ft_name_string (el, temp_name), prec,
+			       loc_n_cost.weight, loc_n_cost.act_cost,
+			       loc_n_cost.act_time);
+			}
+#endif
+
 		      if (prec < temp)
 			{
 			  prec = temp;
 			  n_cost->weight = loc_n_cost.weight;
 
+
+#ifdef __TEST__
+			  if (DEBUG2)
+			    {
+			      if (best_act_type == IS_ACTION)
+				printf
+				  ("\n %d BEST  MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+				   k, print_op_name_string (best_action,
+							    temp_name),
+				   print_ft_name_string (el, temp_name), prec,
+				   n_cost->weight, n_cost->act_cost,
+				   n_cost->act_time);
+			      else
+				printf
+				  ("\n %d BEST  MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+				   k, print_noop_name_string (best_action,
+							      temp_name),
+				   print_ft_name_string (el, temp_name), prec,
+				   n_cost->weight, n_cost->act_cost,
+				   n_cost->act_time);
+			    }
+#endif
 
 			  if (FALSE
 			      && (temp *=
@@ -648,7 +927,7 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 
 			      if (DEBUG4)
 				printf ("\n MAX_ACT_COST stop");
-			      return temp;
+			      return temp;	// Ho superato il cost limite e quindi non ricerco ulteriormente 
 			    }
 
 			}
@@ -661,13 +940,42 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 			n_cost->act_time += loc_n_cost.act_time;
 
 
+#ifdef __TEST__
+		      if (DEBUG2)
+			printf
+			  ("\n %d +++++++++++++ END COMPUTE ADD COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f  time  %.2f",
+			   k, print_op_name_string (best_action, temp_name),
+			   print_ft_name_string (el, temp_name), prec,
+			   loc_n_cost.weight, loc_n_cost.act_cost,
+			   loc_n_cost.act_time);
+#endif
+
 		      prec += temp;
 		      n_cost->weight += loc_n_cost.weight;
 
 
+#ifdef __TEST__
+		      if (DEBUG2)
+			printf
+			  ("\n %d BEST  ADD COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+			   k, print_op_name_string (best_action, temp_name),
+			   print_ft_name_string (el, temp_name), prec,
+			   n_cost->weight, n_cost->act_cost,
+			   n_cost->act_time);
+
+#endif
+
 		    }
 
 		}
+
+#ifdef __TEST__
+	      else
+		printf
+		  ("\n ERRORE 1002  Fatto %s non presente al corrispondente livello %d, first level %d",
+		   print_ft_name_string (el, temp_name), level - 1,
+		   CONVERT_FACT_TO_VERTEX (el)->level);
+#endif
 
 	    }
 
@@ -676,7 +984,7 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 
 
 
-
+      // Precondizioni at end
       if (gef_conn[best_action].sf != NULL)
 	{
 	  for (j = 0; j < gef_conn[best_action].sf->num_PC_end; j++)
@@ -692,23 +1000,48 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 	      if (CHECK_FACT_POS (el, best_level))
 		{
 
-		  inf_fact = CONVERT_FACT_TO_INFORM (el, best_level);
+#ifdef __TEST__
+		  if (DEBUG2)
+
+		    printf("\n %d +++++++++++ COMPUTE MAX COST ACT %s fact %s",
+		       ++k, print_op_name_string (best_action, temp_name),
+		       print_ft_name_string (el, temp_name));
+#endif
 
 
-		  temp =
-		    compute_max_fact_cost (inf_fact, &loc_n_cost,
-					   action_level);
+		  inf_fact = CONVERT_FACT_TO_NODE (el, best_level);
+
+
+		  temp = compute_max_fact_cost (inf_fact, &loc_n_cost, action_level);
 
 
 		  if (GpG.accurate_cost == COMPUTE_MAX_COST)
 		    {
-		      if (n_cost->act_cost < loc_n_cost.act_cost
-			  && loc_n_cost.act_cost < MAX_COST)
+		      if (n_cost->act_cost < loc_n_cost.act_cost  && loc_n_cost.act_cost < MAX_COST)
 			n_cost->act_cost = loc_n_cost.act_cost;
 
-		      if (n_cost->act_time < loc_n_cost.act_time
-			  && loc_n_cost.act_time < MAX_COST)
+		      if (n_cost->act_time < loc_n_cost.act_time  && loc_n_cost.act_time < MAX_COST)
 			n_cost->act_time = loc_n_cost.act_time;
+
+#ifdef __TEST__
+		      if (DEBUG2)
+			{
+			  if (best_act_type == IS_ACTION)
+			    printf("\n %d +++++++++++++ END COMPUTE MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f  act_duration %.2f",k, print_op_name_string (best_action,temp_name),
+			       print_ft_name_string (el, temp_name), prec,
+			       loc_n_cost.weight, loc_n_cost.act_cost,
+			       loc_n_cost.act_time,
+			       get_action_time (best_action, best_level));
+			  else
+			    printf
+			      ("\n %d +++++++++++++ END COMPUTE MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f",
+			       k, print_noop_name_string (best_act_type,
+							  temp_name),
+			       print_ft_name_string (el, temp_name), prec,
+			       loc_n_cost.weight, loc_n_cost.act_cost,
+			       loc_n_cost.act_time);
+			}
+#endif
 
 		      if (prec < temp)
 			{
@@ -716,13 +1049,33 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 			  n_cost->weight = loc_n_cost.weight;
 
 
-			  if (FALSE && (temp *= local_search.lamda_prec) >
+#ifdef __TEST__
+			  if (DEBUG2)
+			    {
+			      if (best_act_type == IS_ACTION)
+				printf
+				  ("\n %d BEST  MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+				   k, print_op_name_string (best_action,temp_name),
+				   print_ft_name_string (el, temp_name), prec,
+				   n_cost->weight, n_cost->act_cost,
+				   n_cost->act_time);
+			      else
+				printf
+				  ("\n %d BEST  MAX COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+				   k, print_noop_name_string (best_action,temp_name),
+				   print_ft_name_string (el, temp_name), prec,n_cost->weight, n_cost->act_cost,
+				   n_cost->act_time);
+			    }
+#endif
+
+
+			  if (FALSE && (temp *=local_search.lamda_prec) >
 			      local_search.best_cost)
 			    {
 
 			      if (DEBUG4)
 				printf ("\n MAX_ACT_COST stop");
-			      return temp;
+			      return temp;	// Ho superato il cost limite e quindi non ricerco ulteriormente 
 			    }
 
 			}
@@ -735,12 +1088,37 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 			n_cost->act_time += loc_n_cost.act_time;
 
 
+#ifdef __TEST__
+		      if (DEBUG2)
+			printf
+			  ("\n %d +++++++++++++ END COMPUTE ADD COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f  time  %.2f",
+			   k, print_op_name_string (best_action, temp_name),
+			   print_ft_name_string (el, temp_name), prec,
+			   loc_n_cost.weight, loc_n_cost.act_cost,
+			   loc_n_cost.act_time);
+#endif
+
 		      prec += temp;
 		      n_cost->weight += loc_n_cost.weight;
 
+#ifdef __TEST__
+		      if (DEBUG2)
+			printf("\n %d BEST  ADD COST ACT %s fact %s cost %.2f weight %.2f act_cost %.2f act_time %.2f ",
+			   k, print_op_name_string (best_action, temp_name),
+			   print_ft_name_string (el, temp_name), prec,
+			   n_cost->weight, n_cost->act_cost,
+			   n_cost->act_time);
+
+#endif
 		    }
 
 		}
+
+#ifdef __TEST__
+	      else
+		printf("\n ERRORE 1002  Fatto %s non presente al corrispondente livello %d, first level %d",
+		   print_ft_name_string (el, temp_name), level, CONVERT_FACT_TO_VERTEX (el)->level);
+#endif
 
 	    }
 
@@ -758,7 +1136,7 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
     {
       total = 1.0;
 
-      n_cost->act_cost += get_action_cost (best_action);
+      n_cost->act_cost += get_action_cost (best_action, best_level, NULL);
       n_cost->act_time += get_action_time (best_action, best_level);
       mutex = count_mutex_action (best_action, best_level);
 
@@ -775,7 +1153,9 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
        print_ft_name_string (tofix->position, temp_name), tofix->position,
        level, total, prec, mutex, n_cost->act_cost, n_cost->act_time);
 
+  /*
   set_fact_cost (Fact, n_cost);
+  */
 
   return total;
 
@@ -791,6 +1171,7 @@ compute_max_fact_cost (inform_list Fact, node_cost_list n_cost,
 
 
 
+/* find the cost function  F(.,.) of removing or adding an action */
 float
 max_action_cost (neighb_list neighb_act)
 {
@@ -798,34 +1179,45 @@ max_action_cost (neighb_list neighb_act)
   int level, j, diff = 0, next_level;
   register EfConn *act;
   auto float total, prec_par, excl_par, add_effect_par, temp = 0.0, prec, eff;
-  inform_list inf_fact;
-  inform fact;
+  FctNode_list inf_fact;
+  FctNode fact;
   int el, fact_pos, ind_level;
-  auto float precond, mutex, effect, act_cost;
+  auto float precond, mutex, effect, act_cost;	//  LM  
   node_cost loc_n_cost, best_prec_cost, best_eff_cost;
 
-  precond = mutex = effect = act_cost = 0.0;
+  precond = mutex = effect = act_cost = 0.0;	//  LM 
 
-
+  fact.level=NULL;
   level = neighb_act->act_level;
   act = &gef_conn[neighb_act->act_pos];
 
-  total = 0.0;
-  if (GpG.lm_multilevel)
-    {
-      local_search.lamda_prec = vectlevel[level]->lambda_prec[act->position];
-      local_search.lamda_me = vectlevel[level]->lambda_me[act->position];
-    }
-  else
-    {
-      local_search.lamda_prec = act->lamda_prec;
-      local_search.lamda_me = act->lamda_me;
-    }
 
+#ifdef __TEST__
+  printf
+    ("\n\n ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n MAX ACTION COST level %d action %s duration %f",
+     level, print_op_name_string (act->position, temp_name),
+     get_action_time (neighb_act->act_pos, level));
+
+  check_plan (GpG.curr_plan_length);
+#endif
+
+  total = 0.0;
+  /* Define the alpha, beta, gamma coefficents of F() to  
+     remove the action act from the action subgraph */
+
+  if (GpG.lm_multilevel) {
+    local_search.lamda_prec=vectlevel[level]->lambda_prec[act->position];
+    local_search.lamda_me=vectlevel[level]->lambda_me[act->position];
+  }
+  else {
+    local_search.lamda_prec = act->lamda_prec;	//1.0; // GPG3 DA SISTEMARE act->lamda_prec; // Variabili utilizzare per decidere se interrompere la fase di calcolo del costo delle precondizioni e mutex
+    local_search.lamda_me = act->lamda_me;
+  }
+  
   if (neighb_act->constraint_type == C_T_REMOVE_ACTION)
-    {
+    {				/* ... became unused */
       neighb_act->cost.act_cost =
-	(-1) * (get_action_cost (neighb_act->act_pos));
+	(-1) * (get_action_cost (neighb_act->act_pos, level, NULL));
       neighb_act->cost.act_time =
 	(-1) * get_action_time (neighb_act->act_pos, level);
 
@@ -833,12 +1225,13 @@ max_action_cost (neighb_list neighb_act)
       excl_par = GpG.used_excl_par;
       add_effect_par = GpG.used_add_effect_par;
     }
+  /*define the alpha, beta, gamma coefficents of F() for  
+     add the action act from the action subgraph */
   else
-    {
-      neighb_act->cost.act_cost = get_action_cost (neighb_act->act_pos);
+    {				/* ... became used */
+      neighb_act->cost.act_cost = get_action_cost (neighb_act->act_pos, neighb_act->act_level, NULL);
 
-      neighb_act->cost.act_time =
-	get_action_time (neighb_act->act_pos, level);
+      neighb_act->cost.act_time = get_action_time (neighb_act->act_pos, level);
 
       prec_par = GpG.prec_par;
       excl_par = GpG.excl_par;
@@ -850,8 +1243,7 @@ max_action_cost (neighb_list neighb_act)
 
 
   if (DEBUG3)
-    printf ("\nMAX COST Act: %s, level %d\n  ",
-	    print_op_name_string (act->position, temp_name), level);
+    printf ("\nMAX COST Act: %s, level %d\n  ", print_op_name_string (act->position, temp_name), level);
 
   best_prec_cost.weight = 0.0;
 
@@ -869,6 +1261,7 @@ max_action_cost (neighb_list neighb_act)
 	    best_prec_cost.act_time = GET_ACTION_OF_LEVEL (ind_level)->time_f;
       }
 
+  /* Counts unsatisfied Preconditions */
   if (prec_par)
     {
       unsat_facts = 0;
@@ -884,13 +1277,20 @@ max_action_cost (neighb_list neighb_act)
 	      loc_n_cost.weight = 0.0;
 	      loc_n_cost.act_cost = 0.0;
 	      loc_n_cost.act_time = 0.0;
-
-
+	      //Costo per rendere vere le precondizioni 
+	      //creo un fatto fittizio, tanto le uniche info che servono sono position e level
 	      fact.position = el;
 	      fact.level = &vectlevel[level]->level;
+	      /*
+		loc_n_cost indica il costo di ricerca, di esecuzione e istante finale associato all'azione che rende vero il fatto considerato
+		Azzero loc_n_cost
+	      */
+	      loc_n_cost.weight = 0.0;
+	      loc_n_cost.act_cost = 0.0;
+	      loc_n_cost.act_time = 0.0;
 	      temp =
-		compute_dg_facts_cost (fact.position, *fact.level,
-				       &loc_n_cost, level);
+		compute_relaxed_fact_cost (fact.position, *fact.level,
+				       &loc_n_cost, level, get_action_time (neighb_act->act_pos, level) );
 	      if (GpG.accurate_cost == COMPUTE_MAX_COST)
 		{
 		  if (best_prec_cost.act_cost < loc_n_cost.act_cost
@@ -934,8 +1334,8 @@ max_action_cost (neighb_list neighb_act)
 	      loc_n_cost.act_time = 0.0;
 
 
-
-	      inf_fact = CONVERT_FACT_TO_INFORM (el, level);
+	      //Costo per rendere vere le precondizioni 
+	      inf_fact = CONVERT_FACT_TO_NODE (el, level);
 	      temp = compute_max_fact_cost (inf_fact, &loc_n_cost, level);
 
 	      if (GpG.accurate_cost == COMPUTE_MAX_COST
@@ -976,7 +1376,7 @@ max_action_cost (neighb_list neighb_act)
 			  && (temp *=
 			      local_search.lamda_prec) >
 			  local_search.best_cost)
-			return temp;
+			return temp;	// Ho superato il cost limite e quindi non ricerco ulteriormente 
 
 		    }
 		}
@@ -996,9 +1396,16 @@ max_action_cost (neighb_list neighb_act)
 
 	    }
 
+#ifdef __TEST__
+	  else
+	    MSG_ERROR ("Max act cost precond");
+#endif
+
 	}
 
 
+      /* azioni durative */
+      // precondizioni overall
       if (gef_conn[act->position].sf != NULL)
 	{
 	  for (j = 0; j < gef_conn[act->position].sf->num_PC_overall; j++)
@@ -1011,12 +1418,18 @@ max_action_cost (neighb_list neighb_act)
 		  loc_n_cost.weight = 0.0;
 		  loc_n_cost.act_cost = 0.0;
 		  loc_n_cost.act_time = 0.0;
-
-
+		  //Costo per rendere vere le precondizioni 
+		  //creo un fatto fittizio, tanto le uniche info che servono sono position e level
 		  fact.position = el;
-		  temp =
-		    compute_dg_facts_cost (fact.position, *fact.level,
-					   &loc_n_cost, level);
+		  /*
+		    loc_n_cost indica il costo di ricerca, di esecuzione e istante finale associato all'azione che rende vero il fatto considerato
+		    Azzero loc_n_cost
+		  */
+		  loc_n_cost.weight = 0.0;
+		  loc_n_cost.act_cost = 0.0;
+		  loc_n_cost.act_time = 0.0;
+
+		  temp = compute_relaxed_fact_cost (fact.position, *fact.level, &loc_n_cost, level, get_action_time (neighb_act->act_pos, level));
 		  if (GpG.accurate_cost == COMPUTE_MAX_COST)
 		    {
 		      if (best_prec_cost.act_cost < loc_n_cost.act_cost
@@ -1064,8 +1477,8 @@ max_action_cost (neighb_list neighb_act)
 		  loc_n_cost.act_time = 0.0;
 
 
-
-		  inf_fact = CONVERT_FACT_TO_INFORM (el, level);
+		  //Costo per rendere vere le precondizioni 
+		  inf_fact = CONVERT_FACT_TO_NODE (el, level);
 		  temp = compute_max_fact_cost (inf_fact, &loc_n_cost, level);
 
 		  if (GpG.accurate_cost == COMPUTE_MAX_COST
@@ -1107,7 +1520,7 @@ max_action_cost (neighb_list neighb_act)
 			      && (temp *=
 				  local_search.lamda_prec) >
 			      local_search.best_cost)
-			    return temp;
+			    return temp;	// Ho superato il cost limite e quindi non ricerco ulteriormente 
 
 			}
 		    }
@@ -1127,9 +1540,14 @@ max_action_cost (neighb_list neighb_act)
 
 		}
 
+#ifdef __TEST__
+	      else
+		MSG_ERROR ("Max act cost precond");
+#endif
+
 	    }
 
-
+	  // precondizioni at_end
 	  for (j = 0; j < gef_conn[act->position].sf->num_PC_end; j++)
 	    {
 	      el = gef_conn[act->position].sf->PC_end[j];
@@ -1140,12 +1558,18 @@ max_action_cost (neighb_list neighb_act)
 		  loc_n_cost.weight = 0.0;
 		  loc_n_cost.act_cost = 0.0;
 		  loc_n_cost.act_time = 0.0;
-
-
+		  //Costo per rendere vere le precondizioni 
+		  //creo un fatto fittizio, tanto le uniche info che servono sono position e level
 		  fact.position = el;
-		  temp =
-		    compute_dg_facts_cost (fact.position, *fact.level,
-					   &loc_n_cost, level);
+		  /*
+		    loc_n_cost indica il costo di ricerca, di esecuzione e istante finale associato all'azione che rende vero il fatto considerato
+		    Azzero loc_n_cost
+		  */
+		  loc_n_cost.weight = 0.0;
+		  loc_n_cost.act_cost = 0.0;
+		  loc_n_cost.act_time = 0.0;
+
+		  temp =compute_relaxed_fact_cost (fact.position, *fact.level, &loc_n_cost, level, 0.0);
 		  if (GpG.accurate_cost == COMPUTE_MAX_COST)
 		    {
 		      if (best_prec_cost.act_cost < loc_n_cost.act_cost
@@ -1193,8 +1617,8 @@ max_action_cost (neighb_list neighb_act)
 		  loc_n_cost.act_time = 0.0;
 
 
-
-		  inf_fact = CONVERT_FACT_TO_INFORM (el, level);
+		  //Costo per rendere vere le precondizioni 
+		  inf_fact = CONVERT_FACT_TO_NODE (el, level);
 		  temp = compute_max_fact_cost (inf_fact, &loc_n_cost, level);
 
 		  if (GpG.accurate_cost == COMPUTE_MAX_COST
@@ -1235,7 +1659,7 @@ max_action_cost (neighb_list neighb_act)
 			      && (temp *=
 				  local_search.lamda_prec) >
 			      local_search.best_cost)
-			    return temp;
+			    return temp;	// Ho superato il cost limite e quindi non ricerco ulteriormente 
 
 			}
 		    }
@@ -1255,8 +1679,16 @@ max_action_cost (neighb_list neighb_act)
 
 		}
 
+#ifdef __TEST__
+	      else
+		MSG_ERROR ("Max act cost precond");
+#endif
+
 	    }
 	}
+
+      /* end azioni durative */
+
 
       total = prec_par * prec;
       precond = local_search.lamda_prec * total;
@@ -1269,6 +1701,8 @@ max_action_cost (neighb_list neighb_act)
 
     }
 
+  /* Counts the number of ME actions with the current one */
+
   if (excl_par)
     {
       if (DEBUG4)
@@ -1279,9 +1713,9 @@ max_action_cost (neighb_list neighb_act)
 
       temp = count_mutex_action (act->position, level);
 
-      mutex = excl_par * temp;
+      mutex = excl_par * temp;	//  LM 
       total += mutex;
-      mutex *= local_search.lamda_me;
+      mutex*= local_search.lamda_me; //LM
 
     }
 
@@ -1300,6 +1734,13 @@ max_action_cost (neighb_list neighb_act)
 
   best_eff_cost.act_time = 0.0;
 
+  /* define the cost of Add_effect critics nodes */
+  /* a fact is a true critic node if it is precondition of almost an action */
+  /* of the next level and it's supported from only one action */
+
+  /* a fact is a false critic node if it is precondition of almost an action */
+  /* of the next level and it's not supported */
+
   if (add_effect_par)
     {
       next_level = level + 1;
@@ -1308,7 +1749,12 @@ max_action_cost (neighb_list neighb_act)
 
 	  unsat_facts = 0;
 
-	  remove_temp_action (neighb_act->act_pos, neighb_act->act_level);
+#ifdef TEST_GR
+	  printf ("\n MAX action cost level %d", level);
+	  check_plan (GpG.curr_plan_length);
+#endif
+
+	  remove_temp_action (neighb_act->act_pos, neighb_act->act_level);	// Rimuovo temporaneamente l'azione per calcolare il costo di rendere veri gli effetti additivi critici 
 
 	}
       eff = 0.0;
@@ -1326,18 +1772,45 @@ max_action_cost (neighb_list neighb_act)
 	  if (neighb_act->constraint_type == C_T_REMOVE_ACTION)
 	    {
 
-	      if (CONVERT_FACT_TO_INFORM (fact_pos, next_level)->w_is_true ==
+	      if (CONVERT_FACT_TO_NODE (fact_pos, next_level)->w_is_true ==
 		  1
-		  && CONVERT_FACT_TO_INFORM (fact_pos, next_level)->w_is_goal)
+		  && CONVERT_FACT_TO_NODE (fact_pos, next_level)->w_is_goal)
 		{
-
+		  // Trovo il primo livello in cui questo fatto diventerebbe una precondizione non supportata 
 
 		  if (next_level > GpG.curr_plan_length)
 		    {
+#ifdef __TEST__
+		      if (DEBUG2)
+			MSG_ERROR ("Fact precondition of NO action");
+#endif
 		      continue;
 
 		    }
 
+#ifdef __TEST__
+		  else if (DEBUG2)
+		    {
+		      if (GET_ACTION_POSITION_OF_LEVEL (next_level) >= 0)
+			printf
+			  ("\n Fact %s precondition of action %s at level %d",
+			   print_ft_name_string (fact_pos, temp_name),
+			   print_op_name_string (GET_ACTION_POSITION_OF_LEVEL
+						 (next_level), temp_name),
+			   next_level);
+		      else
+			printf
+			  ("\n Fact %s precondition of no action  at level %d",
+			   print_ft_name_string (fact_pos, temp_name),
+			   next_level);
+		      printf ("\n %d COMPUTE MAX COST EFF ACT %s fact %s",
+			      ++diff, print_op_name_string (act->position,
+							    temp_name),
+			      print_ft_name_string (fact_pos, temp_name));
+
+		    }
+
+#endif
 		  if (DEBUG4)
 		    {
 		      printf ("\n\n %d +++++ MAX_COST End_eff  Act %s",
@@ -1349,13 +1822,11 @@ max_action_cost (neighb_list neighb_act)
 		    }
 
 		  temp =
-		    compute_max_fact_cost (CONVERT_FACT_TO_INFORM
+		    compute_max_fact_cost (CONVERT_FACT_TO_NODE
 					   (fact_pos, next_level),
 					   &loc_n_cost, level);
 
-		  if (GpG.accurate_cost == COMPUTE_MAX_COST
-		      && CONVERT_FACT_TO_INFORM (fact_pos,
-						 next_level)->w_is_true <= 1)
+		  if (GpG.accurate_cost == COMPUTE_MAX_COST && CONVERT_FACT_TO_NODE (fact_pos, next_level)->w_is_true <= 1)	// il fatto e' supportato unicamente dalla azione che si vuole rimuovere 
 		    unsat_facts++;
 
 		}
@@ -1363,10 +1834,18 @@ max_action_cost (neighb_list neighb_act)
 	    }
 	  else
 	    {
-	      if (CONVERT_FACT_TO_INFORM (fact_pos, next_level)->w_is_true ==
+	      if (CONVERT_FACT_TO_NODE (fact_pos, next_level)->w_is_true ==
 		  0
-		  && CONVERT_FACT_TO_INFORM (fact_pos, next_level)->w_is_goal)
+		  && CONVERT_FACT_TO_NODE (fact_pos, next_level)->w_is_goal)
 		{
+
+#ifdef __TEST__
+		  if (DEBUG2)
+		    printf ("\n %d COMPUTE MAX COST EFF ACT %s fact %s",
+			    ++diff, print_op_name_string (act->position,
+							  temp_name),
+			    print_ft_name_string (fact_pos, temp_name));
+#endif
 
 		  if (DEBUG4)
 		    {
@@ -1439,6 +1918,8 @@ max_action_cost (neighb_list neighb_act)
 	}
 
 
+      /*  azioni durative */
+      // Effetti at start
       if (gef_conn[neighb_act->act_pos].sf != NULL)
 	{
 	  for (i = 0; i < gef_conn[neighb_act->act_pos].sf->num_A_start; i++)
@@ -1458,18 +1939,47 @@ max_action_cost (neighb_list neighb_act)
 	      if (neighb_act->constraint_type == C_T_REMOVE_ACTION)
 		{
 
-		  if (CONVERT_FACT_TO_INFORM (fact_pos, next_level)->
+		  if (CONVERT_FACT_TO_NODE (fact_pos, next_level)->
 		      w_is_true == 1
-		      && CONVERT_FACT_TO_INFORM (fact_pos,
+		      && CONVERT_FACT_TO_NODE (fact_pos,
 						 next_level)->w_is_goal)
 		    {
-
+		      // Trovo il primo livello in cui questo fatto diventerebbe una precondizione non supportata 
 
 		      if (next_level > GpG.curr_plan_length)
 			{
+#ifdef __TEST__
+			  if (DEBUG2)
+			    MSG_ERROR ("Fact precondition of NO action");
+#endif
 			  continue;
 
 			}
+
+#ifdef __TEST__
+		      else if (DEBUG2)
+			{
+			  if (GET_ACTION_POSITION_OF_LEVEL (next_level) >= 0)
+			    printf
+			      ("\n Fact %s precondition of action %s at level %d",
+			       print_ft_name_string (fact_pos, temp_name),
+			       print_op_name_string
+			       (GET_ACTION_POSITION_OF_LEVEL (next_level),
+				temp_name), next_level);
+			  else
+			    printf
+			      ("\n Fact %s precondition of no action  at level %d",
+			       print_ft_name_string (fact_pos, temp_name),
+			       next_level);
+			  printf ("\n %d COMPUTE MAX COST EFF ACT %s fact %s",
+				  ++diff, print_op_name_string (act->position,
+								temp_name),
+				  print_ft_name_string (fact_pos, temp_name));
+
+			}
+
+#endif
+
 
 		      if (DEBUG4)
 			{
@@ -1483,14 +1993,11 @@ max_action_cost (neighb_list neighb_act)
 
 
 		      temp =
-			compute_max_fact_cost (CONVERT_FACT_TO_INFORM
+			compute_max_fact_cost (CONVERT_FACT_TO_NODE
 					       (fact_pos, next_level),
 					       &loc_n_cost, level);
 
-		      if (GpG.accurate_cost == COMPUTE_MAX_COST
-			  && CONVERT_FACT_TO_INFORM (fact_pos,
-						     next_level)->w_is_true <=
-			  1)
+		      if (GpG.accurate_cost == COMPUTE_MAX_COST && CONVERT_FACT_TO_NODE (fact_pos, next_level)->w_is_true <= 1)	// il fatto e' supportato unicamente dalla azione che si vuole rimuovere 
 			unsat_facts++;
 
 		    }
@@ -1498,11 +2005,20 @@ max_action_cost (neighb_list neighb_act)
 		}
 	      else
 		{
-		  if (CONVERT_FACT_TO_INFORM (fact_pos, next_level)->
+		  if (CONVERT_FACT_TO_NODE (fact_pos, next_level)->
 		      w_is_true == 0
-		      && CONVERT_FACT_TO_INFORM (fact_pos,
+		      && CONVERT_FACT_TO_NODE (fact_pos,
 						 next_level)->w_is_goal)
 		    {
+
+#ifdef __TEST__
+		      if (DEBUG2)
+			printf ("\n %d COMPUTE MAX COST EFF ACT %s fact %s",
+				++diff, print_op_name_string (act->position,
+							      temp_name),
+				print_ft_name_string (fact_pos, temp_name));
+#endif
+
 
 		      if (DEBUG4)
 			{
@@ -1574,35 +2090,43 @@ max_action_cost (neighb_list neighb_act)
 
 	    }
 	}
+      /* end azioni durative */
+
       total += add_effect_par * eff;
-      effect *= add_effect_par;
+      effect *= add_effect_par;	//  LM 
 
       if (DEBUG4)
 	printf ("\n\n<< Evalutate effect END");
 
       if (DEBUG3)
-	printf ("  Temp Add-E: %f, effects %f total %f  ", temp, effect,
-		total);
+	printf ("  Temp Add-E: %f, effects %f total %f  ", temp, effect, total );
     }
 
 
-
-
+  // LM Sostituisco il costo ottentuto con i moltiplicatori di lagr a quello 
+  // standard se e' impostata la corrispondente modalita' 
 
   if (GpG.lagrange_multipl)
     total = precond + mutex + effect;
 
   if (unsat_facts > 1)
-    total += (unsat_facts - 1);
+    total += (unsat_facts - 1);	// precondiz non supportate - quella di cui si e' fatto il max  
 
-  if (GpG.local == 2)
-    {
-      diff = num_try;
-      if (diff < GpG.tabu_length && diff > 0)
-	total += GpG.delta * (GpG.tabu_length - diff);
-      if (DEBUG6)
-	printf (" -> tot %f", total);
+  if (GpG.Twalkplan && GpG.tabu_length >0 && neighb_act->constraint_type == C_T_REMOVE_ACTION)
+    {				
+      /* 
+	 T_walkgraph: increase the cost function of act if it is in
+	 the tabu list 
+      */      
+
+      diff = GpG.count_num_try - gef_conn[act->position].step;
+
+      if (num_try < GpG.tabu_length)
+	total *= GpG.delta * (GpG.tabu_length - num_try);
     }
+
+  if (DEBUG6)
+    printf (" -> tot %f", total);
 
 
   neighb_act->cost.weight = total;
@@ -1613,13 +2137,28 @@ max_action_cost (neighb_list neighb_act)
 
   if (GpG.num_solutions && neighb_act->constraint_type == C_T_INSERT_ACTION)
     {
-      if (GpG.orig_weight_cost > 0 && GpG.best_cost * 1.4 > GpG.total_cost)
-	neighb_act->cost.act_cost += get_action_cost (neighb_act->act_pos);
+      if (GpG.orig_weight_cost > 0 && GpG.best_exec_cost * 1.4 > GpG.total_cost)
+	neighb_act->cost.act_cost += get_action_cost (neighb_act->act_pos, neighb_act->act_level, NULL);
 
       if (GpG.orig_weight_time > 0 && GpG.best_time * 1.4 > GpG.total_time)
 	neighb_act->cost.act_time +=
 	  (10.0 + get_action_time (neighb_act->act_pos, level));
     }
+
+#ifdef __TEST__
+  if (DEBUG2)
+    {
+      printf ("\n Temp TOTAL COST of %s %f,  ",
+	      print_op_name_string (act->position, temp_name), total);
+      printf ("\n\n  $$$$$$$ MAX COST inc %.2f cost %.2f time %.2f ",
+	      neighb_act->cost.weight, neighb_act->cost.act_cost,
+	      neighb_act->cost.act_time);
+    }
+#endif
+
+#ifdef __TEST__
+  check_plan (GpG.curr_plan_length);
+#endif
 
   if (DEBUG4)
     printf ("\n\n<<<< Evalutate action END  Act: %s",

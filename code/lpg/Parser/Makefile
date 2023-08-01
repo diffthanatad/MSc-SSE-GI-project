@@ -7,15 +7,15 @@
 
 CFLAGS = -O3 -DNDEBUG
 
+CC	= gcc 
 
-TARGET = lpg
-CFLAGS = -O3 -DNDEBUG  -Wall
-LIBS=  -lm 
+
+####### INCLUDE CONFIGURATION FILE
+
+include ../configure.make
 
 
 ####### COMPILE
-
-CC	= gcc 
 
 PATH_HEADERS = -I$(SRC_HEADER)
 
@@ -80,10 +80,10 @@ scan-ops_pddl.tab.c: scan-ops_pddl.y lex.ops_pddl.c
 	bison --verbose -pops_pddl -bscan-ops_pddl scan-ops_pddl.y
 
 lex.fct_pddl.c: lex-fct_pddl.l
-	flex -Pfct_pddl lex-fct_pddl.l
+	/usr/bin/flex -Pfct_pddl lex-fct_pddl.l
 
 lex.ops_pddl.c: lex-ops_pddl.l
-	flex -Pops_pddl lex-ops_pddl.l
+	/usr/bin/flex -Pops_pddl lex-ops_pddl.l
 
 ####### clean
 

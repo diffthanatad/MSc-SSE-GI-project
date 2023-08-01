@@ -33,12 +33,28 @@
 #ifndef _CHECK_H
 #define _CHECK_H
 
+void check_prev_and_next_links(void);
+
+int check_ft_ft_mutex(int **temp_ft_ft_mutex);
+
 int check_time_and_length (int plan_ops_num);
 
 int check_plan (int max_time);
+void check_temporal_plan ();
 
 void check_consistency (int level);
 
 void check_num_prec();
+
+void refresh_cvars_bet (float *input_vector);
+
+void control_numeric_of_plan();
+void eval_comp_var_non_recursive_bet (int cv_index, float *in_vect, float *out_vect);
+
+void test_cond_effect();
+
+Bool check_cpu_time(float *plan_time);
+
+Bool check_numeric_w_is_goal(void);
 
 #endif

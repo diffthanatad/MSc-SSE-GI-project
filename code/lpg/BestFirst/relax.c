@@ -87,7 +87,7 @@
 
 /* in agenda driven algorithm, the current set of goals is this
  */
-State lgoals;
+State *lgoals = NULL;
 
 
 
@@ -185,6 +185,24 @@ Bool lnew_goal;
 
 
 
+void initialize_lgoals(void)
+{
+  
+  if (!lgoals)
+    lgoals = new_State(max_state_facts);
+  else
+    lgoals->num_F = 0;
+
+
+ if (!lcurrent_goals)
+    lcurrent_goals = new_State(max_state_facts);
+  else
+    lcurrent_goals->num_F = 0;
+
+}
+
+
+
 
 
 int get_1P_and_H( State *S, State *current_goals, int new_goal )
@@ -193,7 +211,7 @@ int get_1P_and_H( State *S, State *current_goals, int new_goal )
 
   int h, max;
 
-  source_to_dest( &lgoals, current_goals );  
+  source_to_dest( lgoals, current_goals );  
   if ( new_goal != -1 ) {
     lnew_goal = TRUE;
   } else {
@@ -223,7 +241,7 @@ int get_1P( State *S, State *current_goals )
 
   int h, max;
 
-  source_to_dest( &lgoals, current_goals );  
+  source_to_dest( lgoals, current_goals );  
 
   gevaluated_states++;
 
@@ -357,6 +375,14 @@ int build_fixpoint( State *S )
       gef_conn[i].ch = FALSE;
       
       if ( gef_conn[i].num_PC == 0 ) {
+	/*
+	 * DEA - University of Brescia
+	 */
+	if ( gef_conn[i].sf)
+	  if ( gef_conn[i].sf->num_PC_overall == 0 && gef_conn[i].sf->num_PC_end)
+	/*
+	 * End of DEA
+	 */
 	l0P_E[lnum_0P_E++] = i;
       }
     }
@@ -449,12 +475,25 @@ void activate_ft( int index, int time )
       gef_conn[gft_conn[index].PC[i]].ch = TRUE;
       lch_E[lnum_ch_E++] = gft_conn[index].PC[i];
     }
-    if ( gef_conn[gft_conn[index].PC[i]].num_active_PCs ==
-	 gef_conn[gft_conn[index].PC[i]].num_PC ) {
+    /*
+     * DEA - University of Brescia
+     */
+    //    if ( gef_conn[gft_conn[index].PC[i]].num_active_PCs ==
+    //	 gef_conn[gft_conn[index].PC[i]].num_PC ) { ??????
+    if ( (gef_conn[gft_conn[index].PC[i]].sf == NULL &&
+	 ( gef_conn[gft_conn[index].PC[i]].num_active_PCs ==
+	 gef_conn[gft_conn[index].PC[i]].num_PC )) || 
+	 ( gef_conn[gft_conn[index].PC[i]].sf &&
+	 ( gef_conn[gft_conn[index].PC[i]].num_active_PCs ==
+	 gef_conn[gft_conn[index].PC[i]].num_PC +
+	 gef_conn[gft_conn[index].PC[i]].sf->num_PC_overall +
+	 gef_conn[gft_conn[index].PC[i]].sf->num_PC_end) ) ) {
+    /*
+     * End of DEA
+     */
       new_ef( gft_conn[index].PC[i] );
     }
   }
-
 }
 
 
@@ -473,7 +512,20 @@ void activate_ef( int index, int time )
     }
     new_fact( gef_conn[index].A[i] );
   }
-
+  /*
+   * DEA - University of Brescia
+   */
+  if (gef_conn[index].sf) {
+    for ( i = 0; i < gef_conn[index].sf->num_A_start; i++ ) {
+      if ( gft_conn[gef_conn[index].sf->A_start[i]].in_F ) {
+	continue;
+      }
+      new_fact( gef_conn[index].sf->A_start[i] );
+    }
+  }
+  /*
+   * End of DEA
+   */
 }
 
 
@@ -543,14 +595,14 @@ Bool all_goals_activated( int time )
       }
     }
   } else {
-    for ( i = 0; i < lgoals.num_F; i++ ) {
-      if ( !gft_conn[lgoals.F[i]].in_F ) {
+    for ( i = 0; i < lgoals->num_F; i++ ) {
+      if ( !gft_conn[lgoals->F[i]].in_F ) {
 	return FALSE;
       }
     }
-    for ( i = 0; i < lgoals.num_F; i++ ) {
-      if ( gft_conn[lgoals.F[i]].level == INFINITY ) {
-	gft_conn[lgoals.F[i]].level = time;
+    for ( i = 0; i < lgoals->num_F; i++ ) {
+      if ( gft_conn[lgoals->F[i]].level == INFINITY ) {
+	gft_conn[lgoals->F[i]].level = time;
       }
     }
   }
@@ -689,7 +741,7 @@ int extract_1P( int max, Bool H_info )
 
   if ( lnew_goal ) {
     reset_search_info();
-    source_to_dest( &lgoals, &ggoal_state );  
+    source_to_dest( lgoals, &ggoal_state );  
     if ( (max_goal_level = initialize_goals( max )) == INFINITY ) {
       return INFINITY;
     }
@@ -742,8 +794,8 @@ int initialize_goals( int max )
   }
 
   max_goal_level = 0;
-  for ( i = 0; i < lgoals.num_F; i++ ) {
-    ft = lgoals.F[i];
+  for ( i = 0; i < lgoals->num_F; i++ ) {
+    ft = lgoals->F[i];
     if ( gft_conn[ft].level == INFINITY ) {
       return INFINITY;
     }
@@ -792,6 +844,20 @@ void achieve_goals( int time )
       for ( k = 0; k < gef_conn[ef].num_PC; k++ ) {
 	p += gft_conn[gef_conn[ef].PC[k]].level;
       }
+      /*
+       * DEA - University of Brescia
+       */
+      if (gef_conn[ef].sf) {
+	for ( k = 0; k < gef_conn[ef].sf->num_PC_overall; k++ ) {
+	  p += gft_conn[gef_conn[ef].sf->PC_overall[k]].level;
+	}
+	for ( k = 0; k < gef_conn[ef].sf->num_PC_end; k++ ) {
+	  p += gft_conn[gef_conn[ef].sf->PC_end[k]].level;
+	}
+      }
+      /*
+       * End of DEA
+       */
       if ( LESS( p, min_p ) ) {
 	min_p = p;
 	min_e = ef;
@@ -833,6 +899,56 @@ void achieve_goals( int time )
 	gft_conn[ft].ch = TRUE;
       }
     }
+    
+    /*
+     * DEA - University of Brescia
+     */
+    if(gef_conn[ef].sf) {
+      for ( j = 0; j < gef_conn[ef].sf->num_PC_overall; j++ ) {
+	ft = gef_conn[ef].sf->PC_overall[j];
+	if ( gft_conn[ft].is_true == time ) {
+	  /* a prev at this level selected op accidently adds this precond, 
+	   * so we can order that op before this one and get the precond added for free.
+	   */
+	  continue;
+	}
+	if ( gft_conn[ft].is_goal ) {
+	  /* this fact already is a goal
+	   */
+	  continue;
+	}
+	lgoals_at[gft_conn[ft].level][lnum_goals_at[gft_conn[ft].level]++] = ft;
+	gft_conn[ft].is_goal = TRUE;
+	if ( !gft_conn[ft].ch ) {
+	  lch_F[lnum_ch_F++] = ft;
+	  gft_conn[ft].ch = TRUE;
+	}
+      }
+
+      for ( j = 0; j < gef_conn[ef].sf->num_PC_end; j++ ) {
+	ft = gef_conn[ef].sf->PC_end[j];
+	if ( gft_conn[ft].is_true == time ) {
+	  /* a prev at this level selected op accidently adds this precond, 
+	   * so we can order that op before this one and get the precond added for free.
+	   */
+	  continue;
+	}
+	if ( gft_conn[ft].is_goal ) {
+	  /* this fact already is a goal
+	   */
+	  continue;
+	}
+	lgoals_at[gft_conn[ft].level][lnum_goals_at[gft_conn[ft].level]++] = ft;
+	gft_conn[ft].is_goal = TRUE;
+	if ( !gft_conn[ft].ch ) {
+	  lch_F[lnum_ch_F++] = ft;
+	  gft_conn[ft].ch = TRUE;
+	}
+      }
+    }
+    /*
+     * End of DEA
+     */
 
     for ( j = 0; j < gef_conn[ef].num_A; j++ ) {
       ft = gef_conn[ef].A[j];
@@ -842,6 +958,22 @@ void achieve_goals( int time )
 	gft_conn[ft].ch = TRUE;
       }
     }
+    /*
+     * DEA - University of Brescia
+     */
+    if(gef_conn[ef].sf) {
+      for ( j = 0; j < gef_conn[ef].sf->num_A_start; j++ ) {
+	ft = gef_conn[ef].sf->A_start[j];
+	gft_conn[ft].is_true = time;
+	if ( !gft_conn[ft].ch ) {
+	  lch_F[lnum_ch_F++] = ft;
+	  gft_conn[ft].ch = TRUE;
+	}
+      }
+    }
+    /*
+     * End of DEA
+     */
     for ( j = 0; j < gef_conn[ef].num_I; j++ ) {
       for ( k = 0; k < gef_conn[gef_conn[ef].I[j]].num_A; k++ ) {
 	ft = gef_conn[gef_conn[ef].I[j]].A[k];
@@ -851,6 +983,20 @@ void achieve_goals( int time )
 	  gft_conn[ft].ch = TRUE;
 	}
       }
+      /*
+       * DEA - University of Brescia
+       */
+      for ( k = 0; k < gef_conn[gef_conn[ef].I[j]].sf->num_A_start; k++ ) {
+	ft = gef_conn[gef_conn[ef].I[j]].sf->A_start[k];
+	gft_conn[ft].is_true = time;
+	if ( !gft_conn[ft].ch ) {
+	  lch_F[lnum_ch_F++] = ft;
+	  gft_conn[ft].ch = TRUE;
+	}
+      }
+      /*
+       * End of DEA
+       */
     }
   }
 
@@ -914,6 +1060,15 @@ void collect_H_info( void )
       for ( k = 0; k < gef_conn[ef].num_D; k++ ) {
 	if ( gft_conn[gef_conn[ef].D[k]].is_goal ) d++;
       }
+      /*
+       * DEA - University of Brescia
+       */
+      for ( k = 0; k < gef_conn[ef].sf->num_D_start; k++ ) {
+	if ( gft_conn[gef_conn[ef].sf->D_start[k]].is_goal ) d++;
+      }
+      /*
+       * End of DEA
+       */
     }
     for ( j = 0; j < gnum_H; j++ ) {
       if ( D[j] > d ) break;

@@ -20,10 +20,8 @@
 #include "ff.h"
 #include "parse.h"
 
-/* default yywrap function - always treat EOF as an EOF  */
-int ops_pddlwrap() {
-  return 1; 
-};
+#define yytext ops_pddltext
+
 %}
 
 a [Aa]
@@ -55,9 +53,11 @@ z [Zz]
 
 digit [0-9]
 int -?{digit}*
-float -?{digit}+(\.{digit}*)?
+float -?{digit}?+\.{digit}*
 
 %x COMMENT OVERREAD
+
+%option noyywrap
 
 %%
 
@@ -151,6 +151,7 @@ float -?{digit}+(\.{digit}*)?
 
 ":"{e}{f}{f}{e}{c}{t}  {  return(EFFECT_TOK); }
 
+":"{d}{e}{r}{i}{v}{e}{d} { return(DERIVED_TOK); }
 
 {a}{n}{d}  {  return(AND_TOK); }
 

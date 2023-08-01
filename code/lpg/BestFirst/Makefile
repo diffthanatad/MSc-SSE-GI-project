@@ -1,21 +1,20 @@
-####################################
-# Makefile for HillClimbingSearch  #
-####################################
+###########################
+# Makefile for BestFirst  #
+###########################
 
 
 ####### FLAGS
 
 CFLAGS = -O3 -DNDEBUG
 
+CC	= gcc 
 
-TARGET = lpg
-CFLAGS = -O3 -DNDEBUG  -Wall
-LIBS=  -lm 
+####### INCLUDE CONFIGURATION FILE
+
+include ../configure.make
 
 
 ####### COMPILE
-
-CC	= gcc 
 
 PATH_HEADERS = -I$(SRC_HEADER)
 
@@ -43,8 +42,8 @@ HEADERS := $(foreach dir,../include,$(find_header))
 
 ####### Build rules
 
-HillClimbingSearch.a: 	$(OBJECTS)
-			$(AR) rc $@ $^ 
+BestFirst.a: 	$(OBJECTS)
+		$(AR) rc $@ $^ 
 
 $(OBJECTS): $(HEADERS)
 

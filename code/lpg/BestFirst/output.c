@@ -44,6 +44,15 @@
 #include "output.h"
 #include "lpg.h"
 
+/**
+ * DEA - University of Brescia
+ **/
+
+#include "LpgOutput.h"
+
+/**
+ * End of DEA
+ **/
 
 
 
@@ -153,8 +162,8 @@ void print_PlNode( PlNode *plnode, int indent )
   
   switch (plnode->connective) {
   case ALL: 
-    printf("ALL %s : %s\n", plnode->atom->item,
-	    plnode->atom->next->item);
+    printf("ALL %s : %s\n", plnode->parse_vars->name,
+	    plnode->parse_vars->type->item);
     print_indent(indent);
     printf("(   ");
     print_PlNode(plnode->sons,indent+4);
@@ -162,8 +171,8 @@ void print_PlNode( PlNode *plnode, int indent )
     printf(")\n");
     break;
   case EX:
-    printf("EX  %s : %s\n", plnode->atom->item,
-	    plnode->atom->next->item);
+    printf("EX  %s : %s\n", plnode->parse_vars->name,
+	    plnode->parse_vars->type->item);
     print_indent(indent);
     printf("(   ");
     print_PlNode(plnode->sons,indent+4);
@@ -597,7 +606,7 @@ void print_NormOperator( NormOperator *o )
   int i, m;
 
   printf("\n\n----------------Operator %s, normalized form--------------\n", 
-	 o->operator->name);
+	 o->l_operator->name);
 
   for ( i = 0; i < o->num_vars; i++ ) {
     printf("\nx%d of type ", i);
@@ -607,8 +616,8 @@ void print_NormOperator( NormOperator *o )
 	 o->num_removed_vars);
   for ( i = 0; i < o->num_removed_vars; i++ ) {
     m = o->removed_vars[i];
-    printf("\nx%d (%s) of type %s, type constraint ", m, o->operator->var_names[m], 
-	   gtype_names[o->operator->var_types[m]]);
+    printf("\nx%d (%s) of type %s, type constraint ", m, o->l_operator->var_names[m], 
+	   gtype_names[o->l_operator->var_types[m]]);
     print_type( o->type_removed_vars[i] );
   }
 
@@ -657,11 +666,11 @@ void print_MixedOperator( MixedOperator *o )
   Literal *l;
 
   printf("\n\n----------------Operator %s, mixed form--------------\n", 
-	 o->operator->name);
+	 o->l_operator->name);
  
-  for ( i = 0; i < o->operator->num_vars; i++ ) {
+  for ( i = 0; i < o->l_operator->num_vars; i++ ) {
     printf("\nx%d = %s of type ", i, gconstants[o->inst_table[i]]);
-    print_type( o->operator->var_types[i] );
+    print_type( o->l_operator->var_types[i] );
   }
 
   printf("\nPreconds:\n");
@@ -677,7 +686,7 @@ void print_MixedOperator( MixedOperator *o )
 
     for ( i = 0; i < e->num_vars; i++ ) {
       printf("\nx%d of type %s",
-	     o->operator->num_vars + i, gtype_names[e->var_types[i]]);
+	     o->l_operator->num_vars + i, gtype_names[e->var_types[i]]);
     }
     printf("\nConditions\n");
     print_Wff( e->conditions, 0 );
@@ -704,11 +713,11 @@ void print_PseudoAction( PseudoAction *o )
   int i, m;
 
   printf("\n\n----------------Pseudo Action %s--------------\n", 
-	 o->operator->name);
+	 o->l_operator->name);
 
-  for ( i = 0; i < o->operator->num_vars; i++ ) {
+  for ( i = 0; i < o->l_operator->num_vars; i++ ) {
     printf("\nx%d = %s of type ", i, gconstants[o->inst_table[i]]);
-    print_type( o->operator->var_types[i] );
+    print_type( o->l_operator->var_types[i] );
   }
 
   printf("\nPreconds:\n");
@@ -885,6 +894,19 @@ void print_Fact( Fact *f )
 void print_ft_name( int index )
 
 {
+  /**
+   * DEA - University of Brescia
+   **/
+
+  if (index < 0)
+    {
+      print_cvar_tree (-index, -1);
+      return;
+    }
+
+  /**
+   * End of DEA
+   **/
 
   print_Fact( &(grelevant_facts[index]) );
 
@@ -910,6 +932,19 @@ void print_op_name( int index )
       printf("INITIAL_ACTION\n");
       return;
     }
+
+
+/**
+ * DEA - University of Brescia
+ **/
+  if (GpG.splitted_actions && index >= gnum_op_conn)
+    {
+      index = gef_conn[index].op;
+    }
+/**
+ * End DEA
+ **/
+
 
 
   a= gop_conn[index].action;

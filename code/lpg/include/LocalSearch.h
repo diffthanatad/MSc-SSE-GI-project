@@ -38,15 +38,28 @@ int LocalSearch (State * start_state, State * end_state, PlanAction ** plan_acti
 
 int not_tabu (int tofix);
 
-int action_eff_cost (register inform_list infAction);
+int action_eff_cost (register ActNode_list infAction);
 
 float find_min (constraints_list inf_tofix, int *pos_temp_vect, int num, int *num_min, int *num_neg);
 
-float check_value (float new);
+float check_value (float new_value);
 
-int choose_actions (register inform_list inform_tofix, int initialize);
+int define_neighborhood (register FctNode_list node_tofix, int initialize);
+
+int define_restricted_neighborhood (register FctNode_list node_tofix, int initialize);
+
+int define_neighborhood_for_threats (register NoopNode_list node_tofix,int initialize);
 
 void update_mutex_multilevel (int level,int pos_action);
+
 void update_mutex (int pos_action);
+
+void insert_els_in_neighborhood (IntList * ilist, action_set * neighbors);
+
+float action_cost (neighb_list Action);
+
+void create_remotion_neighborhood_for_compvar (int fct_pos, int level);
+
+int define_neighborhood_for_compvar_in_down_level (int numeric_fact, action_set *neighbors, int level);
 
 #endif

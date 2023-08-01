@@ -58,6 +58,14 @@
 
 #include "relax.h"
 #include "search.h"
+/*
+ * DEA - University of Brescia
+ */
+#include "lpg.h"
+#include "utilities.h"
+/*
+ * End of DEA
+ */
 
 
 
@@ -86,7 +94,7 @@
 
 /* in agenda driven algorithm, the current set of goals is this
  */
-State lcurrent_goals;
+State *lcurrent_goals = NULL;
 
 
 
@@ -156,9 +164,14 @@ Bool do_enforced_hill_climbing( State *start, State *end )
 
   static Bool first_call = TRUE;
 
-  State S, S_;
+  State *S, *S_;
   int i, j, h, h_;
   PlanHashEntry *granny;
+
+  initialize_lgoals();
+
+  S = new_State(max_state_facts);
+  S_ = new_State(max_state_facts);
 
   if ( first_call ) {
     /* on first call, initialize plan hash table, search space, search hash table
@@ -187,10 +200,10 @@ Bool do_enforced_hill_climbing( State *start, State *end )
   /* start enforced Hill-climbing
    */
 
-  source_to_dest( &lcurrent_goals, end );  
+  source_to_dest( lcurrent_goals, end );  
 
-  source_to_dest( &S, start );
-  h = get_1P_and_H( &S, &lcurrent_goals, -1 );
+  source_to_dest( S, start );
+  h = get_1P_and_H( S, lcurrent_goals, -1 );
 
   if ( h == INFINITY ) {
     return FALSE;
@@ -202,13 +215,13 @@ Bool do_enforced_hill_climbing( State *start, State *end )
 
   while ( h != 0 ) {
     lmissing_granny = FALSE;
-    if ( !search_for_better_state( &S, h, &S_, &h_ ) ) {
+    if ( !search_for_better_state( S, h, S_, &h_ ) ) {
       if ( lmissing_granny ) {
 	granny = plan_state_hashed( &(gplan_states[gnum_plan_ops]) );
 	granny->step = -1;
 	gnum_plan_ops--;
-	source_to_dest( &S, &(gplan_states[gnum_plan_ops]) );
-	get_1P_and_H( &S, &ggoal_state, -1 );
+	source_to_dest( S, &(gplan_states[gnum_plan_ops]) );
+	get_1P_and_H( S, &ggoal_state, -1 );
 	i = 0;
 	while ( i < gnum_H ) {
 	  if ( gH[i] == gplan_ops[gnum_plan_ops] ) {
@@ -222,14 +235,14 @@ Bool do_enforced_hill_climbing( State *start, State *end )
 	  i++;
 	}
 	printf(" - ");
-	if ( !search_for_better_state( &S, h, &S_, &h_ ) ) {
+	if ( !search_for_better_state( S, h, S_, &h_ ) ) {
 	  return FALSE;
 	}
       } else {
 	return FALSE;
       }
     }
-    source_to_dest( &S, &S_ );
+    source_to_dest( S, S_ );
     h = h_;
     printf("\n                                %4d            ", h);
   }
@@ -268,14 +281,17 @@ Bool search_for_better_state( State *S, int h, State *S_, int *h_ )
 {
 
   int i, h__, depth = 0, g;
-  State S__;
+  static State *S__ = NULL;
+
+  if (!S__)
+    S__ = new_State(max_state_facts);
 
   lehc_current_end = lehc_space_head->next;
   add_to_ehc_space( S, -1, NULL, -1 );
   lehc_space_head->next->num_sons = gnum_H;
   for ( i = 0; i < gnum_H; i++ ) {
-    g = result_to_dest( &S__, S, gH[i] );
-    add_to_ehc_space( &S__, gH[i], lehc_space_head->next, g );
+    g = result_to_dest( S__, S, gH[i] );
+    add_to_ehc_space( S__, gH[i], lehc_space_head->next, g );
   }
   lehc_current_start = lehc_space_head->next->next;
 
@@ -349,10 +365,13 @@ int expand_first_node( int h )
 {
 
   int h_, i, g;
-  State S_;
+  static State *S_ = NULL;
   EhcNode *father;
 
-  h_ = get_1P_and_H( &(lehc_current_start->S), &lcurrent_goals, 
+  if (!S_)
+    S_ = new_State(max_state_facts);
+
+  h_ = get_1P_and_H( &(lehc_current_start->S), lcurrent_goals, 
 		     lehc_current_start->new_goal );
   lehc_current_start->num_sons = gnum_H;
 
@@ -379,8 +398,8 @@ int expand_first_node( int h )
   }
 
   for ( i = 0; i < gnum_H; i++ ) {
-    g = result_to_dest( &S_, &(lehc_current_start->S), gH[i] );
-    add_to_ehc_space( &S_, gH[i], lehc_current_start, g );
+    g = result_to_dest( S_, &(lehc_current_start->S), gH[i] );
+    add_to_ehc_space( S_, gH[i], lehc_current_start, g );
   }
     
   lehc_current_start = lehc_current_start->next;
@@ -755,6 +774,21 @@ Bool new_goal_gets_deleted( EhcNode *n )
 	return TRUE;
       }
     }
+    /*
+     * DEA - University of Brescia
+     */
+    if(gef_conn[ef].sf) {
+      for ( j = 0; j < gef_conn[ef].sf->num_D_start; j++ ) {
+	if (is_fact_in_additive_effects(ef,gef_conn[ef].sf->D_start[j]))
+	  continue;
+	if ( gef_conn[ef].sf->D_start[j] == new_goal ) {
+	  return TRUE;
+	}
+      }
+    }
+    /*
+     * End of DEA
+     */
   }
 
   return FALSE;
@@ -797,12 +831,16 @@ Bool do_best_first_search( void )
 {
 
   BfsNode *first;
-  State S;
+  State *S;
   int i, min = INFINITY;
   Bool start = TRUE;
 
   lbfs_space_head = new_BfsNode();
   lbfs_space_had = NULL;
+
+  initialize_lgoals();
+
+  S = new_State(max_state_facts);
 
   for ( i = 0; i < BFS_HASH_SIZE; i++ ) {
     lbfs_hash_entry[i] = NULL;
@@ -824,10 +862,24 @@ Bool do_best_first_search( void )
     if ( LESS( first->h, min ) ) {
       min = first->h;
       if ( start ) {
+	/*
+	 * DEA - University of Brescia
+	 */
 	printf("\nadvancing to distance : %4d", min);
+	//	printf("*");
+	/*
+	 * End of DEA
+	 */
 	start = FALSE;
       } else {
+	/*
+	 * DEA - University of Brescia
+	 */
 	printf("\n                        %4d", min);
+	//printf("*");
+	/*
+	 * End of DEA
+	 */
       }
     }
 
@@ -837,8 +889,8 @@ Bool do_best_first_search( void )
 
     get_A( &(first->S) );
     for ( i = 0; i < gnum_A; i++ ) {
-      result_to_dest( &S, &(first->S), gA[i] );
-      add_to_bfs_space( &S, gA[i], first );
+      result_to_dest( S, &(first->S), gA[i] );
+      add_to_bfs_space( S, gA[i], first );
     }
 
     first->next = lbfs_space_had;
@@ -856,7 +908,7 @@ void add_to_bfs_space( State *S, int op, BfsNode *father )
 
 {
 
-  BfsNode *new, *i;
+  BfsNode *new_p, *i;
   int h;
 
   /* see if state is already a part of this search space
@@ -875,20 +927,20 @@ void add_to_bfs_space( State *S, int op, BfsNode *father )
     if ( i->next->h > h ) break;
   }
 
-  new = new_BfsNode();
-  source_to_dest( &(new->S), S );
-  new->op = op;
-  new->h = h;
-  new->father = father;
+  new_p = new_BfsNode();
+  source_to_dest( &(new_p->S), S );
+  new_p->op = op;
+  new_p->h = h;
+  new_p->father = father;
   
-  new->next = i->next;
-  new->prev = i;
-  i->next = new;
-  if ( new->next ) {
-    new->next->prev = new;
+  new_p->next = i->next;
+  new_p->prev = i;
+  i->next = new_p;
+  if ( new_p->next ) {
+    new_p->next->prev = new_p;
   }
   
-  hash_bfs_node( new );
+  hash_bfs_node( new_p );
 
 }
 
@@ -1076,12 +1128,49 @@ int result_to_dest( State *dest, State *source, int op )
       if ( !in_source[gef_conn[ef].PC[j]] ) break;
     }
     if ( j < gef_conn[ef].num_PC ) continue;
+    /*
+     * DEA - University of Brescia
+     */
+    if(gef_conn[ef].sf)
+      {
+	for ( j = 0; j < gef_conn[ef].sf->num_PC_overall; j++ ) {
+	  if (is_fact_in_additive_effects_start(ef,gef_conn[ef].sf->PC_overall[j]))
+	    continue;
+	  if ( !in_source[gef_conn[ef].sf->PC_overall[j]] ) break;
+	}
+	if ( j < gef_conn[ef].sf->num_PC_overall ) continue;
+
+	for ( j = 0; j < gef_conn[ef].sf->num_PC_end; j++ ) {
+	  if (is_fact_in_additive_effects_start(ef,gef_conn[ef].sf->PC_overall[j]))
+	    continue;
+	  if ( !in_source[gef_conn[ef].sf->PC_end[j]] ) break;
+	}
+	if ( j < gef_conn[ef].sf->num_PC_end ) continue;
+      }
     true_ef[i] = TRUE;
+    /*
+     * End of DEA
+     */
     for ( j = 0; j < gef_conn[ef].num_D; j++ ) {
       if ( in_del[gef_conn[ef].D[j]] ) continue;
       in_del[gef_conn[ef].D[j]] = TRUE;
       del[num_del++] = gef_conn[ef].D[j];
     }
+    /*
+     * DEA - University of Brescia
+     */
+    if ( gef_conn[ef].sf ) {
+      for ( j = 0; j < gef_conn[ef].sf->num_D_start; j++ ) {
+	if (is_fact_in_additive_effects(ef,gef_conn[ef].sf->D_start[j]))
+	  continue;
+	if ( in_del[gef_conn[ef].sf->D_start[j]] ) continue;
+	in_del[gef_conn[ef].sf->D_start[j]] = TRUE;
+	del[num_del++] = gef_conn[ef].sf->D_start[j];
+      }
+    }
+    /*
+     * End of DEA
+     */
   }
 
   /* put all non-deleted facts from source into dest,
@@ -1116,6 +1205,27 @@ int result_to_dest( State *dest, State *source, int op )
 	r = gef_conn[ef].A[j];
       }
     }
+    /*
+     * DEA - University of Brescia
+     */
+    if ( gef_conn[ef].sf ) {
+      for ( j = 0; j < gef_conn[ef].sf->num_A_start; j++ ) {
+	if (is_fact_in_delete_effects(ef,gef_conn[ef].sf->A_start[j]))
+	  continue;
+	if ( in_dest[gef_conn[ef].sf->A_start[j]] ||
+	     in_del[gef_conn[ef].sf->A_start[j]] ) {
+	  continue;
+	}
+	dest->F[dest->num_F++] = gef_conn[ef].sf->A_start[j];
+	in_dest[gef_conn[ef].sf->A_start[j]] = TRUE;
+	if ( gft_conn[gef_conn[ef].sf->A_start[j]].is_global_goal ) {
+	  r = gef_conn[ef].sf->A_start[j];
+	}
+      }   
+    }
+    /*
+     * End of DEA
+     */
   }
 
   /* unset infos
@@ -1145,10 +1255,28 @@ void source_to_dest( State *dest, State *source )
 
   int i;
 
+  if( source->num_F >0 &&  dest->F==NULL)
+    dest->F=(int *) calloc (source->num_F , sizeof(int));
+
+
+
   for ( i = 0; i < source->num_F; i++ ) {
     dest->F[i] = source->F[i];
   }
   dest->num_F = source->num_F;
+
+  if( source->V!=NULL )
+    {
+
+      if( dest->V!=NULL)
+	{
+	  free(dest->V);
+	  dest->V=NULL;
+	}
+	dest->V=(float *) calloc (gnum_comp_var, sizeof(float));
+      
+      memcpy(dest->V, source->V, gnum_comp_var * sizeof(float));
+    }
 
 }
 

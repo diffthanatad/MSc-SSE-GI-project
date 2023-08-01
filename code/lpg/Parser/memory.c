@@ -37,7 +37,8 @@
 
 #include "ff.h"
 #include "memory.h"
-
+#include "lpg.h"
+#include "parse.h"
 
 
 
@@ -122,6 +123,7 @@ TypedList *new_TypedList( void )
   TypedList *result = ( TypedList * ) calloc( 1, sizeof( TypedList ) );
   CHECK_PTR(result);
 
+  result->next = NULL;
   result->name = NULL; 
   result->type = NULL;
   result->n = -1;
@@ -139,6 +141,7 @@ TypedListList *new_TypedListList( void )
   TypedListList *result = ( TypedListList * ) calloc( 1, sizeof( TypedListList ) );
   CHECK_PTR(result);
 
+  result->next = NULL;
   result->predicate = NULL; 
   result->args = NULL;
 
@@ -159,9 +162,33 @@ PlNode *new_PlNode( Connective c )
   result->atom = NULL;
   result->sons = NULL;
   result->next = NULL;
-
+  result->is_start_end_ovr = IS_AT_START;
+  
   return result;
 
+}
+
+
+
+
+PlNode *copy_PlNode(PlNode *p)
+{
+  PlNode *tmp;
+  
+  if (p == NULL)
+    return NULL;
+
+  tmp = new_PlNode(p->connective);
+  tmp->is_start_end_ovr = p->is_start_end_ovr;
+  tmp->value = p->value;
+  tmp->atom = copy_TokenList(p->atom);
+  tmp->parse_vars = copy_TypedList(p->parse_vars);
+  
+  tmp->next = copy_PlNode(p->next);
+  tmp->sons = copy_PlNode(p->sons);
+  
+
+  return tmp;
 }
 
 
@@ -186,6 +213,12 @@ PlOperator *new_PlOperator( char *name )
   result->effects = NULL;
   result->number_of_real_params = 0;
   result->next = NULL;
+  
+  /* For timed facts  */
+  result->ops_type = NORMAL_ACT;
+  /* end */
+
+  result->to_delete = FALSE;
 
   return result;
 
@@ -221,9 +254,17 @@ PlOperator *new_axiom_op_list( void )
 
 
 
+State *new_State(int max_facts)
+{
+  State *result = NULL;
 
-
-
+  result = (State *)calloc(1, sizeof(State));
+  CHECK_PTR(result);
+ 
+  result->F = (int *)calloc(max_facts, sizeof(int));
+ 
+  return result;
+}
 
 
 
@@ -239,7 +280,20 @@ PlOperator *new_axiom_op_list( void )
 
 
 
+FactList *copy_FactList(FactList *source)
+{
+  FactList *tmp;
 
+  if (!source)
+    return NULL;
+
+  tmp = new_FactList();
+
+  tmp->item = copy_TokenList(source->item);
+  tmp->next = copy_FactList(source->next);
+
+  return tmp;
+}
 
 
 
@@ -248,9 +302,13 @@ Fact *new_Fact( void )
 
 {
 
-  Fact *result = ( Fact * ) calloc( 1, sizeof( Fact ) );
+  Fact * result;
+  result= ( Fact * ) calloc( 1, sizeof( Fact ) );
   CHECK_PTR(result);
 
+  result->added_implicit = FALSE;
+ 
+  
   return result;
 
 }
@@ -261,7 +319,8 @@ Facts *new_Facts( void )
 
 {
 
-  Facts *result = ( Facts * ) calloc( 1, sizeof( Facts ) );
+  Facts *result;
+  result = ( Facts * ) calloc( 1, sizeof( Facts ) );
   CHECK_PTR(result);
 
   result->fact = new_Fact();
@@ -278,7 +337,8 @@ WffNode *new_WffNode( Connective c )
 
 {
 
-  WffNode *result = ( WffNode * ) calloc( 1, sizeof( WffNode ) );
+  WffNode *result;
+  result  = ( WffNode * ) calloc( 1, sizeof( WffNode ) );
   CHECK_PTR(result);
 
   result->connective = c;
@@ -298,6 +358,9 @@ WffNode *new_WffNode( Connective c )
 
   result->visited = FALSE;
 
+  result->numeric = NULL;
+  result->instantiated_vars = NULL;
+
   return result;
 
 }
@@ -308,11 +371,14 @@ Literal *new_Literal( void )
 
 {
 
-  Literal *result = ( Literal * ) calloc( 1, sizeof( Literal ) );
+  Literal *result;
+  result = ( Literal * ) calloc( 1, sizeof( Literal ) );
   CHECK_PTR(result);
 
   result->next = NULL;
   result->prev = NULL;
+
+  result->is_start_end_ovr = IS_AT_START;
 
   return result; 
 
@@ -324,7 +390,8 @@ Effect *new_Effect( void )
 
 {
 
-  Effect *result = ( Effect * ) calloc( 1, sizeof( Effect ) );
+  Effect *result;
+  result  = ( Effect * ) calloc( 1, sizeof( Effect ) );
   CHECK_PTR(result);
 
   result->num_vars = 0;
@@ -348,7 +415,8 @@ Operator *new_Operator( char *name, int norp )
 
   int i;
 
-  Operator *result = ( Operator * ) calloc( 1, sizeof( Operator ) );
+  Operator *result;
+  result = ( Operator * ) calloc( 1, sizeof( Operator ) );
   CHECK_PTR(result);
 
   if ( name ) {
@@ -372,6 +440,8 @@ Operator *new_Operator( char *name, int norp )
 
   result->hard = TRUE;
 
+  result->ops_type = NORMAL_ACT;
+
   return result;
 
 }
@@ -384,7 +454,8 @@ NormEffect *new_NormEffect1( Effect *e )
 
   int i;
 
-  NormEffect *result = ( NormEffect * ) calloc( 1, sizeof( NormEffect ) );
+  NormEffect *result;
+  result = ( NormEffect * ) calloc( 1, sizeof( NormEffect ) );
   CHECK_PTR(result);
 
   result->num_vars = e->num_vars;
@@ -416,7 +487,8 @@ NormEffect *new_NormEffect2( NormEffect *e )
 
   int i, j, a;
 
-  NormEffect *result = ( NormEffect * ) calloc( 1, sizeof( NormEffect ) );
+  NormEffect *result;
+  result = ( NormEffect * ) calloc( 1, sizeof( NormEffect ) );
   CHECK_PTR(result);
 
   result->num_vars = 0;
@@ -463,10 +535,11 @@ NormOperator *new_NormOperator( Operator *op )
 
   int i;
 
-  NormOperator *result = ( NormOperator * ) calloc( 1, sizeof( NormOperator ) );
+  NormOperator *result;
+  result = ( NormOperator * ) calloc( 1, sizeof( NormOperator ) );
   CHECK_PTR(result);
 
-  result->operator = op;
+  result->l_operator = op;
 
   result->num_vars = op->num_vars;
   for ( i = 0; i < op->num_vars; i++ ) {
@@ -480,6 +553,13 @@ NormOperator *new_NormOperator( Operator *op )
 
   result->effects = NULL;
 
+  result->inequals_constr = NULL;
+
+  result->suspected = FALSE;
+
+  result->numeric = NULL;
+  result->instantiated_vars = NULL;
+
   return result;
 
 }
@@ -491,7 +571,8 @@ EasyTemplate *new_EasyTemplate( NormOperator *op )
 
 {
 
-  EasyTemplate *result = ( EasyTemplate * ) calloc( 1, sizeof( EasyTemplate ) );
+  EasyTemplate *result;
+  result = ( EasyTemplate * ) calloc( 1, sizeof( EasyTemplate ) );
   CHECK_PTR(result);
 
   result->op = op;
@@ -499,6 +580,8 @@ EasyTemplate *new_EasyTemplate( NormOperator *op )
   result->prev = NULL;
   result->next = NULL;
 
+  result->suspected = op->suspected;
+  
   return result;
 
 }
@@ -509,15 +592,19 @@ MixedOperator *new_MixedOperator( Operator *op )
 
 {
 
-  MixedOperator *result = ( MixedOperator * ) calloc( 1, sizeof( MixedOperator ) );
+  MixedOperator *result;
+  result  = ( MixedOperator * ) calloc( 1, sizeof( MixedOperator ) );
   CHECK_PTR(result);
 
-  result->operator = op;
+  result->l_operator = op;
 
   result->preconds = NULL;
   result->num_preconds = 0;
 
   result->effects = NULL;
+  
+  result->numeric = NULL;
+  result->instantiated_vars = NULL;
 
   return result;
 
@@ -529,8 +616,8 @@ PseudoActionEffect *new_PseudoActionEffect( void )
 
 {
 
-  PseudoActionEffect *result = 
-    ( PseudoActionEffect * ) calloc( 1, sizeof( PseudoActionEffect ) );
+  PseudoActionEffect *result;
+  result = ( PseudoActionEffect * ) calloc( 1, sizeof( PseudoActionEffect ) );
   CHECK_PTR(result);
 
   result->conditions = NULL;
@@ -558,8 +645,8 @@ PseudoAction *new_PseudoAction( MixedOperator *op )
   PseudoAction *result = ( PseudoAction * ) calloc( 1, sizeof( PseudoAction ) );
   CHECK_PTR(result);
 
-  result->operator = op->operator;
-  for ( i = 0; i < op->operator->num_vars; i++ ) {
+  result->l_operator = op->l_operator;
+  for ( i = 0; i < op->l_operator->num_vars; i++ ) {
     result->inst_table[i] = op->inst_table[i];
   }
 
@@ -568,6 +655,9 @@ PseudoAction *new_PseudoAction( MixedOperator *op )
 
   result->effects = NULL;
   result->num_effects = 0;
+
+  result->numeric = NULL;
+  result->instantiated_vars = NULL;
 
   return result;
 
@@ -579,13 +669,17 @@ Action *new_Action( void )
 
 {
 
-  Action *result = ( Action * ) calloc( 1, sizeof( Action ) );
+  Action *result;
+
+  result = ( Action * ) calloc( 1, sizeof( Action ) );
   CHECK_PTR(result);
 
   result->norm_operator = NULL;
   result->pseudo_action = NULL;
 
   result->next = NULL;
+
+  result->suspected = FALSE;
 
   return result;
 
@@ -597,13 +691,17 @@ EhcNode *new_EhcNode( void )
 
 {
 
-  EhcNode *result = ( EhcNode * ) calloc( 1, sizeof( EhcNode ) );
+  EhcNode *result;
+
+  result = ( EhcNode * ) calloc( 1, sizeof( EhcNode ) );
   CHECK_PTR(result);
 
   result->father = NULL;
   result->next = NULL;
 
   result->new_goal = -1;
+
+  result->S.F = (int *)calloc(max_state_facts, sizeof(int));
 
   return result;
 
@@ -632,12 +730,16 @@ PlanHashEntry *new_PlanHashEntry( void )
 
 {
 
-  PlanHashEntry *result = ( PlanHashEntry * ) calloc( 1, sizeof( PlanHashEntry ) );
+  PlanHashEntry *result;
+
+  result= ( PlanHashEntry * ) calloc( 1, sizeof( PlanHashEntry ) );
   CHECK_PTR(result);
 
   result->next_step = NULL;
 
   result->next = NULL;
+
+  result->S.F = (int *)calloc(max_state_facts, sizeof(int));
 
   return result;
 
@@ -656,6 +758,8 @@ BfsNode *new_BfsNode( void )
   result->next = NULL;
   result->prev = NULL;
 
+  result->S.F = (int *)calloc(max_state_facts, sizeof(int));
+
   return result;
 
 }
@@ -666,7 +770,9 @@ BfsHashEntry *new_BfsHashEntry( void )
 
 {
 
-  BfsHashEntry *result = ( BfsHashEntry * ) calloc( 1, sizeof( BfsHashEntry ) );
+  BfsHashEntry *result;
+
+  result  = ( BfsHashEntry * ) calloc( 1, sizeof( BfsHashEntry ) );
   CHECK_PTR(result);
 
   result->bfs_node = NULL;
@@ -680,11 +786,35 @@ BfsHashEntry *new_BfsHashEntry( void )
 
 
 
+VarList *new_VarList(Token name, int num)
+{
+  VarList *result;
+
+  result = (VarList *)calloc(1, sizeof(VarList));
+  CHECK_PTR(result);
+
+  result->name = copy_Token(name);
+  result->n = num;
+
+  result ->next = NULL;
+
+  return result;
+}
 
 
+VarList *copy_VarList(VarList *v)
+{
+  VarList *result;
 
+  if (!v)
+    return NULL;
 
+  result = new_VarList(v->name, v->n);
+  result->next = copy_VarList(v->next);
 
+  return result;
+
+}
 
 
 /**********************
@@ -737,6 +867,7 @@ void free_PlNode( PlNode *node )
 {
   
   if ( node ) {
+    free_TypedList( node -> parse_vars );
     free_PlNode( node->sons );
     free_PlNode( node->next );
     free_TokenList( node->atom );
@@ -757,7 +888,7 @@ void free_PlOperator( PlOperator *o )
     if ( o->name ) {
       free( o->name );
     }
-    
+    free_TypedList(o -> parse_params );
     free_FactList( o->params );
     free_PlNode( o->preconds );
     free_PlNode( o->effects );
@@ -801,6 +932,7 @@ void free_WffNode( WffNode *w )
       free( w->fact );
     }
     free( w );
+    w = NULL;
   }
 
 }
@@ -939,5 +1071,80 @@ void free_TypedListList( TypedListList *t )
 
     free( t );
   }
+
+}
+
+IntList *free_intlist (IntList * ilist)
+{
+  IntList *nextil;
+ 
+  while (ilist)
+    {
+      nextil = ilist->next;
+      free (ilist);
+      ilist = nextil;
+    }
+  return NULL;
+}
+
+
+void free_Facts( Facts *f ) {
+  if (f) {
+    if (f -> fact)
+      free(f -> fact);
+    free_Facts(f -> next);
+    free(f);  
+  }
+}
+
+
+
+IntList *new_IntList (void)
+{
+
+  IntList *result = (IntList *) calloc (1, sizeof (IntList));
+  CHECK_PTR (result);
+
+  memset(result, 0, sizeof(IntList));
+
+  return result;
+
+}
+
+
+
+IntList *get_IntList( void ) 
+{
+  IntList *tmp;
+
+  if (old_list) 
+    {
+      tmp = old_list;
+      old_list = tmp->next;
+      tmp->next = NULL;
+    }
+  else
+    tmp = new_IntList();
+  
+  return tmp;
+
+}
+
+
+void trash_IntList(IntList *t)
+{
+  IntList *tmp = NULL;
+
+  if (t == NULL)
+    return;
+
+  for (tmp = t; tmp && tmp->next; tmp = tmp->next);
+  
+  if (tmp)
+    {
+      tmp->next = old_list;
+      old_list = t;
+      t = NULL;
+    }
 
 }

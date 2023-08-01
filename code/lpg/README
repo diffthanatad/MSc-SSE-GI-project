@@ -221,7 +221,7 @@ them.
   -i_choice <number>
 
 Specifies different methods for selecting the next inconsistency to 
-remove in the current plan (search state). The default value is 2.
+remove in the current plan (search state). The default value if 22.
 Note that in this version of LPG, we force one action per level of the 
 underlying planning graph. As a consequence, each inconsistency in the 
 current plan corresponds to a precondition that is not supported.

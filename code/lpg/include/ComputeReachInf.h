@@ -38,31 +38,56 @@
 
 void allocate_reachability_information_data();
 
+void allocate_reachability_compvar_information_data(void);
+
 void reset_computed_dg_costs (int level);
 void set_computed_dg_costs (int level);
 
-void  cri_insert_fact_inlist (int pos);
-int cri_insert_action_inlist (int pos);
+void  cri_compute_fact_cost (int pos);
+int   cri_compute_action_cost (int pos,int times);
 
-int cri_get_Action_for_fct (int fact_pos);
+int cri_get_best_action_for_fct (int fact_pos);
 
 void reset_cri_list();
 
 void cri_insert_ftcost (int fact_pos, float cost, float duration, int num_actions,int best_ef);
-void cri_insert_list_fact_additive (int index);
-void cri_insert_list_action_preconditions (int index);
+
 
 float cri_predict_cost_relaxed (int action, float *duration_act, int *num_actions);
 float cri_predict_cost_sum (int action, int *num_actions);
 float cri_predict_cost_max (int action, int *num_actions);
 float cri_predict_duration (int action, float *duration_act);
 
-void cri_activate_distgraph_ef (int index);
+float cri_activate_distgraph_ef (int index, int *fact_vect, int *derived_prec, int level, Bool *changed);
 
-inline void cri_heuristic_for_action (int action, int level);
+void cri_heuristic_for_action (int action, int level);
 
 void set_init_computed_dg_costs ();
 
 void remove_mutex_facts_in_bitvect_and_update_num_actions (int fact, int *bit_vect);
 
+void ri_sub_tested_vars_for_cvar (int ncvar, int * num_tested_positive,int * num_tested_negative,int *bitarray, Bool Sign);
+
+void ri_add_tested_vars_for_cvar (int ncvar, int * num_tested_positive,int * num_tested_negative,int *bitarray, Bool Sign);
+
+void ri_refresh_max_min_value (int * modifieds);
+
+void ri_apply_action_effects_to_max_min_value(int action_number, int times);
+
+
+float ri_eval_comp_var (CompositeNumVar * cv, int index ,float *max_values,float *min_values,Bool Sign);
+
+Bool ri_set_best_for_compvar(int i, int * True_num,float *vmax, float *vmin,int *num_prec_vector);
+
+
+void cri_insert_numeric_ftcost (int fact_pos, int action, int num_eff, int OPERATOR);
+
+void  cri_update_for_fact (int orig_fact, int level);
+
+void compute_reachability(State * initial_state);
+
+
+int get_intermediate_reachab_inform(int fact, int level, dg_inform_list * loc_dg_cost  );
+
+void update_intermediate_reachab_inform(int fact, int best_act,  int num_actions, float cost, float duration, int *level);
 #endif

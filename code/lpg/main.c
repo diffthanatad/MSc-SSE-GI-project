@@ -16,7 +16,7 @@
 
 /********************************************************************
  * File: main.c 
- * Description:  Main routines of LPG.
+ * Description:  Main routins of LPG.
  *
  *   PDDL 2.1 version without conditional and quantified effects 
  *
@@ -28,7 +28,14 @@
 
 
 #include <math.h>
+#include <string.h>
+
 #include <sys/time.h>
+
+#ifdef __WINLPG__
+#include <time.h>
+#endif
+
 #include "lpg.h"
 #include "parse.h"
 #include "inst_easy.h"
@@ -40,6 +47,7 @@
 #include "utilities.h"
 #include "numeric.h"
 #include "LpgOutput.h"
+#include "LpgTime.h"
 #include "output.h"
 #include "mutex.h"
 #include "LocalSearch.h"
@@ -47,488 +55,12 @@
 #include "ComputeReachInf.h"
 #include "search.h"
 #include "relax.h"
+#include "memory.h"
+#include "mutex.h"
 
+#include "derivedpred.h"
 
-/******************************************************************************
- *                             GLOBAL VARIABLES                               *
- ******************************************************************************/
-
-/**
- * PARSING
- **/
-
-/* used for pddl parsing, flex only allows global variables */
-int gbracket_count;
-char *gproblem_name;
-
-/* The current input line number */
-int lineno = 1;
-
-/* The current input filename */
-char *gact_filename;
-
-/* The pddl domain name */
-char *gdomain_name = NULL;
-
-/* loaded, uninstantiated operators */
-PlOperator *gloaded_ops = NULL;
-
-PlOperator *gloaded_pl2ops = NULL;
-
-/* stores initials as fact_list */
-PlNode *gorig_initial_facts = NULL;
-
-/* not yet preprocessed goal facts  */
-
-PlNode *gorig_goal_facts = NULL;
-
-/* metric for the plan*/
-PlNode *gmetric_exp = NULL;
-
-/* axioms as in UCPOP before being changed to ops */
-PlOperator *gloaded_axioms = NULL;
-
-/* the types, as defined in the domain file */
-TypedList *gparse_types = NULL;
-
-/* the constants, as defined in domain file */
-TypedList *gparse_constants = NULL;
-
-/* the predicates and their arg types, as defined in the domain file */
-TypedListList *gparse_predicates = NULL;
-
-/* PDDL2--*/
-TypedListList *gparse_functions = NULL;
-
-/* the objects, declared in the problem file */
-TypedList *gparse_objects = NULL;
-
-/* connection to instantiation ( except ops, goal, initial ) */
-
-/* all typed objects  */
-FactList *gorig_constant_list = NULL;
-
-/* the predicates and their types */
-FactList *gpredicates_and_types = NULL;
-
-FactList *gfunctions_and_types = NULL;
-
-
-
-/**
- * INSTANTIATING
- **/
-
-/* global arrays of constant names,
- *               type names (with their constants),
- *               predicate names,
- *               predicate aritys,
- *               defined types of predicate args
- */
-Token gconstants[MAX_CONSTANTS];
-int gnum_constants = 0;
-Token gtype_names[MAX_TYPES];
-int gtype_consts[MAX_TYPES][MAX_TYPE];
-Bool gis_member[MAX_CONSTANTS][MAX_TYPES];
-int gtype_size[MAX_TYPES];
-int gnum_types = 0;
-
-Token gpredicates[MAX_PREDICATES];
-int garity[MAX_PREDICATES];
-int gpredicates_args_type[MAX_PREDICATES][MAX_ARITY];
-int gnum_predicates = 0;
-
-Token gfunctions[MAX_FUNCTIONS];
-int gfunarity[MAX_FUNCTIONS];
-int gfunctions_args_type[MAX_FUNCTIONS][MAX_ARITY];
-int gnum_functions = 0;
-
-
-
-/* the domain in integer (Fact) representation
- */
-Operator_pointer goperators[MAX_OPERATORS];
-int gnum_operators = 0;
-Fact gfull_initial[MAX_INITIAL];
-int gnum_full_initial = 0;
-
-
-NumVar **gfullnum_initial = NULL;
-int gnum_fullnum_initial = 0;
-int gnum_fullnum_blocks;
-
-int max_num_value = 30000; //MAX_NUM_INITIAL
-
-int gnum_comp_var = 0;
-int gnum_block_compvar;
-int *gis_inertial = NULL;
-int goptimization_exp = -1;
-int *gis_not_appliable;
-
-
-
-WffNode *ggoal = NULL;
-
-
-/* stores inertial - information: is any occurence of the predicate
- * added / deleted in the uninstantiated ops ?
- */
-Bool gis_added[MAX_PREDICATES];
-Bool gis_deleted[MAX_PREDICATES];
-
-
-
-/* splitted initial state:
- * initial non static facts,
- * initial static facts, divided into predicates
- * (will be two dimensional arrays, allocated directly before need)
- */
-Facts *ginitial = NULL;
-int gnum_initial = 0;
-Fact **ginitial_predicate;
-int *gnum_initial_predicate;
-
-
-
-/* the type numbers corresponding to any unary inertia
- */
-int gtype_to_predicate[MAX_PREDICATES];
-int gpredicate_to_type[MAX_TYPES];
-
-/* (ordered) numbers of types that new type is intersection of
- */
-TypeArray gintersected_types[MAX_TYPES];
-int gnum_intersected_types[MAX_TYPES];
-
-
-
-/* splitted domain: hard n easy ops
- */
-Operator_pointer *ghard_operators;
-int gnum_hard_operators;
-NormOperator_pointer *geasy_operators;
-int gnum_easy_operators;
-
-
-
-/* so called Templates for easy ops: possible inertia constrained
- * instantiation constants
- */
-EasyTemplate *geasy_templates;
-int gnum_easy_templates;
-
-
-
-/* first step for hard ops: create mixed operators, with conjunctive
- * precondition and arbitrary effects
- */
-MixedOperator *ghard_mixed_operators;
-int gnum_hard_mixed_operators;
-
-
-
-/* hard ''templates'' : pseudo actions
- */
-PseudoAction_pointer *ghard_templates;
-int gnum_hard_templates;
-
-
-
-/* store the final "relevant facts"
- */
-Fact grelevant_facts[MAX_RELEVANT_FACTS];
-int gnum_relevant_facts;
-int gnum_pp_facts;
-
-
-
-/* the final actions and problem representation
- */
-Action *gactions;
-int gnum_actions;
-State ginitial_state;
-State ggoal_state;
-
-int cvar_hash_table[HASH_SIZE];
-int tot = 0, compl = 0;
-
-char *lvar_names[MAX_VARS];
-int lvar_types[MAX_VARS];
-int **l_vals = NULL; 
-int **lstar_vals = NULL;
-int **r_vals = NULL;
-int **tested_vars = NULL;
-
-/* for facts and mutex
-*/
-int *F;			/*[MAX_RELEVANT_FACTS/32+1]; */
-
-
-const char *goperator_table[] = {
-  "MUL_OP",
-  "DIV_OP",
-  "MINUS_OP",
-  "UMINUS_OP",
-  "PLUS_OP",
-
-  "FIX_NUMBER",
-  "VARIABLE_OP",
-
-  "INCREASE_OP",
-  "DECREASE_OP",
-  "SCALE_UP_OP",
-  "SCALE_DOWN_OP",
-  "ASSIGN_OP",
-
-  "LESS_THAN_OP",
-  "LESS_THAN_OR_EQUAL_OP",
-  "EQUAL_OP",
-  "GREATER_THAN_OP",
-  "GREATER_OR_EQUAL_OP",
-
-  "MINIMIZE_OP",
-  "MAXIMIZE_OP"
-};
-
-
-
-
-/**
- * CONNECTIVITY GRAPH
- **/
-
-
-/* one ops (actions) array ... */
-OpConn *gop_conn;
-int gnum_op_conn;
-
-
-
-/* one effects array ... */
-EfConn *gef_conn;
-int gnum_ef_conn;
-
-
-
-/* one facts array. */
-FtConn *gft_conn;
-int gnum_ft_conn;
-
-FtConn *gnoop_conn;
-
-int gnum_ft_block;
-int gnum_ef_block;
-
-
-
-
-/**
- * FF SEARCHING NEEDS
- **/
-
-
-/* byproduct of fixpoint: applicable actions */
-int *gA;
-int gnum_A;
-
-
-
-/* communication from extract 1.P. to search engines:
- * 1P action choice */
-int *gH;
-int gnum_H;
-
-
-
-/* the effects that are considered true in relaxed plan */
-int *gin_plan_E;
-int gnum_in_plan_E;
-
-
-/* always stores (current) serial plan */
-int gplan_ops[MAX_PLAN_LENGTH];
-int gnum_plan_ops = 0;
-int gtot_plan_ops = 0;
-
-
-/* stores the states that the current plan goes through
- * ( for knowing where new agenda entry starts from ) */
-State gplan_states[MAX_PLAN_LENGTH + 1];
-
-PlanAction *subplan_actions = NULL;
-
-
-
-/**
- * LPG LOCAL SEARCH
- **/
-
-
-int num_try;
-int return_count;
-unsigned int seed;
-
-
-constraints_list treated_c_l[MAX_FALSE];
-constraints_list unsup_fact[MAX_FALSE];
-constraints_list unsup_num_fact[MAX_FALSE];
-
-neighb_list neighb_vect[MAX_MAX_NODES];
-int num_neighborhood;
-
-/* final sort of actions in temp_vect */  
-int *pos_temp_vect;//[MAX_MAX_NODES];
-
-def_level * vectlevel[MAX_PLAN_LENGTH + 1];
-def_level * temp_vectlevel[MAX_PLAN_LENGTH + 1];
-
-
-inform_list *remove_act_chain; //[MAX_PLAN_LENGTH];
-int ind_remove_act_chain;
-
-/* Used for action <--> noop mutex 
- */
-noop_not_in *noop_free_list; 
-
-unsigned long tot_alloc_mem_size;
-
-char fct_file[MAX_LENGTH];
-
-/* Statistical data about Lagrange multipliers
-*/
-#ifdef __STATISTIC_LM__
-
- /* global variables used to compute average, total maximum value, minimum value of
-   Lagrange multipliers for preconditions and mutex 
-  */
- 
- float average_prec_final = 0.0;
- float average_me_final = 0.0;
- float var_prec_final = 0.0;
- float var_me_final = 0.0;
-
- float lm_prec_min_final,lm_prec_max_final,lm_me_min_final,lm_me_max_final;
- 
-/*Vars used for files
- */
-
- FILE *file_average_prec;
- FILE *file_var_prec;
- FILE *file_average_me;
- FILE *file_var_me;
-
-#endif // end __STATISTIC_LM__
-
-
-
-/**
- * COMPUTE MUTEX
- **/
-
-
-/* Number of set mutex and level
- */
-int gnum_mutex;
-int gmutex_level;
-/* Total number of fact-action mutex, action-fact mutex, 
-   action-action mutex, fact-fact mutex 
- */
-int total_ft_ef_mutex = 0;
-int total_ef_ft_mutex = 0;
-int total_ef_ef_mutex = 0;
-int total_ft_ft_mutex = 0;
-
-/* fact-fact mutex matrix
- */
-int **FT_FT_mutex = NULL;
-/* fact-action mutex matrix
- */
-int **FT_EF_mutex = NULL;
-/* action-action mutex matrix
- */
-int **EF_EF_mutex = NULL;
-/* action-fact mutex matrix
- */
-int **EF_FT_mutex = NULL;
-
-
-/**
- * NUMERIC PLANNING
- **/
-
-/* Structure for numeric vars
- */
-
-CompositeNumVar *gcomp_var;
-float  *gcomp_var_value;
-float  *gcomp_var_value_before;
-
-
-/**
- * TEMPORAL PLANNING
- **/
-
-char **mat_ord;
-inform_list *act_ord_vect;
-int num_act_ord;
-short *prop_level_index;
-
-
-/**
- * CPU TIME MANAGEMENT
- **/
-
-struct tms start_time;
-struct tms glob_start_time;
-struct tms glob_end_time;
-float gtotal_time;
-char gcomm_line[MAX_LENGTH * 2];
-char gops_file[MAX_LENGTH];
-char gfct_file[MAX_LENGTH];
-char glpg_path[MAX_LENGTH];
-
-
-/**
- * MISCELLANEUS
- **/
-
-/* used to time the different stages of the planner
- */
-float gtempl_time = 0, greach_time = 0, grelev_time = 0, gconn_time = 0, 
-  gnum_time = 0, gmutex_total_time = 0, gmutex_ft_time = 0, 
-  gmutex_ops_time = 0, gmutex_num_time = 0;
-float gsearch_time = 0;
-
-float build_ad_time, fixpoint_time;
-
-/* the command line inputs
- */
-struct _command_line gcmd_line;
-
-/* number of states that got heuristically evaluated
- */
-int gevaluated_states = 0;
-
-/* maximal depth of breadth first search
- */
-int gmax_search_depth = 0;
-
-char temp_name[256];
-
-node_cost *fact_costs; //[MAX_MAX_NODES];
-/* Bitvector used by remove_temp_action to find facts that 
-   become TRUE after it is removed
-*/
-int *new_true_facts;
-/* Bitvector used by remove_temp_action to find facts that 
-   become FALSE after it is removed
-*/
-int *new_false_facts;	
-
-/* TRUE if termination condition is reached
- */
-Bool is_terminated=FALSE;
-
+#include "variables.h"
 
 
 /********************************************************************
@@ -545,23 +77,43 @@ void load_fct_file (char *filename);
  *****************************************************************/
 
 
+
+
+
+
+
 int main (int argc, char *argv[])
 {
-
-  /* resulting name for ops file */
+ 
+  /* 
+   * Nome per il file del dominio
+   **
+   * resulting name for ops file 
+   */
   char ops_file[MAX_LENGTH] = "";
-  /* same for fct file */
+  /* 
+   * Nome del file del problema
+   **
+   * same for fct file 
+   */
   char fct_file[MAX_LENGTH] = "";
 
   char sol_file[MAX_LENGTH] = "";
+  float plan_time = 0.0; 
 
+#ifndef __WINLPG__
   struct tms start, end;
+#else
+  clock_t start, end;
+#endif
+
 
   struct timeval tv;
   struct timezone tz;
 
   State current_start, current_end;
-  int i, j, k;
+  int i, j, k, optimize;
+  int num_splitted = 0;
   Bool found_plan=0;
 
 
@@ -570,34 +122,71 @@ int main (int argc, char *argv[])
   EF_ALLOW_MALLOC_0 = 1;
 #endif
 
-
+#ifndef __SUN__
+#ifndef __WINLPG__
   so_signal_management();
+#endif
+#endif
 
-  strcpy (gcomm_line, "");
+  
+  gbracket_count = 0;
+  inertial_facts = NULL;
+
+  /*
+   * Inizializzazione delle variabili globali per lo stato iniziale e finale
+   **
+   * Init global State variables 
+   */
+  ginitial_state.F = (int *)calloc(MAX_STATE, sizeof(int));
+  ggoal_state.F = (int *)calloc(MAX_STATE, sizeof(int));
+  current_start.F = (int *)calloc(MAX_STATE, sizeof(int));
+  current_start.V=NULL;
+  current_end.F =  (int *)calloc(MAX_STATE, sizeof(int));
+  current_end.V=NULL;
+  ginitial_state.num_F = ggoal_state.num_F =  current_start.num_F = current_end.num_F = 0;
+
+  for (i = 0; i <= MAX_PLAN_LENGTH; i++)
+    {
+      gplan_states[i].F = (int *)calloc(MAX_STATE, sizeof(int));
+      gplan_states[i].num_F = 0;
+    }
+
+  /*strcpy (gcomm_line, "");
   for (i = 0; i < argc; i++)
     {
       strcat (gcomm_line, argv[i]);
       strcat (gcomm_line, " ");
-    }
+    }*/
   get_path (*argv, glpg_path);
   initialize_preset_values ();
 
+  //  init_statistic è la funzione che ha il compito di aprire tutti i file per la media e la varianza
 
 #ifdef __STATISTIC_LM__
   init_statistic();
-#endif 
+#endif
 
-  /*Reset  hash-table
-   */ 
+  /*
+   * Reset delle hash table per le variabili numeriche
+   **
+   * Reset  hash-table
+   */
   reset_cvar_hash_table();
-
-  /* Initialize random seed
+  reset_cvar_hash_table_effects();
+  
+  /* 
+   * Inizializzazione del seed per le scelte casuali
+   **
+   * Initialize random seed
    */
   gettimeofday (&tv, &tz);
   seed = ((tv.tv_sec & 0177) * 1000000) + tv.tv_usec;
 
 
-  /* command line treatment
+  /* 
+   * Analisi dei parametri della linea di comando
+   ** 
+   * command line treatment
    */
   if (argc == 1 || (argc == 2 && *++argv[0] == '?'))
     {
@@ -610,10 +199,17 @@ int main (int argc, char *argv[])
       exit (1);
     }
 
-  /* make file names
+  /* 
+   * Costruzione dei nomi dei file dalla linea di comando 
+   ** 
+   * make file names
    */
 
-  /* one input name missing
+  /* 
+   * Controllo che siano stati definiti sia il file
+   * del il dominio che quello del problema
+   **
+   * one input name missing
    */
   if (!gcmd_line.ops_file_name || !gcmd_line.fct_file_name)
     {
@@ -621,35 +217,99 @@ int main (int argc, char *argv[])
       lpg_usage ();
       exit (1);
     }
-  /* add path info, complete file names will be stored in
-   * ops_file and fct_file 
+
+  /* 
+   * Costruzione dei nomi dei file con il path completo
+   **
+   * add path info, complete file names will be stored in
+   * ops_file and fct_file
    */
+
+#ifndef __WINLPG__
   sprintf (ops_file, "%s%s", gcmd_line.path, gcmd_line.ops_file_name);
   sprintf (fct_file, "%s%s", gcmd_line.path, gcmd_line.fct_file_name);
 
-  strcpy (gops_file, ops_file);
-  strcpy (gfct_file, fct_file);
+  strcpy (gops_file_name, ops_file);
+  strcpy (gfct_file_name, fct_file);
   sprintf (sol_file, "%s%s", gcmd_line.path, gcmd_line.sol_file_name);
+#else
+  sprintf (ops_file, "%s", gcmd_line.ops_file_name);
+  sprintf (fct_file, "%s", gcmd_line.fct_file_name);
+
+  /**
+  if (strchr(ops_file,'/') || ops_file[0] == '/')
+    strcpy(gops_file_name, (strrchr(ops_file, '/')+sizeof(char)));
+  else
+    strcpy(gops_file_name,ops_file);
+
+  if (strchr(fct_file,'/') || fct_file[0] == '/')
+    strcpy(gfct_file_name, (strrchr(fct_file, '/')+sizeof(char)));
+  else
+    strcpy(gfct_file_name,fct_file);
+
+  if(gpath_sol_file_name[strlen(gpath_sol_file_name)-1] != '/' && gpath_sol_file_name[0]!='\0')
+    strcat(gpath_sol_file_name, "/");
+  **/
 
 
-  /* parse the input files
+  if (strchr(ops_file,'\\') || ops_file[0] == '\\')
+    strcpy(gops_file_name, (strrchr(ops_file, '\\')+sizeof(char)));
+  else
+    strcpy(gops_file_name,ops_file);
+
+  if (strchr(fct_file,'\\') || fct_file[0] == '\\')
+    strcpy(gfct_file_name, (strrchr(fct_file, '\\')+sizeof(char)));
+  else
+    strcpy(gfct_file_name,fct_file);
+
+  if(gpath_sol_file_name[strlen(gpath_sol_file_name)-1] != '\\' && gpath_sol_file_name[0]!='\0')
+    strcat(gpath_sol_file_name, "\\");
+#endif
+
+
+
+  //  if(DEBUG1)
+  //  {
+  //   printf ("\n\n; Command line: %s  \n\n", gcomm_line);
+
+//    }
+
+  /*
+   * Parsing dei file di input
+   ** 
+   * parse the input files
    */
 
-  /* start parse & instantiation timing
+  /* 
+   * Inizializzazione del timer per il tempo di istanziazione
+   **
+   * start parse & instantiation timing
    */
   times (&glob_start_time);
   times (&start);
-  /* domain file (ops)
+
+  /*
+   * Analisi del file del domini
+   **
+   * domain file (ops)
    */
 
   printf ("\nParsing domain file: ");
 
-  /* it is important for the pddl language to define the domain before 
-   * reading the problem 
+  /* 
+   * Il file del dominio deve essere letto prima della definizione del
+   * problema
+   ** 
+   * it is important for the pddl language to define the domain before
+   * reading the problem
    */
   load_ops_file (ops_file);
 
-  /*dirty trick to get another copy of gloaded_ops */
+ /*
+  * serve ad ottenere una seconda copia degli operatori (dominio)
+  **
+  * dirty trick to get another copy of gloaded_ops 
+  */
   gloaded_pl2ops = gloaded_ops;
   gloaded_ops = NULL;
   gdomain_name = NULL;
@@ -665,17 +325,17 @@ int main (int argc, char *argv[])
   gorig_constant_list = NULL;
   gpredicates_and_types = NULL;
   gfunctions_and_types = NULL;
+
+  //free_PlOperator(gderived_predicates);
+  gderived_pl2predicates = gderived_predicates;
+  gderived_predicates = NULL;
+  gnum_derived_predicates = 0;
   load_ops_file (ops_file);
 
-  /*add dummy effect to operators without boolean effects */
-  add_dummy_effects (gloaded_ops);
-  add_dummy_effects (gloaded_pl2ops);
-  /*counts numeric preconds and effects */
-  count_num_preconds_and_effects ();
-  GpG.gplan_actions = NULL;
-
-
-  /* problem file (facts)
+  /*
+   * Parsing del file del problema
+   ** 
+   * problem file (facts)
    */
   if (gcmd_line.display_info >= 1)
     {
@@ -683,44 +343,124 @@ int main (int argc, char *argv[])
     }
 
   load_fct_file (fct_file);
+
+  GpG.has_timed_preconds = NULL;
+  GpG.fact_is_timed = NULL;
+
+  /* 
+   * Se ci sono fatti temporizzati attivo il flag corrispondente
+   * e quello per piani temporali
+   **
+   * If there are some timed initial literal set the GpG.timed_facts flag
+   * and the temporal_plan flag.
+   */ 
+  if (gnum_tmd_init_fcts) {
+    GpG.timed_facts_present = TRUE;
+    GpG.temporal_plan = TRUE;
+  }
+  
+  /*
+   * Se ci sono predicati derivati attivo il flag corrispondente
+   **
+   * If there are some derived predicates activate the derived_predicates flag
+   */
+  if (gnum_derived_predicates) 
+    GpG.derived_predicates = TRUE;
+
+  /*
+   * Aggiungo effetti "dummy" agli operatori privi di effetti booleani
+   **
+   * add dummy effect to operators without boolean effects 
+   */
+  add_dummy_effects (gloaded_ops);
+  add_dummy_effects (gloaded_pl2ops);
+  if (GpG.derived_predicates) {
+    add_dummy_effects(gderived_predicates);
+    add_dummy_effects(gderived_pl2predicates);
+  }
+  add_and_effect(gloaded_ops);
+  add_and_effect(gloaded_pl2ops);
+
+  /*
+   * Conto effetti e precondizioni numeriche
+   ** 
+   * counts numeric preconds and effects 
+   */
+  count_num_preconds_and_effects ();
+  GpG.gplan_actions = NULL;
+  GpG.plan_actions_for_quality_mode = NULL;
+  GpG.fixpoint_plan_length = 0;
+
+  /* 
+   * Elimino i timed facts dai fatti iniziali (vengono spostati in una
+   * lista separata)
+   ** 
+   * Move timed initial literals from the list of initial facts to
+   * one separated list
+   */
+  if (GpG.timed_facts_present)
+    {
+      clear_Timed_Fact_Nodes();
+    }
+
   if (gcmd_line.display_info >= 1)
     printf (" ... done.\n\n");
 
   allocate_after_parser();
 
-  /* now we have PlOperators and PlNodes */
+  /* 
+   * Elimino i nodi numerici e durativi (riduco al pddl1)
+   **
+   * delete numeric and durative nodes (reduce the domain
+   * to pddl1)
+   */
   reduce_pddl2_to_pddl1 ();
 
-  /* This is needed to get all types.
+  /* 
+   * Costruisce la lista di tipi e costanti che compainono nel dominio
+   **
+   * This is needed to get all types.
    */
   build_orig_constant_list ();
 
-  /* last step of parsing: see if it's an ADL domain!
+  /* 
+   * Controllo che il dominio sia supportato (ADL)
+   ** 
+   * last step of parsing: see if it's an ADL domain!
    */
 
   if (!make_adl_domain ())
     {
-      printf ("\n%s: this is  an ADL problem!", NAMEPRG);
-      printf ("\n    can't be handled by this version.\n\n");
+      printf ("\n%s: this is an ADL problem!", NAMEPRG);
+      printf ("\n     can't be handled by this version.\n\n");
       exit (1);
     }
 
-
-  /* now instantiate operators;
+  /*
+   * Instanziazione degli operatori 
+   **
+   * now instantiate operators;
    */
-
+  
 
   /**************************
-   * first do PREPROCESSING * 
+   * first do PREPROCESSING *
    **************************/
 
 
-  /* start by collecting all strings and thereby encoding 
+  /*
+   * Colleziono tutte le stringhe (nomi di costanti, tipi, predicati, ecc) e
+   * codifico il dominio in interi
+   **
+   * start by collecting all strings and thereby encoding
    * the domain in integers.
    */
   encode_domain_in_integers ();
 
-  /* inertia preprocessing, first step:
+  /* 
+   * Preprocessing delle informazioni inerziali
+   **
+   * inertia preprocessing, first step:
    *   - collect inertia information
    *   - split initial state into
    *        _ arrays for individual predicates
@@ -729,7 +469,13 @@ int main (int argc, char *argv[])
    */
   do_inertia_preprocessing_step_1 ();
 
-  /* normalize all PL1 formulae in domain description:
+  /* 
+   * Normalizzazione delle formule nella descrizione del dominio
+   *   - semplificazione (elimina le tautologie)
+   *   - espansione delle variabili quantificate
+   *   - spostamento dei NOT sugli atomi
+   ** 
+   * normalize all PL1 formulae in domain description:
    * (goal, preconds and effect conditions)
    *   - simplify formula
    *   - expand quantifiers
@@ -742,8 +488,12 @@ int main (int argc, char *argv[])
    */
   translate_negative_preconds ();
 
-  /* split domain in easy (disjunction of conjunctive preconds)
-   * and hard (non DNF preconds) part, to apply 
+  /* 
+   * Suddivide gli operatori in easy (le precondizioni sono disgiunzioni
+   * di congiunzioni) e hard (precondizioni non DNF)
+   ** 
+   * split domain in easy (disjunction of conjunctive preconds)
+   * and hard (non DNF preconds) part, to apply
    * different instantiation algorithms
    */
   split_domain ();
@@ -755,25 +505,70 @@ int main (int argc, char *argv[])
    * NOW MULTIPLY PARAMETERS IN EFFECTIVE MANNER *
    ***********************************************/
 
+  /*
+   * pre-instanziazione degli operatori easy
+   **
+   * pre-instantiate easy operators
+   */
   build_easy_action_templates ();
 
+  /*
+   * pre-instanziazione dei predicati derivati easy
+   **
+   * pre-instantiate easy derived predicates
+   */
+  if (GpG.derived_predicates)
+    build_easy_derived_predicates_templates();
+  
+  
+  /*
+   * pre-nstanziazione degli operatori hard
+   **
+   * pre-instantiate hard operators
+   */
   build_hard_action_templates ();
 
+  /*
+   * pre-instanziazione dei predicati derivati hard
+   **
+   * pre-instantiate hard derived predicates
+   */
+  if (GpG.derived_predicates)
+    build_hard_derived_predicates_templates();
+
+  
   times (&end);
   TIME (gtempl_time);
   times (&start);
 
 
-  check_time_and_length (0);
+  check_time_and_length (0);	// con zero non controlla la lunghezza
 
   srandom(seed);
 
 #ifdef __MY_OUTPUT__
-  printf ("\n Seed %d  \n", seed);
+#ifndef __PARSER_ONLY__
+  printf ("\nSeed %d  \n", seed);
+#endif
 #endif
 
+#ifndef __PARSER_ONLY__
+  if (GpG.mode == INCREMENTAL)
+    printf("\n\nModality: Incremental Planner\n\n");
+  else
+    if (GpG.mode == SPEED)
+      printf("\n\nModality: Fast Planner\n\n");
+    else
+      if (GpG.mode == QUALITY)
+	printf("\n\nModality: Quality Planner\n\n");
+#endif
 
-  /* perform reachability analysis in terms of relaxed 
+  /* 
+   * analisi di raggiungibilià intermini di raggiungimento del
+   * fixpoint rilassato (no mutex, no effetti cancellanti, non
+   * considera effetti e precondizioni numeriche)
+   **
+   * perform reachability analysis in terms of relaxed
    * fixpoint
    */
 
@@ -783,10 +578,14 @@ int main (int argc, char *argv[])
   TIME (greach_time);
   times (&start);
 
-  check_time_and_length (0);
+  check_time_and_length (0);	// con zero non controlla la lunghezza
 
 
-  /* collect the relevant facts and build final domain
+  /* 
+   * Colleziona i fatti rilevanti e costruisce la rappresentazione
+   * finale di dominio e problema.
+   ** 
+   * collect the relevant facts and build final domain
    * and problem representations.
    */
 
@@ -796,138 +595,353 @@ int main (int argc, char *argv[])
   TIME (grelev_time);
   times (&start);
 
-  check_time_and_length (0);
+  check_time_and_length (0);	// con zero non controlla la lunghezza 
 
 
-  /* now build globally accessable connectivity graph
+  /* 
+   * Termina l'instanziazione costruendo il grafo fatti-azioni
+   ** 
+   * now build globally accessable connectivity graph
    */
   build_connectivity_graph ();
+
+  /*
+   * Rappresentazione finale dei predicati derivati
+   **
+   * Build final representation for derived predicates
+   */
+  if (GpG.derived_predicates) 
+    create_final_derived_predicates();
+
   times (&end);
   TIME (gconn_time);
   times (&start);
 
-  check_time_and_length (0);
+  check_time_and_length (0);	// con zero non controlla la lunghezza 
 
-  /* association to gef_conn[i] a corresponding complet ploperator */
+  /* 
+   * associa ad ogni gef_conn[i] il ploperator completo corrispondente 
+   **
+   * associate the complete ploperator to each EfConn
+   */
   associate_PlOperator_with_EfConn ();
 
+  /* 
+   * aggiunge le grandezze numeriche e completa le azioni con precondizioni
+   * ed effetti numerici
+   **
+   * add numerical variables, preconditions and effects
+   */
+  add_composite_vars (0, gfirst_suspected_ef_conn);
 
-  /* adding composed numeric quantities */
-  add_composite_vars ();
+  /* 
+   * elimina le azioni inutili
+   **
+   * delete dummy actions (action with no useful effects)
+   */ 
+  check_actions_utility();
 
   make_numgoal_state(GpG.numeric_goal_PlNode);
 
-  /* make false the comparison between uninitialized numeric quantities */
+  /*
+   * rende costantemente falsi i confronti tra grandezze numeriche non inizializzate
+   * serve per quei casi tipo zenotravel in cui le connessioni vengono fissate dalla presenza o meno dell'inizializzazione di 'distance'
+   **
+   * force all tests involving non initialized variables to result with "false"
+   */
   make_false_all_checks_on_not_init ();
 
-  /* Semplification for inertial vars
+  /* 
+   * Semplificazione delle variabili inerziali
+   **
+   * Semplification for inertial vars
    */
   propagate_inertias ();
 
+#ifdef __MY_OUTPUT__
   if (DEBUG0)
     if (GpG.non_strips_domain)
       {
+	//printf("\nThis is a non-strips domain");
 	if (GpG.variable_duration)
-	  printf ("\n\nAction durations have been computed\n");
+	  printf ("\n\nAction durations have been computed");
 	else
 	  printf ("\n\nThere is no action duration to compute\n");
       }
-
-  /* Set vars orig_weight_cost and orig_weight_time according with plan evaluation metric
+#endif
+  
+  /* 
+   * Inizializza i pesi per il costo e il tempo del piano, in accordo con la metrica
+   **
+   * Set vars orig_weight_cost and orig_weight_time according with plan evaluation metric
    */
   if (goptimization_exp != -1)
     set_cost_and_time_coeffs ();
 
-  if (DEBUG0)
-    printf("\nEvaluation function weights:\n     Action duration %.2f; Action cost %.2f", GpG.orig_weight_time, GpG.orig_weight_cost);
-
-  if (DEBUG0)
-    printf ("\n\nTemporal flag: %s\n", GpG.temporal_plan ? "ON" : "OFF");
- 
-  /* Make numeric effects structure
+  /* 
+   * Costruisce il vettore gli effetti numerici delle azioni
+   **
+   * Make numeric effects structure
    */
   create_descnumeff_of_efconns ();
 
-  /* Sets flag is_numeric for each action (efconn)
+  /* 
+   * Copia il valore iniziale delle variabili numeriche nello stato iniziale 
+   **
+   * Copy initial values for numeric variables in the initial_state
+   */  
+  ginitial_state.V = (float *) calloc(max_num_value, sizeof(float));
+  memcpy(ginitial_state.V, gcomp_var_value, gnum_comp_var * sizeof(float));
+  
+  /* 
+   * Controlla se è utile ed eventualmente spezza le azioni durative
+   **
+   * split actions 
    */
-  set_numeric_flag ();
+  if (GpG.durative_actions_in_domain) {
 
-  assert (gnum_comp_var < MAX_NUM_VALUE);
+    EfConn *contraddicting_ef_conns = NULL;
+    int num = gnum_ef_conn -  gfirst_suspected_ef_conn;
+    
+    // Se ci sono azioni con effetti contraddittori le tolgo momentaneamente del gef_conn
+    if (num > 0)
+      {
+	contraddicting_ef_conns = (EfConn *)calloc((num + 1), sizeof(EfConn));
+	memcpy(contraddicting_ef_conns, &gef_conn[gfirst_suspected_ef_conn], num * sizeof(EfConn));
+	gnum_ef_conn = gfirst_suspected_ef_conn;
+      }
+    
+    if (GpG.perform_split)
+      split_actions();
+    
+    if (GpG.splitted_actions) {
+      num_splitted = (gextended_ef_conn - gnum_ef_conn) / 2;
+      gnum_ef_conn = gextended_ef_conn;
+      gnum_ft_conn = gextended_ft_conn;
+      gnum_ef_block = gextended_ef_block;
+      gnum_ft_block = (gnum_ft_conn >> 5) + 1;
+      gfirst_suspected_ef_conn = gnum_ef_conn;
 
-  /* Copy initial state in  initial_state
-   */
-  for (i = 0; i < gnum_comp_var; i++)
-    ginitial_state.V[i] = GCOMP_VAR_VALUE(i);
+      // reinserisco le eventuali azioni con effetti contraddittori in coda al gef_con
+      if (num > 0)
+	{
+	  while ((gnum_ef_conn + num) >= max_num_efconn) 
+	    {
+	      max_num_efconn += MAX_EF_FT_INCREASE;
+	      gef_conn = (EfConn *)realloc(gef_conn, max_num_efconn * sizeof(EfConn));
+	      memset(&gef_conn[gnum_ef_conn], 0, max_num_efconn - gnum_ef_conn);
+	    }
+	  
+	  memcpy(&gef_conn[gnum_ef_conn], contraddicting_ef_conns,  num * sizeof(EfConn));
+	}
+    }
+    
+    gnum_ef_conn += num;
+    gnum_ef_block = (gnum_ef_conn >> 5) + 1;
+  }
 
+ 
+  if (GpG.timed_facts_present) {
+    make_timed_fct_vector();
+    extract_timed_preconditions();
+
+    if (!GpG.timed_preconditions) {
+#ifdef __MY_OUTPUT__
+      printf("\n\nNo timed in preconditions : disable timed");
+#endif
+      GpG.timed_facts_present = FALSE;
+    }
+
+  }
+
+
+  if (DEBUG0)
+    {
+      printf ("\n\n\nAnalyzing Planning Problem:");
+      printf ("\n\tTemporal Planning Problem: %s", GpG.temporal_plan ? "YES" : "NO");
+      printf("\n\tNumeric Planning Problem: %s", (GpG.is_domain_numeric)?"YES":"NO");
+      printf("\n\tProblem with Timed Initial Literals: %s", GpG.timed_preconditions ? "YES" : "NO");
+      //      printf("\n\tProblem with Timed Initial Litearals: %s", GpG.timed_facts_present ? "YES" : "NO");
+      printf("\n\tProblem with Derived Predicates: %s", (GpG.derived_predicates)?"YES":"NO");
+      if (GpG.derived_predicates)
+	printf("\n\tDerived predicates in actions' preconditions: %s\n", GpG.derived_pred_in_preconds?"YES":"NO");
+
+#ifndef __PARSER_ONLY__
+      printf("\n\nEvaluation function weights:\n     Action duration %.2f; Action cost %.2f\n\n", GpG.orig_weight_time, GpG.orig_weight_cost);
+#endif 
+
+    }
+
+  if(DEBUG1) {
+    printf("\n\tSplitted actions: %s\n", (GpG.splitted_actions)?"YES":"NO");
+    if (GpG.splitted_actions)
+      printf("\nNum extended actions (normal + splitted): %d (%d actions have been splitted)\n", gextended_ef_conn, num_splitted); 
+  }
 
   times (&end);
   TIME (gnum_time);
   times (&start);
 
-  /* Print information about action istantiation 
+
+  /* 
+   * Stampa informazioni relative all'instanziazione delle azioni
+   **
+   * Print information about action istantiation
    */
   print_parser_info_for_debug();
 
-  if (GpG.numrun > 0 && GpG.numtry > 0) {
+#ifdef __PARSER_ONLY__
+  if ((gnum_ef_conn == gfirst_suspected_ef_conn) || !GpG.try_suspected_actions)
+    {
+      printf("\n\nDomain and problem analysis successfully ended\n");
+      
+      if (GpG.compile)
+	{
+	  store_compiled_domain("compiled-domain.pddl");
+	  store_compiled_problem("compiled-problem.pddl");
+	}
 
-    if (DEBUG0 && !DEBUG1) {
-      printf ("\nComputing mutex... ");
-      fflush (stdout);
+      fflush(stdout);
+      exit(0);
     }
-    if (DEBUG1)
-      printf ("\n\n--- COMPUTE MUTEX BETWEEN FACTS ---\n");
-    
-    if (GpG.accurate_cost >= 1)
-      allocate_reachability_information_data();
-	
-    /* Comute mutex between facts    
-    */
-    calc_mutex (&ginitial_state);
-    
-    if (!are_goal_reachable_and_non_mutex ()) {
-      printf ("\nThe problem is unsolvable since at the fixpoint level the goals are mutex or not reachable\n\n");
-      exit (0);
-    }
-  }
+  else
+    printf("\n\nEvaluating mutex and reachability info to define contraddicting actions instantiations...");
+#endif
   
-
+  //  if (GpG.numrestart > 0 && GpG.numtry > 0) {
+  
+  if (DEBUG0 && !DEBUG1) {
+    printf ("\nComputing mutex... ");
+    fflush (stdout);
+  }
+  if (DEBUG1)
+    printf ("\n\n--- COMPUTE MUTEX BETWEEN FACTS ---\n");
+  
+  if (GpG.accurate_cost >= 0)
+    {	
+      allocate_reachability_information_data();
+      
+      
+      allocate_reachability_compvar_information_data();
+    }
+  
+  /* 
+   * Valuta le relazioni mutex tra i fatti
+   **
+   * Compute mutex between facts
+   */
+  
+  calc_mutex (&ginitial_state);
+  
+  //  }
+  
+  
   times (&end);
   TIME (gmutex_ft_time);
-
+  
   if (DEBUG2)
     printf ("\n");
   if (DEBUG1)
     printf ("\n   --> Compute mutex between facts TOTAL TIME: %12.2f",gmutex_ft_time);
-
+  
   times (&start);
-  if (GpG.numrun > 0 && GpG.numtry > 0) {
-    if (DEBUG1)
-      printf ("\n\n--- COMPUTE MUTEX BETWEEN ACTIONS ---\n");
-    /*Compute action-action, action_fact, fact-action mutex
-     */
-    calc_mutex_ops ();
-  }
-
-
+  //  if (GpG.numrestart > 0 && GpG.numtry > 0) {
+  if (DEBUG1)
+    printf ("\n\n--- COMPUTE MUTEX BETWEEN ACTIONS ---\n");
+  
+  /*
+   * Valuta le relazioni mutex tra le azioni e tra azioni e fatti.
+   **
+   * Compute action-action, action_fact, fact-action mutex
+   */
+  
+  //calc_mutex_derived();
+  
+  calc_mutex_ops ();
+  //  }
+  
+  
   times (&end);
   TIME (gmutex_ops_time);
-
+  
   if (DEBUG1)
     printf ("\n   --> Compute mutex between actions TOTAL TIME: %12.2f\n",gmutex_ops_time);
 
-
   
+
   times (&start);
 
-  if (GpG.numrun > 0 && GpG.numtry > 0) {
+  clean_numeric_preconditions();
+
+  /*
+   * Individua e marca gli effetti continui (dipendenti dal tempo in cui vengono realizzati)
+   **
+   * Search and mark continuous effects
+   */
+  set_continuous_effects();
+
+  //  if (GpG.numrestart > 0 && GpG.numtry > 0) {
     if (DEBUG1)
       printf ("\n\n--- COMPUTE MUTEX BETWEEN NUMERIC FACTS ---\n");
-    /* Compute mutex between action with numeric effects
-     */  
-    if (!GpG.lowmemory)
-      calc_mutex_num_efs ();
+    
+    /* 
+     * Valuta le relazioni mutex dovute a effetti/precondizioni numeriche
+     **
+     * Compute mutex between action with numeric effects
+     */
+    calc_mutex_num_efs ();
+    
+    //#ifdef __TEST_REACH__
+
+    /*
+     * Analisi di raggiungibilità di fatti e azioni
+     **
+     * Facts and actions reachability analisys 
+     */
+    compute_reachability(&ginitial_state);
+
+    //#endif
+    //  }
+
+#ifdef __PARSER_ONLY__
+    if (TRUE)
+      {
+	printf("\n\nDomain and problem analysis successfully ended\n");
+	
+	if (GpG.compile)
+	  {
+	    store_compiled_domain("compiled-domain.pddl");
+	    store_compiled_problem("compiled-problem.pddl");
+	  }
+	
+	fflush(stdout);
+	exit(0);
+      }
+#endif
+
+
+  if (!are_goal_reachable_and_non_mutex ()) {
+
+    if (!GpG.inst_duplicate_param)
+      {
+#ifdef __MY_OUTPUT__
+	printf("\n%s: create_final_goal_state(): goal can be simplified to FALSE. \n    Please run %s with option  '-inst_with_contraddicting_objects' \n\n", NAMEPRG, NAMEPRG);
+#else
+	printf("\nGoals of the planning problem can not be reached.\nPlease try to run with '-inst_with_contraddicting_objects'\n\n");
+#endif
+      }    
+    else 
+      {
+	printf ("\nThe problem is unsolvable since at the fixpoint level the goals are mutex or not reachable\n\n");   
+      }
+
+    GpG.num_solutions++;
+
+    store_plan(-1.0);
+
+    exit (0);
   }
-  
+
   times (&end);
   TIME (gmutex_num_time);
 
@@ -935,6 +949,9 @@ int main (int argc, char *argv[])
     printf("\n   --> Compute mutex between numeric facts TOTAL TIME: %12.2f\n",gmutex_num_time);
   if (DEBUG2)
     print_mutex_result ();
+
+
+
   if (DEBUG0 && !DEBUG1) {
     printf ("done");
     fflush (stdout);
@@ -954,7 +971,7 @@ int main (int argc, char *argv[])
 
 
   GpG.max_num_actions = gnum_ef_conn;
-  GpG.max_num_facts = gnum_ft_conn;
+  GpG.max_num_facts = max_state_facts = gnum_ft_conn;
   GpG.max_num_ft_block = gnum_ft_block;
 
 
@@ -975,24 +992,21 @@ int main (int argc, char *argv[])
 
   remove_unappliable_actions ();
 
-  if (GpG.search_type == LOCAL && GpG.numrun > 0 && GpG.numtry > 0)
-    {
-      k = MAX (GpG.input_plan_lenght, gmutex_level);
+  //  if (GpG.search_type == LOCAL && GpG.numrestart > 0 && GpG.numtry > 0) {
+      k = MAX (GpG.input_plan_lenght,GpG.fixpoint_plan_length+1);
       for (i = 0; i < k; i++)
 	{
-	  if (i < gmutex_level)
+	  if (i <GpG.fixpoint_plan_length )
 	    create_vectlevel (0);
 	  else
 	    create_vectlevel (1);
 	}
       allocate_data_for_local_search();
       create_all_min_array ();
-
-      GpG.fixpoint_plan_length = GpG.max_plan_length - 1;
+      gmutex_level=GpG.fixpoint_plan_length;
       GpG.curr_goal_state =  &current_end;
 
-    }
-
+      //    }
 
   if (DEBUG1) {
     printf ("\n\nTime spent for preprocessing:");
@@ -1000,12 +1014,18 @@ int main (int argc, char *argv[])
     printf ("\n Mutex relations:   %7.2f seconds", gmutex_total_time);
     printf ("\n Numeric relations: %7.2f seconds", gnum_time);
   }
-  if (DEBUG0) {   
+  if (DEBUG0) {
     times (&glob_end_time);
+
+#ifndef __WINLPG__
     gtotal_time = (float) ((glob_end_time.tms_utime - glob_start_time.tms_utime + glob_end_time.tms_stime - glob_start_time.tms_stime) / 100.0);
+#else
+    gtotal_time = DeltaTime(glob_start_time, glob_end_time);
+#endif
+
     printf ("\nPreprocessing total time: %.2f seconds",gtotal_time);
   }
-  
+
 
 #ifdef __TEST__
   printf ("\n\ninitial state is:\n\n");
@@ -1020,57 +1040,78 @@ int main (int argc, char *argv[])
       print_ft_name (current_end.F[i]);
       printf ("\n");
     }
-  
+
   for (i = 0; i < gnum_op_conn; i++)
   {
     print_op_name(i);
-    printf(" -- %f \n", get_action_cost (i));
+    printf(" -- %f \n", get_action_cost (i,-1,NULL));
   }
 #endif
-
-
-  if (GpG.do_best_first == TRUE && GpG.numrun==0)  
+  if (GpG.do_best_first == TRUE && GpG.numrestart==0)
     GpG.search_type=BEST_FIRST;
-  /* Search untill it is not reached termination condition (given by the function 'is_term_condition_reached')
+
+  /*
+   * Ricerca della soluzione, fino a quando non sia stata raggiunta la condizione di terminazione
+   * (definita in 'is_term_condition_reached')
+   **
+   * Search untill it is not reached termination condition (given by the function 'is_term_condition_reached')
    */
+
+  times (&search_start);
+
   while(!is_terminated)
     {
-      /* Different types of local search 
-       */      
+      /* 
+       * Diversi tipi di ricerca locale
+       **
+       * Different types of local search
+       */
       switch(GpG.search_type)
 	{
-	  /* Local Search usually used in LPG
+	  /* 
+	   * Ricerca locale utilizzata per default in LPG
+	   **
+	   * Local Search usually used in LPG
 	   */
 	case LOCAL:
-	  /* Do Local Search
+	  /* 
+	   * Inizia la ricerca locale
+	   **
+	   * Do Local Search
 	   */
 	  LocalSearch (&current_start, &current_end, &subplan_actions);
-	  /* Store plan in GpG.gplan_actions
+	  
+	  /* 
+	   * Memorizza il piano in GpG.gplan_actions
+	   **
+	   * Store plan in GpG.gplan_actions
 	   */
-	  GpG.gplan_actions = subplan_actions;	 
+	  GpG.gplan_actions = subplan_actions;
 	  subplan_actions = NULL;
-	  /* Control if the termination condition is reached
+	  
+	  /* 
+	   * Controlla se è stata raggiunta la condizione di terminazione
+	   **
+	   * Control if the termination condition is reached
 	   */
 	  is_terminated= is_term_condition_reached();
+
 	  break;
-	 
-	  /* Best First Search implemented by J. Hoffmann (FF-v2.3)
+	  
+	  /* 
+	   * Ricerca Best First (J. Hoffmann FF-v2.3)
+	   **
+	   * Best First Search implemented by J. Hoffmann (FF-v2.3)
 	   */
 	case BEST_FIRST:
 
 	  if (DEBUG0)
-	    printf("\n\nSwitching to Best-first Search ( code from J. Hoffmann's package FF-v2.3 ) \n");
+	    printf("\n\nSwitching to Best-first Search: ( code from J. Hoffmann's package FF-v2.3 ) \n");
 	  check_time_and_length (0);	/* con zero non controlla la lunghezza */
 	  /* Return solution if reached, FALSE otherwise
 	   */
 	  found_plan = do_best_first_search ();
 	  
-	  times (&end);
-	  TIME (gsearch_time);
-	  
-	  times (&end);
-	  times (&glob_end_time);
-	  gtotal_time = (float) ((glob_end_time.tms_utime - glob_start_time.tms_utime + glob_end_time.tms_stime - glob_start_time.tms_stime) / 100.0);
 	  /* If a solution was found in best first search print solution
 	   */
 	  if (found_plan)
@@ -1079,24 +1120,105 @@ int main (int argc, char *argv[])
 #ifdef __MY_OUTPUT__
 	      printf ("\nFFGGHH::%.2f::%d\n", gtotal_time, gnum_plan_ops);
 #endif
-	      store_adapted_temporal_plan_ff (gcmd_line.fct_file_name);
-	      
-	      
-	      printf ("\nTotal time:      %.2f\nSearch time:     %.2f\nActions:         %d\nExecution cost:  %.2f\nDuration:        %.3f\nPlan quality:    %.3f", gtotal_time, gsearch_time, GpG.num_actions, GpG.total_cost, GpG.total_time,GpG.total_cost * GpG.orig_weight_cost + GpG.total_time * GpG.orig_weight_time);
+	      reset_plan(GpG.curr_plan_length);
+	      GpG.store_plan = TRUE;
+	      GpG.temporal_plan = TRUE;
 
-	      printf ("\n     Plan file:");
-	      printf ("       plan_bestfirst_%s.SOL", gcmd_line.fct_file_name);
-	  
+	      printf("\nimproving the parallelism of the plan");
+	      build_temporal_plan ();
+	      optimize = is_plan_better();
+	      if (optimize)
+		{
+		  save_curr_plan (GpG.curr_plan_length, &subplan_actions);
+
+		  GpG.num_solutions++;
+
+		  times (&search_end);
+
+		  plan_time = DeltaTime (search_start, search_end);
+
+
+		  times (&end);
+		  TIME (gsearch_time);
+		  
+		  times (&end);
+		  times (&glob_end_time);
+
+#ifndef __WINLPG__
+		  gtotal_time = (float) ((glob_end_time.tms_utime - glob_start_time.tms_utime + glob_end_time.tms_stime - glob_start_time.tms_stime) / 100.0);
+#else
+		  gtotal_time = DeltaTime(glob_start_time, glob_end_time);
+#endif
+
+		  store_plan(plan_time);
+
+#ifdef __ONLY_ONE_PLANNER__
+		  GpG.save_quality_plan_with_different_name = 1;
+#endif
+			  
+
+#ifndef __ONLY_ONE_PLANNER__
+		  if (GpG.mode == QUALITY)
+#endif
+		    {
+		      GpG.time_lastsol = gtotal_time;
+		      plan_info_for_quality_mode.num_actions = GpG.num_actions;
+		      plan_info_for_quality_mode.total_cost = GpG.total_cost_from_metric;
+		      plan_info_for_quality_mode.total_time = GpG.total_time; 
+		      plan_info_for_quality_mode.metricvalue = GpG.total_cost_from_metric * GpG.orig_weight_cost + GpG.total_time * GpG.orig_weight_time;
+		    }
+		      
+		  store_plan(plan_time);
+		  
+#ifdef __ONLY_ONE_PLANNER__
+		  GpG.save_quality_plan_with_different_name = 2;
+#endif
+
+		  
+		  
+		  if (GpG.mode == INCREMENTAL)
+		    {
+		      printf ("\n\nSolution number: %d\nTotal time:      %.2f\nSearch time:     %.2f\nActions:         %d\nExecution cost:  %.2f\nDuration:        %.3f\nPlan quality:    %.3f", GpG.num_solutions, gtotal_time, gsearch_time, GpG.num_actions, GpG.total_cost, GpG.total_time, GpG.total_cost * GpG.orig_weight_cost + GpG.total_time * GpG.orig_weight_time );
+		    }
+		  else
+		    {
+		      printf ("\n\nSolution found: \nTotal time:      %.2f\nSearch time:     %.2f\nActions:         %d\nExecution cost:  %.2f\nDuration:        %.3f\nPlan quality:    %.3f", gtotal_time, gsearch_time, GpG.num_actions, GpG.total_cost, GpG.total_time, GpG.total_cost * GpG.orig_weight_cost + GpG.total_time * GpG.orig_weight_time );
+		    }
+		  
+		  if (!GpG.noout)
+		    {
+		      printf ("\n     Plan file:");
+		      if (GpG.out_file_name)
+			printf ("       %s_%d.SOL", gcmd_line.out_file_name,
+				GpG.num_solutions);
+		      
+		      else
+			printf ("       plan_%s_%d.SOL", gcmd_line.fct_file_name,
+				GpG.num_solutions);
+		    }
+		}
+	      else
+		if (DEBUG0 && !DEBUG1)
+		  {
+		    if (optimize==FALSE)
+		      printf (" found solution of bad quality.");
+		  }
+
+
+	      if (DEBUG1)
+		output_planner_info ();
+
+	      /* Control if the termination condition is reached
+	       */
 	    }
-	  
-	  if (DEBUG1)
-	    output_planner_info ();
-	  /* Control if the termination condition is reached
-	   */
+
 	  is_terminated= is_term_condition_reached();
 	  break;
 	  
-	  /* Hill Climbing Search
+	  /*
+	   * Ricerca hill climbing
+	   **
+	   * Hill Climbing Search
 	   */
 	case   HILL_CLIMBING:
 	  
@@ -1132,7 +1254,16 @@ int main (int argc, char *argv[])
 	    }
 	}
     }
-    
+
+
+#ifdef __MY_OUTPUT__
+
+  print_num_tuple();
+
+#endif
+
+
+
   printf ("\n\n");
   exit (0);
 

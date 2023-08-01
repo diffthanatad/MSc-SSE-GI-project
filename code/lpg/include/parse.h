@@ -48,9 +48,15 @@
 #define _PARSE_H
 
 
+#define IS_DEFAULT 0
+#define IS_AT_START -1
+#define IS_AT_END -2
+#define IS_OVERALL -3
+
 
 char *copy_Token( char *s );
 TokenList *copy_TokenList( TokenList *source );
+TypedList *copy_TypedList(TypedList *source);
 void strupcase( char *from );
 char *rmdash( char *s );
 
@@ -78,9 +84,11 @@ Bool make_conjunction_of_literals( PlNode **n );
 
 void reduce_pddl2_to_pddl1 (void);
 void reduce_PlOperator (PlOperator * plop);
-void reduce_PlNode (PlNode * pln);
-void reduce_PlGoal (PlNode * pln);
+void reduce_PlNode (PlNode ** pln);
+void reduce_PlGoals (PlNode ** pln);
+void reduce_PlInitial(PlNode ** pln);
 int remove_true_nodes (PlNode * pln);
+void remove_null_and (PlNode * pln);
 void count_num_preconds_and_effects ();
 
 /*

@@ -431,31 +431,6 @@ OPEN_PAREN  NAME typed_list_variable  CLOSE_PAREN
 
 }
 functions_list
-|
-OPEN_PAREN  NAME typed_list_variable  CLOSE_PAREN  MINUS_TOK NAME
-{
-
-  TypedListList *tll;
-
-  if ( gparse_functions ) {
-    tll = gparse_functions;
-    while ( tll->next ) {
-      tll = tll->next;
-    }
-    tll->next = new_TypedListList();
-    tll = tll->next;
-  } else {
-    tll = new_TypedListList();
-    gparse_functions = tll;
-  }
-
-  tll->predicate = new_Token( strlen( $2 ) + 1);
-  strcpy( tll->predicate, $2 );
-
-  tll->args = $3;
-
-}
-functions_list
 ;
 
 /*--PDDL2*/

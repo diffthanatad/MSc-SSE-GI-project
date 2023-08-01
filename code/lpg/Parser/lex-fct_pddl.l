@@ -19,13 +19,10 @@
 %{
 #include "ff.h"
 #include "parse.h"
-  
-  /* default yywrap function - always treat EOF as an EOF  */
-int fct_pddlwrap() {
-  return 1; 
-}; 
 
-int gbracket_count = 0;
+#define yytext fct_pddltext
+
+// int gbracket_count = 0;
 
 %}
 
@@ -58,9 +55,12 @@ z [Zz]
 
 digit [0-9]
 int -?{digit}*
-float -?{digit}+(\.{digit}*)?
+float -?{digit}?+\.{digit}*
+at_time_construct (" "[0-9]*[.0-9][0-9]*" "*"(")
 
 %x COMMENT OVERREAD
+
+%option noyywrap
 
 %%
 
@@ -77,6 +77,8 @@ float -?{digit}+(\.{digit}*)?
 
 \([ \t]*":"{r}{e}{q}{u}{i}{r}{e}{m}{e}{n}{t}{s}  {  gbracket_count = 1;
  BEGIN OVERREAD; }
+
+{a}{t}/{at_time_construct} {return(TIMED_EL_TOK);}
 
 {d}{e}{f}{i}{n}{e}  {  return(DEFINE_TOK); }
 
@@ -141,9 +143,11 @@ float -?{digit}+(\.{digit}*)?
 
 "="  {  return(EQUAL_TOK); }
 
+
 ">=" { return(GREATER_OR_EQUAL_TOK);}
 
 "<=" { return(LESS_THAN_OR_EQUAL_TOK);}
+
 
 :?[a-zA-Z][a-zA-Z0-9\-_]* { strupcase( yytext );  
   strcpy(yylval.string, yytext ); return(NAME); }

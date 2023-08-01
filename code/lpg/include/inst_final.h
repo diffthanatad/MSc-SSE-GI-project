@@ -48,9 +48,9 @@
 #define _INST_FINAL_H
 
 
-
+int cond_eff_is_enabled();
 void perform_reachability_analysis( void );
-int fact_adress( void );
+unsigned long int fact_adress( void );
 void make_name_inst_table_from_NormOperator( Action *a, NormOperator *o, EasyTemplate *t );
 void make_name_inst_table_from_PseudoAction( Action *a, PseudoAction *pa );
 
@@ -80,7 +80,15 @@ void build_connectivity_graph( void );
  * DEA - University of Brescia
  */
 
-int fact_adress1 (void);
+void build_derived_predicates_act( void );
+
+void create_final_derived_predicates( void );
+
+unsigned long int fact_adress1 (void);
+
+void search_timed_facts_idx( void );
+
+void make_timed_fct_vector( void );
 
 /*
  * End of DEA
