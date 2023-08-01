@@ -7,7 +7,7 @@ path = code/minisat-hack
 target_files =
     core/Solver.cc.xml
     minisat.params
-fitness = perf_time
+fitness = perf_instructions
 
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
@@ -16,7 +16,8 @@ run_cmd = perf stat run-sh/train_4.sh
 run_timeout = 92
 
 [search]
-max_time = 4900
+warmup = 1
+max_time = 11270
 
 possible_edits =
     ParamSetting
