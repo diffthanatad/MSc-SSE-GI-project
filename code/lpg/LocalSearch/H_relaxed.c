@@ -2881,7 +2881,8 @@ inline float evaluate_action_cost_from_list( register int act_pos, int level, no
   return (0.0);
   
 } 
-
+float evaluate_action_cost_from_list( register int act_pos, int level, node_cost_list n_cost,
+				      float max_time_for_timed_fact, node_cost_list max_n_cost);
 
 
 int compute_fast_fact_cost(int level, int act_level, register int best_action)
