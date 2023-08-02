@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import random
 import os
 import time
+import copy
 
 from .. import config as magpie_config
 from .patch import Patch
@@ -343,9 +344,26 @@ class Algorithm(ABC):
 
     def create_all_default_edits_for_one_chrm(self):
         new_edits = list()
-        for target_file, contents in self.program.contents.items():
-            if target_file.endswith('.params') == False:
+        for edit_klass in self.config['possible_edits']:
+            if edit_klass not in [*ParamEdits]:
                 continue
-            for param_id, value in contents['current'].items():
-                new_edits.append( ParamSetting.create_with_input_value(target_file, param_id, value) )
+            for target_file, contents in self.program.contents.items():
+                if target_file.endswith('.params') == False:
+                    continue
+                for param_id, value in contents['current'].items():
+                    new_edits.append( ParamSetting.create_with_input_value(target_file, param_id, value) )
         return new_edits
+    
+    def remove_edits_with_default_value_from_patch(self, patch: Patch) -> Patch:
+        new_edits = list()
+        edits = patch.edits
+        for edit in edits:
+            if not isinstance(edit, ParamSetting):
+                new_edits.append(copy.deepcopy(edit))
+                continue
+
+            target_file, param_id, value = edit.target[0], edit.target[1], edit.data[0]
+            if self.program.contents[target_file]['current'][param_id] == value:
+                continue
+            new_edits.append(copy.deepcopy(edit))
+        return Patch(new_edits)

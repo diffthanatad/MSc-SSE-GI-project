@@ -64,42 +64,24 @@ class GeneticAlgorithm(Algorithm):
 
             # initial pop
             pop = list()
-            local_best = None
             local_best_fitness = None
-            for _ in range(self.config['elitism_size']):
+            for i in range(self.config['pop_size']):
                 sol = self.create_solution()
-                run = self.evaluate_patch(sol)
+                if i >= self.config['elitism_size']:
+                    self.pre_mutate(sol)
+                sol_minimal = self.remove_edits_with_default_value_from_patch(sol)
+                run = self.evaluate_patch(sol_minimal)
                 accept = best = False
                 if run.status == 'SUCCESS':
                     if self.dominates(run.fitness, local_best_fitness):
-                        self.program.logger.debug(self.program.diff_patch(sol))
+                        self.program.logger.debug(self.program.diff_patch(sol_minimal))
                         local_best_fitness = run.fitness
-                        local_best = sol
                         accept = True
                         if self.dominates(run.fitness, self.report['best_fitness']):
                             self.report['best_fitness'] = run.fitness
-                            self.report['best_patch'] = sol
+                            self.report['best_patch'] = sol_minimal
                             best = True
-                self.hook_evaluation(sol, run, accept, best)
-                pop.append(Chromosome(sol, run.fitness, run.status))
-                self.stats['steps'] += 1
-            
-            for _ in range(self.config['pop_size'] - self.config['elitism_size']):
-                sol = self.create_solution()
-                self.pre_mutate(sol)
-                run = self.evaluate_patch(sol)
-                accept = best = False
-                if run.status == 'SUCCESS':
-                    if self.dominates(run.fitness, local_best_fitness):
-                        self.program.logger.debug(self.program.diff_patch(sol))
-                        local_best_fitness = run.fitness
-                        local_best = sol
-                        accept = True
-                        if self.dominates(run.fitness, self.report['best_fitness']):
-                            self.report['best_fitness'] = run.fitness
-                            self.report['best_patch'] = sol
-                            best = True
-                self.hook_evaluation(sol, run, accept, best)
+                self.hook_evaluation(sol_minimal, run, accept, best)
                 pop.append(Chromosome(sol, run.fitness, run.status))
                 self.stats['steps'] += 1
 
@@ -127,24 +109,23 @@ class GeneticAlgorithm(Algorithm):
 
                 # evaluate offsprings
                 pop.clear()
-                local_best = None
                 local_best_fitness = None
                 for sol in offsprings:
                     if self.stopping_condition():
                         break
-                    run = self.evaluate_patch(sol)
+                    sol_minimal = self.remove_edits_with_default_value_from_patch(sol)
+                    run = self.evaluate_patch(sol_minimal)
                     accept = best = False
                     if run.status == 'SUCCESS':
                         if self.dominates(run.fitness, local_best_fitness):
-                            self.program.logger.debug(self.program.diff_patch(sol))
+                            self.program.logger.debug(self.program.diff_patch(sol_minimal))
                             local_best_fitness = run.fitness
-                            local_best = sol
                             accept = True
                             if self.dominates(run.fitness, self.report['best_fitness']):
                                 self.report['best_fitness'] = run.fitness
-                                self.report['best_patch'] = sol
+                                self.report['best_patch'] = sol_minimal
                                 best = True
-                    self.hook_evaluation(sol, run, accept, best)
+                    self.hook_evaluation(sol_minimal, run, accept, best)
                     pop.append(Chromosome(sol, run.fitness, run.status))
                     self.stats['steps'] += 1
 
@@ -162,9 +143,8 @@ class GeneticAlgorithm(Algorithm):
             if random.random() <= self.config['mutpb_gene']:
                 if isinstance(edits[i], ParamSetting):
                     edits[i] = self.create_specific_edit(edits[i])
-        if self.exist_GI_possible_edits:
-            if random.random() <= self.config['GI_create_prob']:
-                edits.append(self.create_GI_edit())
+        if self.exist_GI_possible_edits and random.random() <= self.config['GI_create_prob']:
+            edits.append(self.create_GI_edit())
 
     def mutate(self, chromosome: Patch) -> None:
         """ 
@@ -173,7 +153,6 @@ class GeneticAlgorithm(Algorithm):
             Update gene by reference. So, no return.
         """
         GI_delete_index = list()
-        exist_GI_edits = False
         edits = chromosome.edits
         N = len(edits)
         for i in range(N):
@@ -181,7 +160,6 @@ class GeneticAlgorithm(Algorithm):
                 if isinstance(edits[i], ParamSetting):
                     edits[i] = self.create_specific_edit(edits[i])
                 else:
-                    exist_GI_edits = True
                     GI_delete_index.append(i)
         
         # delete GI edit(s) and shrink the Patch size.
