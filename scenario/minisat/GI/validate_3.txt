@@ -13,7 +13,7 @@ setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 16
 run_cmd = perf stat run-sh/validate_3.sh
-run_timeout = 981
+run_timeout = 1001
 
 [search]
 warmup = 1
