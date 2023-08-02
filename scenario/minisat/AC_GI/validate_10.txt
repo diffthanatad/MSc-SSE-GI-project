@@ -13,11 +13,11 @@ setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 16
 run_cmd = perf stat run-sh/validate_10.sh
-run_timeout = 1187
+run_timeout = 928
 
 [search]
 warmup = 1
-algorithm = ValidRankingSimplify
+algorithm = ValidTest
 
 possible_edits =
     StmtReplacement
