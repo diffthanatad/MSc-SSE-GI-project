@@ -67,26 +67,28 @@ def main(LOGS, NEXT_PHASE):
     AC_GI_SCRIPT = ["_" for i in range(10)]
 
     for record in records:
+        if record[0] == '_':
+            continue
         if NEXT_PHASE == "validate":
             if (record[1] == "AC"):
                 AC_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
-                AC_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC/validate_{K}.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
+                AC_SCRIPT[int(record[0]) - 1] = "python3 -m bin.minify_patch --scenario scenario/AC/validate_{K}.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
             elif (record[1] == "GI"):
                 GI_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
-                GI_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/GI/validate_{K}.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
+                GI_SCRIPT[int(record[0]) - 1] = "python3 -m bin.minify_patch --scenario scenario/GI/validate_{K}.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
             elif (record[1] == "AC + GI"):
                 AC_GI_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
-                AC_GI_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.minify_patch --scenario scenario/AC_GI/validate_{K}.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
+                AC_GI_SCRIPT[int(record[0]) - 1] = "python3 -m bin.minify_patch --scenario scenario/AC_GI/validate_{K}.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
         elif NEXT_PHASE == "test":
             if (record[1] == "AC"):
                 AC_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
-                AC_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
+                AC_SCRIPT[int(record[0]) - 1] = "python3 -m bin.revalidate_patch --scenario scenario/AC/test.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
             elif (record[1] == "GI"):
                 GI_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
-                GI_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
+                GI_SCRIPT[int(record[0]) - 1] = "python3 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
             elif (record[1] == "AC + GI"):
                 AC_GI_LOG[int(record[0]) - 1] = "'{file}.log',".format(file=record[2])
-                AC_GI_SCRIPT[int(record[0]) - 1] = "/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC_GI/test.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
+                AC_GI_SCRIPT[int(record[0]) - 1] = "python3 -m bin.revalidate_patch --scenario scenario/AC_GI/test.txt --patch _magpie_logs/{PATCH}.patch".format(K=record[0], PATCH=record[2])
         
     # for excel record
     np.savetxt("records.csv", records, delimiter=",", fmt='% s')
