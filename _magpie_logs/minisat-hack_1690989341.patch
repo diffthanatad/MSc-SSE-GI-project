@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'gc-frac'), 0.8862078848617704) | ParamSetting(('minisat.params', 'R-val'), 1.7131703643804972) | ParamSetting(('minisat.params', 'core-tolerance'), 0.22263118758000366) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.5213846323131994) | ParamSetting(('minisat.params', 'verb'), '2')
