@@ -1,2 +1,2 @@
-python3 -m bin.local_search --scenario scenario/minisat/AC/train_2.txt
-python3 -m bin.local_search --scenario scenario/minisat/AC/train_8.txt
+python3 -m bin.revalidate_patch --scenario scenario/AC/validate_2.txt --patch _magpie_logs/minisat-hack_1690929608.patch
+python3 -m bin.revalidate_patch --scenario scenario/AC/validate_8.txt --patch _magpie_logs/minisat-hack_1690940942.patch
