@@ -8,15 +8,19 @@ from ..base import Algorithm, Patch
 from ..params.params_edits import ParamSetting
 
 class Chromosome:
-    def __init__(self, genes, fitness):
+    def __init__(self, genes, fitness, status):
         self.genes = genes
         self.fitness = fitness
+        self.status = status
     
     def get_fitness(self):
         return self.fitness
     
     def get_genes(self):
         return self.genes
+
+    def get_status(self):
+        return self.status
 
 class GeneticAlgorithm(Algorithm):
     category_params = list()
@@ -27,12 +31,14 @@ class GeneticAlgorithm(Algorithm):
         super().setup()
         self.name = 'Genetic Algorithm'
         self.config['pop_size'] = 10
+        self.config['elitism_size'] = 2
 
         self.config['cxpb_chrm'] = 0.5
         self.config['cxpb_gene'] = 0.5
         self.config['mutpb_chrm'] = 0.2
         self.config['mutpb_gene'] = 0.1
-        self.config['delete_prob'] = 0.5
+        self.config['GI_delete_prob'] = 0.5
+        self.config['GI_create_prob'] = 0.5
         
         self.config['tournament_size'] = 3
 
@@ -60,10 +66,8 @@ class GeneticAlgorithm(Algorithm):
             pop = list()
             local_best = None
             local_best_fitness = None
-            while len(pop) < self.config['pop_size']:
+            for _ in range(self.config['elitism_size']):
                 sol = self.create_solution()
-                if sol in pop:
-                    continue
                 run = self.evaluate_patch(sol)
                 accept = best = False
                 if run.status == 'SUCCESS':
@@ -77,7 +81,26 @@ class GeneticAlgorithm(Algorithm):
                             self.report['best_patch'] = sol
                             best = True
                 self.hook_evaluation(sol, run, accept, best)
-                pop.append(Chromosome(sol, run.fitness))
+                pop.append(Chromosome(sol, run.fitness, run.status))
+                self.stats['steps'] += 1
+            
+            for _ in range(self.config['pop_size'] - self.config['elitism_size']):
+                sol = self.create_solution()
+                self.pre_mutate(sol)
+                run = self.evaluate_patch(sol)
+                accept = best = False
+                if run.status == 'SUCCESS':
+                    if self.dominates(run.fitness, local_best_fitness):
+                        self.program.logger.debug(self.program.diff_patch(sol))
+                        local_best_fitness = run.fitness
+                        local_best = sol
+                        accept = True
+                        if self.dominates(run.fitness, self.report['best_fitness']):
+                            self.report['best_fitness'] = run.fitness
+                            self.report['best_patch'] = sol
+                            best = True
+                self.hook_evaluation(sol, run, accept, best)
+                pop.append(Chromosome(sol, run.fitness, run.status))
                 self.stats['steps'] += 1
 
             # main loop
@@ -86,7 +109,11 @@ class GeneticAlgorithm(Algorithm):
                 self.hook_main_loop()
                 
                 offsprings = list() # list[Patch]
-                temp = self.tournament_selection(self.config['pop_size'], self.config['tournament_size'], pop)
+                temp = self.select(pop)
+                for individual in temp[:2:]:
+                    offsprings.append(copy.deepcopy(individual))
+                
+                temp = self.tournament_selection(self.config['pop_size'] - self.config['elitism_size'], self.config['tournament_size'], pop)
                 for individual in temp:
                     offsprings.append(copy.deepcopy(individual))
                 
@@ -118,7 +145,7 @@ class GeneticAlgorithm(Algorithm):
                                 self.report['best_patch'] = sol
                                 best = True
                     self.hook_evaluation(sol, run, accept, best)
-                    pop.append(Chromosome(sol, run.fitness))
+                    pop.append(Chromosome(sol, run.fitness, run.status))
                     self.stats['steps'] += 1
 
         except KeyboardInterrupt:
@@ -128,13 +155,24 @@ class GeneticAlgorithm(Algorithm):
             # the end
             self.hook_end()
 
+    def pre_mutate(self, chromosome: Patch) -> None:
+        edits = chromosome.edits
+        N = len(edits)
+        for i in range(N):
+            if random.random() <= self.config['mutpb_gene']:
+                if isinstance(edits[i], ParamSetting):
+                    edits[i] = self.create_specific_edit(edits[i])
+        if self.exist_GI_possible_edits:
+            if random.random() <= self.config['GI_create_prob']:
+                edits.append(self.create_GI_edit())
+
     def mutate(self, chromosome: Patch) -> None:
         """ 
             chromosome = class Patch().edits
             gene = ParamSetting(('minisat_simplified.params', 'luby'), 'False')
             Update gene by reference. So, no return.
         """
-        GI_index = list()
+        GI_delete_index = list()
         exist_GI_edits = False
         edits = chromosome.edits
         N = len(edits)
@@ -144,12 +182,15 @@ class GeneticAlgorithm(Algorithm):
                     edits[i] = self.create_specific_edit(edits[i])
                 else:
                     exist_GI_edits = True
-                    GI_index.append(i)
-        if self.exist_GI_possible_edits:
-            if exist_GI_edits and random.random() <= self.config['delete_prob']:
-                del edits[random.randrange(GI_index[0], N)]
-            else:
-                edits.append(self.create_GI_edit())
+                    GI_delete_index.append(i)
+        
+        # delete GI edit(s) and shrink the Patch size.
+        for i in GI_delete_index[::-1]:
+            del edits[i]
+
+        # add one new GI edit.
+        if self.exist_GI_possible_edits and random.random() <= self.config['GI_create_prob']:
+            edits.append(self.create_GI_edit())
 
     def crossover(self, ind1: Patch, ind2: Patch) -> Patch:
         new_edit1 = list()
@@ -197,7 +238,7 @@ class GeneticAlgorithm(Algorithm):
         """
             create class Patch() which contains a list of class Edit() with random value for all parameters.
         """
-        sol = self.create_all_edits()
+        sol = self.create_all_default_edits_for_one_chrm()
         return Patch(sol)
 
     def tournament_selection(self, k: int, tournament_size: int, pop: list[Chromosome]) -> list[Patch]:
@@ -217,3 +258,16 @@ class GeneticAlgorithm(Algorithm):
                     best_fitness = sol.get_fitness()
             chosen.append(best)
         return chosen
+
+    def filter(self, pop: list[Chromosome]) -> set[Chromosome]:
+        tmp = {sol for sol in pop if sol.get_status() == 'SUCCESS'}
+        return tmp
+
+    def select(self, pop: list[Chromosome]) -> list[Patch]:
+        """ returns possible parents ordered by fitness """
+        tmp = self.filter(pop)
+        tmp = sorted(tmp, key=lambda sol: sol.get_fitness())
+        patches = list()
+        for chromosome in tmp:
+            patches.append(chromosome.get_genes())
+        return patches

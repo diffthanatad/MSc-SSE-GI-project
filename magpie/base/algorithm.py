@@ -5,7 +5,7 @@ import time
 
 from .. import config as magpie_config
 from .patch import Patch
-from ..params import CategoricalRealm, GeometricRealm, UniformIntRealm
+from ..params import CategoricalRealm, GeometricRealm, UniformIntRealm, ParamSetting
 from ..params import edits as ParamEdits
 
 class Algorithm(ABC):
@@ -340,3 +340,12 @@ class Algorithm(ABC):
             if edit_klass not in [*ParamEdits]:
                 return True
         return False
+
+    def create_all_default_edits_for_one_chrm(self):
+        new_edits = list()
+        for target_file, contents in self.program.contents.items():
+            if target_file.endswith('.params') == False:
+                continue
+            for param_id, value in contents['current'].items():
+                new_edits.append( ParamSetting.create_with_input_value(target_file, param_id, value) )
+        return new_edits
