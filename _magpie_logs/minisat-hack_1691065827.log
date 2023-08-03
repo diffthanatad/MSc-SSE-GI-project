@@ -1,0 +1,435 @@
+2023-08-03 13:30:31,928	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_6.sh
+run_timeout = 1561
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-03 13:30:31,930	[INFO]	==== WARMUP ====
+2023-08-03 13:48:21,328	[INFO]	WARM    SUCCESS               1805152738306           
+2023-08-03 13:48:21,328	[INFO]	INITIAL SUCCESS               1805152738306           
+2023-08-03 13:48:21,329	[INFO]	==== START: ValidTest ====
+2023-08-03 13:48:21,693	[DEBUG]	CLEAN_PATCH: StmtReplacement(('core/Solver.cc.xml', 'stmt', 419), ('core/Solver.cc.xml', 'stmt', 57)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 307), ('core/Solver.cc.xml', 'stmt', 385)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 40)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 90)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 25)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 322), ('core/Solver.cc.xml', 'stmt', 21)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 335)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 178)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 294)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 473)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 469)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 116)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 232)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 424)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 8), ('core/Solver.cc.xml', 'stmt', 106)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 193), ('core/Solver.cc.xml', 'stmt', 2))
+2023-08-03 13:48:21,693	[DEBUG]	CLEAN_SIZE: 16 (was 16)
+2023-08-03 14:06:06,239	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 419), ('core/Solver.cc.xml', 'stmt', 57)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 307), ('core/Solver.cc.xml', 'stmt', 385)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 40)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 90)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 25)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 322), ('core/Solver.cc.xml', 'stmt', 21)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 335)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 178)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 294)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 473)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 469)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 116)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 232)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 424)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 8), ('core/Solver.cc.xml', 'stmt', 106)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 193), ('core/Solver.cc.xml', 'stmt', 2))
+2023-08-03 14:06:06,240	[INFO]	1       SUCCESS              *1788574334933 (99.08%) [16 edit(s)] 
+2023-08-03 14:06:06,263	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -137,7 +137,8 @@
+ Var Solver::newVar(bool sign, bool dvar)
+ {
+     int v = nVars();
+-    watches  .init(mkLit(v, false));
++    
++    int i, j, l;
+     watches  .init(mkLit(v, true ));
+     assigns  .push(l_Undef);
+     vardata  .push(mkVarData(CRef_Undef, 0));
+@@ -160,7 +161,7 @@
+ }/*auto*/
+ 
+     // Check if clause is satisfied and remove false/duplicate literals:
+-    sort(ps);
++    
+ 
+     /*vec<Lit>    oc;
+     oc.clear();*/
+@@ -275,7 +276,7 @@
+             Var      x  = var(trail[c]);
+             assigns [x] = l_Undef;
+             if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())/*auto*/{
+-                polarity[x] = sign(trail[c]);
++                
+ }/*auto*/
+             insertVarOrder(x); }
+         qhead = trail_lim[level];
+@@ -347,7 +348,7 @@
+ 
+         if (c.learnt() && c.mark() != 3){
+             LBD(c);
+-            c.mark(L < LBD_cut ? 3 : 2);
++            
+             if (L < LBD_cut){
+                 lF.push(confl);
+                 core_added++;
+@@ -459,7 +460,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -495,7 +496,7 @@
+ |________________________________________________________________________________________________@*/
+ void Solver::analyzeFinal(Lit p, vec<Lit>& out_conflict)
+ {
+-    out_conflict.clear();
++    static const char* _cat = "CORE";
+     out_conflict.push(p);
+ 
+     if (decisionLevel() == 0)/*auto*/{
+@@ -571,7 +572,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -712,7 +713,7 @@
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+-    checkGarbage();
++    
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+@@ -748,7 +749,7 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
++            model.clear(); conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+                 var_decay += 0.01;
+ }/*auto*/
+@@ -768,7 +769,7 @@
+ 
+             if (!luby_restart){
+                 gS += L;
+-                PUSH(LQ, L, 50, lS);
++                LBD_cut = (int32_t)opt_lbd_cut;
+             }
+ 
+             if (learnt_clause.size() == 1){
+@@ -797,21 +798,7 @@
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+-            if (conflicts % 5000 == 0){
+-                //learntsize_adjust_confl *= learntsize_adjust_inc;
+-                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+-                //max_learnts             *= learntsize_inc;
+-
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
+-            }
++            
+ 
+         }else{
+             // NO CONFLICT
+@@ -994,7 +981,7 @@
+         map.growTo(x+1, -1);
+         map[x] = max++;
+     }
+-    return map[x];
++    return true;
+ }
+ 
+ 
+@@ -1005,7 +992,7 @@
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+         if (value(c[i]) != l_False)/*auto*/{
+-            fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
++            
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
+@@ -1109,7 +1096,7 @@
+     // All learnt:
+     //
+     for (int i = 0; i < learnts.size(); i++)/*auto*/{
+-        ca.reloc(learnts[i], to);
++        
+ }/*auto*/
+ 
+     // All original:
+@@ -1126,7 +1113,7 @@
+     // is not precise but should avoid some unnecessary reallocations for the new region:
+     ClauseAllocator to(ca.size() - ca.wasted()); 
+ 
+-    relocAll(to);
++    
+     if (verbosity >= 2)/*auto*/{
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+
+2023-08-03 14:06:06,285	[INFO]	==== END ====
+2023-08-03 14:06:06,285	[INFO]	Reason: validation end
+2023-08-03 14:06:06,285	[INFO]	
+2023-08-03 14:06:06,285	[INFO]	==== REPORT ====
+2023-08-03 14:06:06,285	[INFO]	Termination: validation end
+2023-08-03 14:06:06,285	[INFO]	Log file: /cs/student/projects1/sse/2022/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1691065827.log
+2023-08-03 14:06:06,307	[INFO]	Patch file: _magpie_logs/minisat-hack_1691065827.patch
+2023-08-03 14:06:06,307	[INFO]	Diff file: _magpie_logs/minisat-hack_1691065827.diff
+2023-08-03 14:06:06,307	[INFO]	Best fitness: 1788574334933
+2023-08-03 14:06:06,307	[INFO]	Best patch: StmtReplacement(('core/Solver.cc.xml', 'stmt', 419), ('core/Solver.cc.xml', 'stmt', 57)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 307), ('core/Solver.cc.xml', 'stmt', 385)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 40)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 90)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 25)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 322), ('core/Solver.cc.xml', 'stmt', 21)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 335)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 178)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 294)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 473)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 469)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 116)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 232)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 424)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 8), ('core/Solver.cc.xml', 'stmt', 106)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 193), ('core/Solver.cc.xml', 'stmt', 2))
+2023-08-03 14:06:06,308	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -137,7 +137,8 @@
+ Var Solver::newVar(bool sign, bool dvar)
+ {
+     int v = nVars();
+-    watches  .init(mkLit(v, false));
++    
++    int i, j, l;
+     watches  .init(mkLit(v, true ));
+     assigns  .push(l_Undef);
+     vardata  .push(mkVarData(CRef_Undef, 0));
+@@ -160,7 +161,7 @@
+ }/*auto*/
+ 
+     // Check if clause is satisfied and remove false/duplicate literals:
+-    sort(ps);
++    
+ 
+     /*vec<Lit>    oc;
+     oc.clear();*/
+@@ -275,7 +276,7 @@
+             Var      x  = var(trail[c]);
+             assigns [x] = l_Undef;
+             if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())/*auto*/{
+-                polarity[x] = sign(trail[c]);
++                
+ }/*auto*/
+             insertVarOrder(x); }
+         qhead = trail_lim[level];
+@@ -347,7 +348,7 @@
+ 
+         if (c.learnt() && c.mark() != 3){
+             LBD(c);
+-            c.mark(L < LBD_cut ? 3 : 2);
++            
+             if (L < LBD_cut){
+                 lF.push(confl);
+                 core_added++;
+@@ -459,7 +460,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -495,7 +496,7 @@
+ |________________________________________________________________________________________________@*/
+ void Solver::analyzeFinal(Lit p, vec<Lit>& out_conflict)
+ {
+-    out_conflict.clear();
++    static const char* _cat = "CORE";
+     out_conflict.push(p);
+ 
+     if (decisionLevel() == 0)/*auto*/{
+@@ -571,7 +572,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -712,7 +713,7 @@
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+-    checkGarbage();
++    
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+@@ -748,7 +749,7 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
++            model.clear(); conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+                 var_decay += 0.01;
+ }/*auto*/
+@@ -768,7 +769,7 @@
+ 
+             if (!luby_restart){
+                 gS += L;
+-                PUSH(LQ, L, 50, lS);
++                LBD_cut = (int32_t)opt_lbd_cut;
+             }
+ 
+             if (learnt_clause.size() == 1){
+@@ -797,21 +798,7 @@
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+-            if (conflicts % 5000 == 0){
+-                //learntsize_adjust_confl *= learntsize_adjust_inc;
+-                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+-                //max_learnts             *= learntsize_inc;
+-
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
+-            }
++            
+ 
+         }else{
+             // NO CONFLICT
+@@ -994,7 +981,7 @@
+         map.growTo(x+1, -1);
+         map[x] = max++;
+     }
+-    return map[x];
++    return true;
+ }
+ 
+ 
+@@ -1005,7 +992,7 @@
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+         if (value(c[i]) != l_False)/*auto*/{
+-            fprintf(f, "%s%d ", sign(c[i]) ? "-" : "", mapVar(var(c[i]), map, max)+1);
++            
+ }/*auto*/
+ }/*auto*/
+     fprintf(f, "0\n");
+@@ -1109,7 +1096,7 @@
+     // All learnt:
+     //
+     for (int i = 0; i < learnts.size(); i++)/*auto*/{
+-        ca.reloc(learnts[i], to);
++        
+ }/*auto*/
+ 
+     // All original:
+@@ -1126,7 +1113,7 @@
+     // is not precise but should avoid some unnecessary reallocations for the new region:
+     ClauseAllocator to(ca.size() - ca.wasted()); 
+ 
+-    relocAll(to);
++    
+     if (verbosity >= 2)/*auto*/{
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+

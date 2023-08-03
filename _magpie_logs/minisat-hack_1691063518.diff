@@ -1,0 +1,68 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -472,6 +472,7 @@
+                 }else{
+                     for (int j = top; j < analyze_toclear.size(); j++)/*auto*/{
+                         seen[var(analyze_toclear[j])] = 0;
++                        return ok = false;
+ }/*auto*/
+                     analyze_toclear.shrink(analyze_toclear.size() - top);
+                     return false;
+@@ -715,7 +716,7 @@
+     checkGarbage();
+     rebuildOrderHeap();
+ 
+-    simpDB_assigns = nAssigns();
++    varDecayActivity();
+     simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+@@ -748,7 +749,7 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
++            int     i, j; conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+                 var_decay += 0.01;
+ }/*auto*/
+@@ -898,7 +899,7 @@
+     for (int i = 0; i <= decisionLevel(); i++){
+         int beg = i == 0 ? 0 : trail_lim[i - 1];
+         int end = i == decisionLevel() ? trail.size() : trail_lim[i];
+-        progress += pow(F, i) * (end - beg);
++        static DoubleOption  opt_random_var_freq   (_cat, "rnd-freq",    "The frequency with which the decision heuristic tries to choose a random variable", 0, DoubleRange(0, true, 1, true));
+     }
+ 
+     return progress / nVars();
+@@ -1043,6 +1044,7 @@
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         if (!satisfied(ca[clauses[i]])){
++            static const char* _cat = "CORE";
+             Clause& c = ca[clauses[i]];
+             for (int j = 0; j < c.size(); j++)/*auto*/{
+                 if (value(c[j]) != l_False)/*auto*/{
+--- before: minisat.params
++++ after: minisat.params
+@@ -6,12 +6,12 @@
+ var-decay := 0.8
+ cla-decay := 0.999
+ rnd-freq := 0.0
+-ccmin-mode := '2'
++ccmin-mode := '1'
+ phase-saving := '2'
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+-verb := '1'
++verb := '0'
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+@@ -19,4 +19,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.603297055615674

@@ -1,0 +1,125 @@
+2023-08-03 13:32:53,854	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_9.sh
+run_timeout = 1593
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-03 13:32:53,855	[INFO]	==== WARMUP ====
+2023-08-03 13:51:11,795	[INFO]	WARM    SUCCESS               1880710032045           
+2023-08-03 13:51:11,796	[INFO]	INITIAL SUCCESS               1880710032045           
+2023-08-03 13:51:11,796	[INFO]	==== START: ValidTest ====
+2023-08-03 13:51:12,121	[DEBUG]	CLEAN_PATCH: ParamSetting(('minisat.params', 'rcheck'), 'True') | StmtReplacement(('core/Solver.cc.xml', 'stmt', 342), ('core/Solver.cc.xml', 'stmt', 264)) | ParamSetting(('minisat.params', 'grow'), -270) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 449)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 266), ('core/Solver.cc.xml', 'stmt', 178)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 210), ('core/Solver.cc.xml', 'stmt', 219)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 257)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 438)) | ParamSetting(('minisat.params', 'gc-frac'), 0.9066178454117769) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 407), ('core/Solver.cc.xml', 'stmt', 348)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 178)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 149), ('core/Solver.cc.xml', 'stmt', 163)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 605), ('core/Solver.cc.xml', 'stmt', 288)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 352))
+2023-08-03 13:51:12,121	[DEBUG]	CLEAN_SIZE: 14 (was 14)
+2023-08-03 13:52:58,680	[DEBUG]	ParamSetting(('minisat.params', 'rcheck'), 'True') | StmtReplacement(('core/Solver.cc.xml', 'stmt', 342), ('core/Solver.cc.xml', 'stmt', 264)) | ParamSetting(('minisat.params', 'grow'), -270) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 449)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 266), ('core/Solver.cc.xml', 'stmt', 178)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 210), ('core/Solver.cc.xml', 'stmt', 219)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 257)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 438)) | ParamSetting(('minisat.params', 'gc-frac'), 0.9066178454117769) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 407), ('core/Solver.cc.xml', 'stmt', 348)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 178)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 149), ('core/Solver.cc.xml', 'stmt', 163)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 605), ('core/Solver.cc.xml', 'stmt', 288)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 352))
+2023-08-03 13:52:58,680	[INFO]	1       RUN_CODE_ERROR        None  [14 edit(s)]      
+2023-08-03 13:52:58,681	[INFO]	==== END ====
+2023-08-03 13:52:58,681	[INFO]	Reason: validation end
+2023-08-03 13:52:58,681	[INFO]	
+2023-08-03 13:52:58,681	[INFO]	==== REPORT ====
+2023-08-03 13:52:58,681	[INFO]	Termination: validation end
+2023-08-03 13:52:58,681	[INFO]	Log file: /cs/student/projects1/sse/2022/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1691065970.log
