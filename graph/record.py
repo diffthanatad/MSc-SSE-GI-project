@@ -12,19 +12,23 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
 
     for log in LOGS:
         file = "../_magpie_logs/{log}.log".format(log=log)
+        
+        # k-th, strategy, log, start time, end time, original fitness, best fitness
+        row = ["_" for i in range (7)]
+
         with open(file, "r") as file:
             # check that both patch and diff file exist for this log.
             if not os.path.exists("../_magpie_logs/{log}.patch".format(log=log)) or not os.path.exists("../_magpie_logs/{log}.diff".format(log=log)):
                 MISSING_FILES.append(log)
-                continue
+                # continue
 
             # check for empty patch
-            if os.stat("../_magpie_logs/{log}.diff".format(log=log)).st_size == 0 or os.stat("../_magpie_logs/{log}.patch".format(log=log)).st_size == 0:
-                EMPTY_PATCH.append(log)
-                log += " ***"
-            
-            # k-th, strategy, log, start time, end time, original fitness, best fitness
-            row = ["_" for i in range (7)]
+            try:
+                if os.stat("../_magpie_logs/{log}.diff".format(log=log)).st_size == 0 or os.stat("../_magpie_logs/{log}.patch".format(log=log)).st_size == 0:
+                    EMPTY_PATCH.append(log)
+                    log += " ***"
+            except:
+                pass
             
             # file name
             row[2] = log
@@ -34,7 +38,7 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
             row[3] = "{date} {time}".format(date=first_line[0], time=first_line[1][:-4:])
 
             for line in file:
-                contents = line.split()
+                contents = line.split()                    
 
                 if len(contents) == 3 and contents[0] == "algorithm":
                     if (contents[2] == "FirstImprovement" or contents[2] == "GeneticAlgorithm") and NEXT_PHASE != "validate":
@@ -66,6 +70,7 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
                 
                 # retrieve best fitness
                 elif (len(contents) == 6 and contents[3] == "Best" and contents[4] == "fitness:"):
+                    print(contents)
                     row[6] = int(contents[5])
                 
                 # retrieve original fitness
@@ -75,7 +80,8 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
                 # end date time
                 elif len(contents) == 4 and contents[3] == "Diff:":
                     row[4] = "{date} {time}".format(date=contents[0], time=contents[1][:-4:])
-                    break
+                elif len(contents) == 6 and contents[2] == "[INFO]" and contents[3] == "Log" and contents[4] == "file:":
+                    row[4] = "{date} {time}".format(date=contents[0], time=contents[1][:-4:])
             
             # sort into order by search strategy then by k-fold.
             if (row[1] == 'AC'):
@@ -85,6 +91,9 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
             else:
                 records[int(row[0]) + 19] = row
     
+    # for i in records:
+    #     print(i)
+
     while ('_' in records):
         records.remove('_')
 
@@ -129,7 +138,7 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
     np.savetxt("AC_GI_LOG.csv", AC_GI_LOG, delimiter=",", fmt='% s')
 
     # for validation phase. creating scripts.
-    ALL_SCRIPTS = AC_SCRIPT + GI_SCRIPT + AC_GI_SCRIPT
+    ALL_SCRIPTS = AC_SCRIPT + AC_GI_SCRIPT + GI_SCRIPT 
     with open('g_all.sh','w') as file:
         for i in range(len(ALL_SCRIPTS)):
             file.write(ALL_SCRIPTS[i] + "\n")
@@ -163,6 +172,27 @@ LOGS = [
     # "minisat-hack_1690940942",
     # "minisat-hack_1690941012",
     # "minisat-hack_1690941056",
+    # "minisat-hack_1691009877",
+    # "minisat-hack_1691009891",
+    # "minisat-hack_1691009894",
+    # "minisat-hack_1691009898",
+    # "minisat-hack_1691009902",
+    # "minisat-hack_1691018823",
+    # "minisat-hack_1691021225",
+    # "minisat-hack_1691021233",
+    # "minisat-hack_1691021236",
+    # "minisat-hack_1691021245",
+    # "minisat-hack_1691021277",
+    # "minisat-hack_1691030213",
+    # "minisat-hack_1691032545",
+    # "minisat-hack_1691032560",
+    # "minisat-hack_1691032564",
+    # "minisat-hack_1691032583",
+    # "minisat-hack_1691032620",
+    # "minisat-hack_1691041556",
+    # "minisat-hack_1691043918",
+    # "minisat-hack_1691043948",
+
     "minisat-hack_1690989310",
     "minisat-hack_1690989316",
     "minisat-hack_1690989325",
@@ -173,6 +203,26 @@ LOGS = [
     "minisat-hack_1690991234",
     "minisat-hack_1690991343",
     "minisat-hack_1690991652",
+    "minisat-hack_1691061439",
+    "minisat-hack_1691061443",
+    "minisat-hack_1691061458",
+    "minisat-hack_1691061462",
+    "minisat-hack_1691061466",
+    "minisat-hack_1691061469",
+    "minisat-hack_1691063518",
+    "minisat-hack_1691063519",
+    "minisat-hack_1691063658",
+    "minisat-hack_1691063752",
+    "minisat-hack_1691064063",
+    "minisat-hack_1691064153",
+    "minisat-hack_1691065598",
+    "minisat-hack_1691065648",
+    "minisat-hack_1691065827",
+    "minisat-hack_1691065828",
+    "minisat-hack_1691065970",
+    "minisat-hack_1691066447",
+    "minisat-hack_1691067083",
+    "minisat-hack_1691067179",
 ]
 
 main(LOGS, NEXT_PHASE="test", BENCHMARK="minisat")

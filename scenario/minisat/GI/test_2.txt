@@ -20,4 +20,6 @@ warmup = 1
 algorithm = ValidTest
 
 possible_edits =
-    ParamSetting
+    StmtReplacement
+    StmtInsertion
+    StmtDeletion
