@@ -1,0 +1,99 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -143,6 +143,7 @@
+     vardata  .push(mkVarData(CRef_Undef, 0));
+     //activity .push(0);
+     activity .push(rnd_init_act ? drand(random_seed) * 0.00001 : 0);
++    static DoubleOption opt_R                  (_cat, "R-val", "R", 1.4, DoubleRange(1.0, true, 2.5, true));
+     seen     .push(0);
+     m        .push(0);
+     polarity .push(sign);
+@@ -229,7 +230,7 @@
+         remove(watches[~c[1]], Watcher(cr, c[0]));
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
+-        watches.smudge(~c[0]);
++        
+         watches.smudge(~c[1]);
+     }
+ 
+@@ -262,6 +263,7 @@
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+         if (value(c[i]) == l_True)/*auto*/{
+             return true;
++            assigns  .push(l_Undef);
+ }/*auto*/
+ }/*auto*/
+     return false; }
+@@ -342,7 +344,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -459,7 +461,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -646,7 +648,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    
+ }
+ 
+ 
+@@ -708,14 +710,14 @@
+ 
+     // Remove satisfied clauses:
+     removeSatisfied(learnts);
+-    removeSatisfied(lF);
++    
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+-    checkGarbage();
++    
+     rebuildOrderHeap();
+ 
+-    simpDB_assigns = nAssigns();
++    
+     simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+@@ -938,13 +940,12 @@
+ {
+     model.clear();
+     conflict.clear();
+-    if (!ok)/*auto*/{ return l_False;
+-}/*auto*/
++    polarity .push(sign);
+ 
+     solves++;
+ 
+     max_learnts               = nClauses() * learntsize_factor;
+-    learntsize_adjust_confl   = learntsize_adjust_start_confl;
++    
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;
+ 
+@@ -1045,9 +1046,7 @@
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+             for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
++                
+ }/*auto*/
+         }
+ }/*auto*/
