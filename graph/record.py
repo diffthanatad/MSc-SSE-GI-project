@@ -70,7 +70,6 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
                 
                 # retrieve best fitness
                 elif (len(contents) == 6 and contents[3] == "Best" and contents[4] == "fitness:"):
-                    print(contents)
                     row[6] = int(contents[5])
                 
                 # retrieve original fitness
@@ -94,8 +93,12 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
     # for i in records:
     #     print(i)
 
-    while ('_' in records):
-        records.remove('_')
+    for i in range(30):
+        if records[i] == "_":
+            records[i] = ["_" for i in range (7)]
+    
+    # while ('_' in records):
+    #     records.remove('_')
 
     AC_LOG    = ["_" for i in range(10)]
     GI_LOG    = ["_" for i in range(10)]
@@ -162,7 +165,7 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
 
 
 LOGS = [
-    # "minisat-hack_1690929578",
+    # "minisat-hack_1690929578", ## FirstImprovement Train
     # "minisat-hack_1690929608",
     # "minisat-hack_1690929633",
     # "minisat-hack_1690929637",
@@ -193,36 +196,114 @@ LOGS = [
     # "minisat-hack_1691043918",
     # "minisat-hack_1691043948",
 
-    "minisat-hack_1690989310",
-    "minisat-hack_1690989316",
-    "minisat-hack_1690989325",
-    "minisat-hack_1690989329",
-    "minisat-hack_1690989335",
-    "minisat-hack_1690989341",
-    "minisat-hack_1690991141",
-    "minisat-hack_1690991234",
-    "minisat-hack_1690991343",
-    "minisat-hack_1690991652",
-    "minisat-hack_1691061439",
-    "minisat-hack_1691061443",
-    "minisat-hack_1691061458",
-    "minisat-hack_1691061462",
-    "minisat-hack_1691061466",
-    "minisat-hack_1691061469",
-    "minisat-hack_1691063518",
-    "minisat-hack_1691063519",
-    "minisat-hack_1691063658",
-    "minisat-hack_1691063752",
-    "minisat-hack_1691064063",
-    "minisat-hack_1691064153",
-    "minisat-hack_1691065598",
-    "minisat-hack_1691065648",
-    "minisat-hack_1691065827",
-    "minisat-hack_1691065828",
-    "minisat-hack_1691065970",
-    "minisat-hack_1691066447",
-    "minisat-hack_1691067083",
-    "minisat-hack_1691067179",
+    # "minisat-hack_1690989310", ## FirstImprovement Validate
+    # "minisat-hack_1690989316",
+    # "minisat-hack_1690989325",
+    # "minisat-hack_1690989329",
+    # "minisat-hack_1690989335",
+    # "minisat-hack_1690989341",
+    # "minisat-hack_1690991141",
+    # "minisat-hack_1690991234",
+    # "minisat-hack_1690991343",
+    # "minisat-hack_1690991652",
+    # "minisat-hack_1691061439",
+    # "minisat-hack_1691061443",
+    # "minisat-hack_1691061458",
+    # "minisat-hack_1691061462",
+    # "minisat-hack_1691061466",
+    # "minisat-hack_1691061469",
+    # "minisat-hack_1691063518",
+    # "minisat-hack_1691063519",
+    # "minisat-hack_1691063658",
+    # "minisat-hack_1691063752",
+    # "minisat-hack_1691064063",
+    # "minisat-hack_1691064153",
+    # "minisat-hack_1691065598",
+    # "minisat-hack_1691065648",
+    # "minisat-hack_1691065827",
+    # "minisat-hack_1691065828",
+    # "minisat-hack_1691065970",
+    # "minisat-hack_1691066447",
+    # "minisat-hack_1691067083",
+    # "minisat-hack_1691067179",
+
+    # "minisat-hack_1691080228", ## FirstImprovement Test
+    # "minisat-hack_1691080293",
+    # "minisat-hack_1691080391",
+    # "minisat-hack_1691080497",
+    # "minisat-hack_1691080555",
+    # "minisat-hack_1691080607",
+    # "minisat-hack_1691089649",
+    # "minisat-hack_1691090021",
+    # "minisat-hack_1691090256",
+    # "minisat-hack_1691090541",
+    # "minisat-hack_1691090562",
+    # "minisat-hack_1691090930",
+    # "minisat-hack_1691099334",
+    # "minisat-hack_1691099942",
+    # "minisat-hack_1691100036",
+
+    # "minisat-hack_1691133962", ## GeneticAlgorithm Train
+    # "minisat-hack_1691133979",
+    # "minisat-hack_1691133995",
+    # "minisat-hack_1691134014",
+    # "minisat-hack_1691134031",
+    # "minisat-hack_1691134045",
+    # "minisat-hack_1691145311",
+    # "minisat-hack_1691145321",
+    # "minisat-hack_1691145361",
+    # "minisat-hack_1691145365",
+    # "minisat-hack_1691145378",
+    # "minisat-hack_1691145439",
+    # "minisat-hack_1691156638",
+    # "minisat-hack_1691156684",
+    # "minisat-hack_1691156713",
+    # "minisat-hack_1691156724",
+    # "minisat-hack_1691156730",
+    # "minisat-hack_1691156771",
+    # "minisat-hack_1691167978",
+    # "minisat-hack_1691168050",
+    # "minisat-hack_1691168069",
+    # "minisat-hack_1691179300",
+    # "minisat-hack_1691179373",
+    # "minisat-hack_1691179403",
+    # "minisat-hack_1691179664",
+    # "minisat-hack_1691179692",
+    # "minisat-hack_1691179737",
+    # "minisat-hack_1691221367",
+    # "minisat-hack_1691221371",
+    # "minisat-hack_1691221374",
+
+    "minisat-hack_1691241709",  ## GeneticAlgorithm Validate
+    "minisat-hack_1691241722",
+    "minisat-hack_1691241747",
+    "minisat-hack_1691241757",
+    "minisat-hack_1691241765",
+    "minisat-hack_1691241773",
+    "minisat-hack_1691243717",
+    "minisat-hack_1691243823",
+    "minisat-hack_1691243828",
+    "minisat-hack_1691244018",
+    "minisat-hack_1691244020",
+    "minisat-hack_1691244172",
+    "minisat-hack_1691245856",
+    "minisat-hack_1691245938",
+    "minisat-hack_1691246082",
+    "minisat-hack_1691246140",
+    "minisat-hack_1691246143",
+    "minisat-hack_1691246190",
+    "minisat-hack_1691247867",
+    "minisat-hack_1691248034",
+    "minisat-hack_1691248118",
+    "minisat-hack_1691248257",
+    "minisat-hack_1691248333",
+    "minisat-hack_1691248597",
+    "minisat-hack_1691249887",
+    "minisat-hack_1691250331",
+    "minisat-hack_1691250344",
+    "minisat-hack_1691250472",
+    "minisat-hack_1691250703",
+    "minisat-hack_1691251050",
 ]
 
 main(LOGS, NEXT_PHASE="test", BENCHMARK="minisat")
