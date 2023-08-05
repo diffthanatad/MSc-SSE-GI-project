@@ -1,0 +1,58 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -842,7 +842,9 @@
+                     if (!luby_restart){
+                         core_added = 0;
+                         K = 1;
+-                        lS = 0, LQ.clear();
++                        if (verbosity >= 1)/*auto*/{
++        printf("c ===============================================================================\n");
++}/*auto*/
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
+@@ -1045,9 +1047,7 @@
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+             for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
++                static DoubleOption opt_K                  (_cat, "K-val", "K", 0.8, DoubleRange(0.5, true, 1, true));
+ }/*auto*/
+         }
+ }/*auto*/
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,22 +1,22 @@
+ lbd-cut := 5
+-lbd-cut-max := 10
+-cp-increase := 15000
+-core-tolerance := 0.02
+-R-val := 1.4
++lbd-cut-max := 6
++cp-increase := 5267
++core-tolerance := 0.5987605192927191
++R-val := 1.0159511058309498
+ var-decay := 0.8
+-cla-decay := 0.999
++cla-decay := 0.39313259488278
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
+-verb := '1'
++gc-frac := 0.9481155474888999
++verb := '0'
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
+-simp-gc-frac := 0.5
++sub-lim := 88
++simp-gc-frac := 0.5888621855650727

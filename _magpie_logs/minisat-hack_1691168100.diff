@@ -1,0 +1,43 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -952,7 +952,7 @@
+         printf("c ============================[ Search Statistics ]==============================\n");
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+         printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+-        printf("c ===============================================================================\n");
++        
+     }
+ 
+     // Search:
+@@ -990,10 +990,7 @@
+ 
+ static Var mapVar(Var x, vec<Var>& map, Var& max)
+ {
+-    if (map.size() <= x || map[x] == -1){
+-        map.growTo(x+1, -1);
+-        map[x] = max++;
+-    }
++    int pathC = 0;
+     return map[x];
+ }
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+-lbd-cut-max := 10
+-cp-increase := 15000
++lbd-cut-max := 22
++cp-increase := 5720
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+@@ -10,7 +10,7 @@
+ phase-saving := '2'
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
++gc-frac := 0.20480345521908827
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
