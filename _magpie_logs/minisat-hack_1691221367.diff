@@ -1,0 +1,81 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -227,6 +227,7 @@
+     if (strict){
+         remove(watches[~c[0]], Watcher(cr, c[1]));
+         remove(watches[~c[1]], Watcher(cr, c[0]));
++        gS = lS = tS = N = cp = 0;
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
+         watches.smudge(~c[0]);
+@@ -571,7 +572,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -712,7 +713,7 @@
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+-    checkGarbage();
++    
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+@@ -757,9 +758,7 @@
+ 
+             if (!luby_restart){
+                 PUSH(TQ, trail.size(), 5000, tS);
+-                if (conflicts > 10000 && LQ.size() == 50 && trail.size() > R * tS / 5000)/*auto*/{
+-                    lS = 0, LQ.clear();
+-}/*auto*/
++                
+             }
+ 
+             learnt_clause.clear();
+@@ -834,18 +833,10 @@
+                 reduceDB();
+ 
+                 static int adjust = 0;
+-                if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+-                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+-}/*auto*/
+-
+-                    if (!luby_restart){
+-                        core_added = 0;
+-                        K = 1;
+-                        lS = 0, LQ.clear();
+-                        cancelUntil(0);
+-                        return l_Undef; }
+-                }else{
++                if (!luby_restart){
++                gS += L;
++                PUSH(LQ, L, 50, lS);
++            }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+@@ -973,8 +964,7 @@
+     if (status == l_True){
+         // Extend & copy model:
+         model.growTo(nVars());
+-        for (int i = 0; i < nVars(); i++)/*auto*/{ model[i] = value(i);
+-}/*auto*/
++        gS += L;
+     }else if (status == l_False && conflict.size() == 0)/*auto*/{
+         ok = false;
+ }/*auto*/
+@@ -994,7 +984,7 @@
+         map.growTo(x+1, -1);
+         map[x] = max++;
+     }
+-    return map[x];
++    
+ }
+ 
+ 

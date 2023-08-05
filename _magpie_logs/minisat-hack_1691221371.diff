@@ -1,0 +1,23 @@
+--- before: minisat.params
++++ after: minisat.params
+@@ -4,7 +4,7 @@
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+-cla-decay := 0.999
++cla-decay := 0.9356895656672451
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+@@ -12,9 +12,9 @@
+ luby := 0
+ gc-frac := 0.2
+ verb := '1'
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+-rcheck := 'False'
++rcheck := 'True'
+ elim := 'True'
+ grow := 0
+ cl-lim := 20

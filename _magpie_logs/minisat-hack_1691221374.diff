@@ -1,0 +1,68 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -506,20 +506,7 @@
+ 
+     for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+         Var x = var(trail[i]);
+-        if (seen[x]){
+-            if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
+-                out_conflict.push(~trail[i]);
+-            }else{
+-                Clause& c = ca[reason(x)];
+-                for (int j = 1; j < c.size(); j++)/*auto*/{
+-                    if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
+-}/*auto*/
+-}/*auto*/
+-            }
+-            seen[x] = 0;
+-        }
++        
+     }
+ 
+     seen[var(p)] = 0;
+@@ -594,9 +581,7 @@
+                 confl = cr;
+                 qhead = trail.size();
+                 // Copy the remaining watches:
+-                while (i < end)/*auto*/{
+-                    *j++ = *i++;
+-}/*auto*/
++                CRef     cr        = i->cref;
+             }else/*auto*/{
+                 uncheckedEnqueue(first, cr);
+ }/*auto*/
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,22 +1,24 @@
+ lbd-cut := 5
+-lbd-cut-max := 10
++lbd-cut-max := 11
+ cp-increase := 15000
+ core-tolerance := 0.02
+-R-val := 1.4
++K-val := 0.8
+ var-decay := 0.8
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+ rnd-init := 'False'
+-luby := 0
+-gc-frac := 0.2
+-verb := '1'
++luby := 1
++rfirst := 100.0
++rinc := 2.0
++gc-frac := 0.5399371737013159
++verb := '2'
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'True'
+ grow := 0
+-cl-lim := 20
++cl-lim := 217
+ sub-lim := 1000
+ simp-gc-frac := 0.5
