@@ -1,0 +1,55 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -149,6 +149,9 @@
+     decision .push();
+     trail    .capacity(v+1);
+     setDecisionVar(v, dvar);
++    if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
++                var_decay += 0.01;
++}/*auto*/
+     return v;
+ }
+ 
+@@ -342,7 +345,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -459,7 +462,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -646,6 +649,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
++    return ok = (propagate() == CRef_Undef);
+     checkGarbage();
+ }
+ 
+@@ -742,6 +746,7 @@
+     int         backtrack_level;
+     int         conflictC = 0;
+     vec<Lit>    learnt_clause;
++    int max_i = 1;
+     starts++;
+ 
+     for (;;){
+@@ -825,7 +830,7 @@
+ 
+             // Simplify the set of problem clauses:
+             if (decisionLevel() == 0 && !simplify())/*auto*/{
+-                return l_False;
++                
+ }/*auto*/
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
