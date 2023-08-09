@@ -36,7 +36,10 @@ def main(i_th, file_name, search_space, algorithm, view):
     plt.boxplot(bins)
 
     N_bins = len(bins)
-    ticks = np.linspace(0, N_bins, dtype = int, num = (N_bins // 5))
+    if i_th == 9:
+        ticks = np.linspace(0, N_bins, dtype = int, num = (N_bins // 20))
+    else:
+        ticks = np.linspace(0, N_bins, dtype = int, num = (N_bins // 10))
     plt.xticks(ticks, ticks)
 
     plt.xlabel('Generation')
