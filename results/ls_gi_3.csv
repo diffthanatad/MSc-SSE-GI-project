@@ -1,4 +1,4 @@
-# variant_number,timestamp,time_elapse,status,fitness,percentage,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement
+variant_number,timestamp,time_elapse,status,fitness,percentage,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement
 -1,2023-08-03 01:08:29,0,INITIAL SUCCESS,106828164078,100,0,0,0,0,0
 1,2023-08-03 01:08:33,78,RUN_CODE_ERROR,None,None,1,0,1,0,0
 2,2023-08-03 01:08:36,81,RUN_CODE_ERROR,None,None,1,0,0,0,1
