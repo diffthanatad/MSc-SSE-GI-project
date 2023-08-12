@@ -1,6 +1,8 @@
 import numpy as np
 from datetime import datetime
 
+all_patch = list()
+
 def is_equal_number_of_edit(total_edit, AC, GI):
     return int(total_edit) == (int(AC) + int(GI))
 
@@ -16,26 +18,21 @@ def main(i, file_name, search_space, algorithm):
         StmtReplacement = 0
 
         for line in file:
-            contents = line.split('|')
-            possible_edit = contents[0][32:]
-            if possible_edit.startswith('ParamSetting') or possible_edit.startswith('StmtInsertion') or possible_edit.startswith('StmtDeletion') or possible_edit.startswith('StmtReplacement'):
-                ParamSetting = 0
-                StmtInsertion = 0
-                StmtDeletion = 0
-                StmtReplacement = 0
-                edits = list()
-
-                for edit in [contents[0][32:], *contents[1::]]:
-                    temp = edit.strip()
-                    if temp.startswith('ParamSetting'):
-                        ParamSetting += 1
-                    elif temp.startswith('StmtInsertion'):
-                        StmtInsertion += 1
-                    elif temp.startswith('StmtDeletion'):
-                        StmtDeletion += 1
-                    elif temp.startswith('StmtReplacement'):
-                        StmtReplacement += 1
-                continue            
+            if line[32:].startswith('ParamSetting') or line[32:].startswith('StmtInsertion') or line[32:].startswith('StmtDeletion') or line[32:].startswith('StmtReplacement'):
+                ParamSetting = line.count('ParamSetting')
+                StmtInsertion = line.count('StmtInsertion')
+                StmtDeletion = line.count('StmtDeletion')
+                StmtReplacement = line.count('StmtReplacement')
+                continue
+            if line[24:].startswith('[INFO]') and line[31:].startswith('Best patch:') and (
+                line[43:].startswith('ParamSetting') or line[43:].startswith('StmtInsertion') or line[43:].startswith('StmtDeletion') or line[43:].startswith('StmtReplacement')
+            ):
+                ParamSetting = line.count('ParamSetting')
+                StmtInsertion = line.count('StmtInsertion')
+                StmtDeletion = line.count('StmtDeletion')
+                StmtReplacement = line.count('StmtReplacement')
+                all_patch.append([algorithm, search_space, i, ParamSetting, StmtInsertion, StmtDeletion, StmtReplacement])
+                continue
             
             contents = line.split()
             if len(contents) == 6 and contents[3] == "INITIAL" and contents[4] == "SUCCESS":
@@ -82,11 +79,6 @@ def main(i, file_name, search_space, algorithm):
                 percent = None
                 edits = contents[6][1:]
 
-                # print(contents)
-                # print(edits, '|', ParamSetting, StmtInsertion, StmtDeletion, StmtReplacement)
-                # print()
-                # print()
-
                 if not is_equal_number_of_edit(edits, ParamSetting, (StmtInsertion + StmtDeletion + StmtReplacement)):
                     print("NOT EQUAL:", contents)
                     print(edits, '|', ParamSetting, StmtInsertion, StmtDeletion, StmtReplacement)
@@ -100,6 +92,8 @@ def main(i, file_name, search_space, algorithm):
     
     np.savetxt("../results/{}_{}_{}.csv".format(algorithm, search_space, i), rows, delimiter=",", fmt='% s', header="variant_number,timestamp,time_elapse,status,fitness,percentage,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement", comments='')
 
+# main(1, "minisat-hack_1691145361", "ac-gi", "ga")
+# print(all_patch)
 """ Genetic Algorithm """
 ga_ac_logs = [
     "minisat-hack_1691133962",
@@ -191,3 +185,5 @@ ls_gi_logs = [
 ]
 for i in range(10):
     main(i+1, ls_gi_logs[i], "gi", "ls")
+
+np.savetxt("../results/edit_analysis.csv", all_patch, delimiter=",", fmt='% s', header="algorithm, search_space, k_th,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement", comments='')
