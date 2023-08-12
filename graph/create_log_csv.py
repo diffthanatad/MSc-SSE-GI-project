@@ -31,8 +31,8 @@ def main(i, file_name, search_space, algorithm):
                 StmtInsertion = line.count('StmtInsertion')
                 StmtDeletion = line.count('StmtDeletion')
                 StmtReplacement = line.count('StmtReplacement')
-                all_patch.append([algorithm, search_space, i, (ParamSetting + StmtInsertion + StmtDeletion + StmtReplacement),ParamSetting, StmtInsertion, StmtDeletion, StmtReplacement])
-                continue
+                all_patch.append([algorithm, search_space, i, (ParamSetting + StmtInsertion + StmtDeletion + StmtReplacement),ParamSetting, StmtInsertion, StmtDeletion, StmtReplacement, rows[-1][0]])
+                break
             
             contents = line.split()
             if len(contents) == 6 and contents[3] == "INITIAL" and contents[4] == "SUCCESS":
@@ -186,4 +186,4 @@ ls_gi_logs = [
 for i in range(10):
     main(i+1, ls_gi_logs[i], "gi", "ls")
 
-np.savetxt("../results/edit_analysis.csv", all_patch, delimiter=",", fmt='% s', header="algorithm,search_space,k_th,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement", comments='')
+np.savetxt("../results/edit_analysis.csv", all_patch, delimiter=",", fmt='% s', header="algorithm,search_space,k_th,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement,gen", comments='')
