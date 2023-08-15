@@ -92,7 +92,7 @@ class GeneticAlgorithm(Algorithm):
                 
                 offsprings = list() # list[Patch]
                 temp = self.select(pop)
-                for individual in temp[:2:]:
+                for individual in temp[:self.config['elitism_size']:]:
                     offsprings.append(copy.deepcopy(individual))
                 
                 temp = self.tournament_selection(self.config['pop_size'] - self.config['elitism_size'], self.config['tournament_size'], pop)
