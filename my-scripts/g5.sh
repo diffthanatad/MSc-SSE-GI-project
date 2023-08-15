@@ -1,1 +1,5 @@
-python3 -m bin.revalidate_patch --scenario scenario/minisat/GI/test_8.txt --patch _magpie_logs/minisat-hack_1691255987.patch
+python3 -m bin.genetic_algorithm --scenario scenario/minisat/GI/train_1.txt
+python3 -m bin.genetic_algorithm --scenario scenario/minisat/GI/train_2.txt
+python3 -m bin.genetic_algorithm --scenario scenario/minisat/GI/train_3.txt
+python3 -m bin.genetic_algorithm --scenario scenario/minisat/GI/train_4.txt
+python3 -m bin.genetic_algorithm --scenario scenario/minisat/GI/train_5.txt
