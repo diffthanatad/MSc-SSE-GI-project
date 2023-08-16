@@ -7,13 +7,13 @@ path = code/sat4j
 target_files =
   org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
   sat4j.params
-fitness = perf_time
+fitness = perf_instructions
 
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
-compile_timeout = 36
+compile_timeout = 20
 run_cmd = perf stat run-sh/train_1.sh
-run_timeout = 189
+run_timeout = 74
 
 [search]
 max_time = 35970
