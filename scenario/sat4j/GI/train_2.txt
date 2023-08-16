@@ -16,6 +16,7 @@ run_cmd = perf stat run-sh/train_2.sh
 run_timeout = 61
 
 [search]
+warmup = 1
 max_time = 17610
 max_steps = 20
 

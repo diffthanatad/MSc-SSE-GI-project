@@ -16,6 +16,7 @@ run_cmd = perf stat run-sh/validate_3.sh
 run_timeout = 3885
 
 [search]
+warmup = 1
 algorithm = ValidRankingSimplify
 
 possible_edits =
