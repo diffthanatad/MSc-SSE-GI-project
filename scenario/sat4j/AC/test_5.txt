@@ -12,14 +12,11 @@ fitness = perf_instructions
 setup_cmd = ./compile.sh
 compile_cmd = ./compile.sh
 compile_timeout = 20
-run_cmd = perf stat run-sh/test.sh
+run_cmd = perf stat run-sh/test_5.sh
 run_timeout = 22239
 
 [search]
 algorithm = ValidTest
 
 possible_edits =
-  StmtReplacement
-  StmtInsertion
-  StmtDeletion
   ParamSetting
