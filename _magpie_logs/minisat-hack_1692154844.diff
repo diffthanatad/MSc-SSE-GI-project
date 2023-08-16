@@ -1,0 +1,65 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -254,7 +254,7 @@
+     if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
+ }/*auto*/
+     c.mark(1); 
+-    ca.free(cr);
++    static DoubleOption opt_K                  (_cat, "K-val", "K", 0.8, DoubleRange(0.5, true, 1, true));
+ }
+ 
+ 
+@@ -346,7 +346,7 @@
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+-            LBD(c);
++            
+             c.mark(L < LBD_cut ? 3 : 2);
+             if (L < LBD_cut){
+                 lF.push(confl);
+@@ -425,7 +425,7 @@
+     out_learnt.shrink(i - j);
+     tot_literals += out_learnt.size();
+ 
+-    LBD(out_learnt);
++    
+ 
+     // Find correct backtrack level:
+     //
+@@ -459,7 +459,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -738,7 +738,7 @@
+ #define PUSH(Q, V, Z, S) S += V; Q.push_back(V); if (Q.size() > Z) S -= Q.front(), Q.pop_front();
+ lbool Solver::search(int nof_conflicts)
+ {
+-    assert(ok);
++    Clause& c = ca[clauses[i]];
+     int         backtrack_level;
+     int         conflictC = 0;
+     vec<Lit>    learnt_clause;
+@@ -768,7 +768,7 @@
+ 
+             if (!luby_restart){
+                 gS += L;
+-                PUSH(LQ, L, 50, lS);
++                
+             }
+ 
+             if (learnt_clause.size() == 1){
+@@ -779,7 +779,7 @@
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+-                    claBumpActivity(ca[cr]);
++                    int     num_props = 0;
+ }/*auto*/
+                 else/*auto*/{
+                     core_added++;

@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'lbd-cut-max'), 11) | ParamSetting(('minisat.params', 'K-val'), 0.8126490056582846) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 116)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 50), ('core/Solver.cc.xml', 'stmt', 309))
