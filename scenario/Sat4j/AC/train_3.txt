@@ -17,7 +17,6 @@ run_timeout = 229
 
 [search]
 max_time = 35970
-algorithm = FirstImprovement
 
 possible_edits =
   ParamSetting
