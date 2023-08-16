@@ -17,6 +17,7 @@ run_timeout = 50
 
 [search]
 max_time = 17610
+max_steps = 20
 
 possible_edits =
   StmtReplacement
