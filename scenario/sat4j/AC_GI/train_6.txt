@@ -16,7 +16,7 @@ run_cmd = perf stat run-sh/train_6.sh
 run_timeout = 84
 
 [search]
-max_time = 35970
+max_time = 17610
 
 possible_edits =
   StmtReplacement
