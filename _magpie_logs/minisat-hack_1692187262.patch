@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'lbd-cut'), 6) | ParamSetting(('minisat.params', 'cp-increase'), 14916) | ParamSetting(('minisat.params', 'core-tolerance'), 0.06404363310986431) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 414))

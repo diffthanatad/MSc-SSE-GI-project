@@ -1,0 +1,24 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -979,7 +979,7 @@
+         ok = false;
+ }/*auto*/
+ 
+-    cancelUntil(0);
++    
+     return status;
+ }
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,7 +1,7 @@
+-lbd-cut := 5
++lbd-cut := 6
+ lbd-cut-max := 10
+-cp-increase := 15000
+-core-tolerance := 0.02
++cp-increase := 14916
++core-tolerance := 0.06404363310986431
+ R-val := 1.4
+ var-decay := 0.8
+ cla-decay := 0.999
