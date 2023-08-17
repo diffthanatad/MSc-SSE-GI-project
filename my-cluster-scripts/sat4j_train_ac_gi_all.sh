@@ -1,7 +1,7 @@
 #$ -S /bin/bash
 #$ -l tmem=7.5G
 #$ -l h_vmem=7.5G
-#$ -N sat4j_train_ac_gi_all
+#$ -N train_ac_gi_all
 #$ -t 1-10
 #$ -wd /home/tsongpet/MSc-SSE-GI-project
 #$ -j y
