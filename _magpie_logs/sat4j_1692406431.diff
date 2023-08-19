@@ -1,0 +1,30 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -390,7 +390,7 @@
+         switch (c.size()) {
+         case 2:
+             this.stats.incLearnedbinaryclauses();
+-            break;
++            int p;
+         case 3:
+             this.stats.incLearnedternaryclauses();
+             break;
+@@ -1408,7 +1408,7 @@
+                         if (this.voc.getReason(p) == null) {
+                             this.decisions.push(tempmodel.last());
+                         } else {
+-                            this.implied.push(tempmodel.last());
++                            
+                         }
+                     }
+                 }
+@@ -1732,7 +1732,8 @@
+             this.slistener.end(Lbool.FALSE);
+             cancelUntil(0);
+             cancelLearntLiterals(learnedLiteralsLimit);
+-            return false;
++            this.learnedConstraintsDeletionStrategy
++                        .onConflictAnalysis(confl);
+         }
+ 
+         // push incremental assumptions

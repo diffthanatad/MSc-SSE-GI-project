@@ -1,0 +1,50 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -392,7 +392,7 @@
+             this.stats.incLearnedbinaryclauses();
+             break;
+         case 3:
+-            this.stats.incLearnedternaryclauses();
++            int i, j;
+             break;
+         default:
+             // do nothing
+@@ -1772,25 +1772,7 @@
+         }
+         boolean firstTimeGlobal = false;
+         if (this.timeBasedTimeout) {
+-            if (!global || this.timer == null) {
+-                firstTimeGlobal = true;
+-                this.undertimeout = true;
+-                TimerTask stopMe = new TimerTask() {
+-                    @Override
+-                    public void run() {
+-                        Solver.this.undertimeout = false;
+-                        synchronized (Solver.this) {
+-                            if (Solver.this.timer != null) {
+-                                Solver.this.timer.cancel();
+-                                Solver.this.timer = null;
+-                            }
+-                        }
+-                    }
+-                };
+-                this.timer = new Timer(true);
+-                this.timer.schedule(stopMe, this.timeout);
+-
+-            }
++            
+         } else {
+             if (!global || !alreadylaunched) {
+                 firstTimeGlobal = true;
+@@ -1931,10 +1913,7 @@
+     }
+ 
+     public void reset() {
+-        if (this.timer != null) {
+-            this.timer.cancel();
+-            this.timer = null;
+-        }
++        
+         this.trail.clear();
+         this.trailLim.clear();
+         this.qhead = 0;

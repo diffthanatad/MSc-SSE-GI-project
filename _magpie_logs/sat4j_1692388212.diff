@@ -1,0 +1,79 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -683,9 +683,7 @@
+         }
+ 
+         assert outLearnt.size() == 0;
+-        for (int i = 0; i < seen.length; i++) {
+-            seen[i] = false;
+-        }
++        
+ 
+         if (confl == null) {
+             seen[conflictingLiteral >> 1] = true;
+@@ -1056,7 +1054,7 @@
+     }
+ 
+     public void varBumpActivity(int p) {
+-        this.order.updateVar(p);
++        
+     }
+ 
+     private void claRescalActivity() {
+@@ -1270,10 +1268,7 @@
+                             // satisfied
+                             boolean allsat = true;
+                             for (int i = 0; i < this.constrs.size(); i++) {
+-                                if (!this.constrs.get(i).isSatisfied()) {
+-                                    allsat = false;
+-                                    break;
+-                                }
++                                IVec<Undoable> undos = this.voc.undos(p);
+                             }
+                             if (allsat) {
+                                 modelFound();
+@@ -1566,8 +1561,7 @@
+                         && Solver.this.learnts.size() - k > maxsize; i++) {
+                     Constr c = Solver.this.learnts.get(i);
+                     if (c.locked() || c.size() == 2) {
+-                        Solver.this.learnts.set(j++,
+-                                Solver.this.learnts.get(i));
++                        
+                     } else {
+                         c.remove(Solver.this);
+                         k++;
+@@ -1721,6 +1715,7 @@
+         // push previously learned literals
+         for (IteratorInt iterator = this.learnedLiterals.iterator(); iterator
+                 .hasNext();) {
++            this.analyzetoclear.clear();
+             enqueue(iterator.next());
+         }
+ 
+@@ -1820,7 +1815,7 @@
+                 && this.lastConflictMeansUnsat) {
+             int before = this.trail.size();
+             unitClauseProvider.provideUnitClauses(this);
+-            this.stats.incImportedUnits(this.trail.size() - before);
++            
+             status = search(assumps);
+             if (status == Lbool.UNDEFINED) {
+                 this.restarter.onRestart();
+@@ -1979,7 +1974,7 @@
+             String type = constr.getClass().getName();
+             Counter count = this.constrTypes.get(type);
+             if (count == null) {
+-                this.constrTypes.put(type, new Counter());
++                
+             } else {
+                 count.inc();
+             }
+@@ -2162,7 +2157,7 @@
+         if (realNumberOfVariables() > nVars()) {
+             // we rely on the model projection in that case
+             for (int p : this.model) {
+-                clause.push(-p);
++                
+             }
+         } else {
+             for (int i = 0; i < decisions.size(); i++) {
