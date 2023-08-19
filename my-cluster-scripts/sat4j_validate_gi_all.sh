@@ -1,7 +1,7 @@
 #$ -S /bin/bash
 #$ -l tmem=7.5G
 #$ -l h_vmem=7.5G
-#$ -N val_ac_all
+#$ -N val_gi_all
 #$ -t 1-10
 #$ -wd /home/tsongpet/MSc-SSE-GI-project
 #$ -j y
@@ -12,6 +12,6 @@ export JAVA_HOME=/share/apps/openjdk-12.0.2
 export PATH=/share/apps/openjdk-12.0.2/bin:$PATH
 export LD_LIBRARY_PATH=/share/apps/openjdk-12.0.2/lib:$LD_LIBRARY_PATH
 
-PATCH=$(sed -n ${SGE_TASK_ID}'{p;q}' my-cluster-scripts/patch_ac.txt)
+PATCH=$(sed -n ${SGE_TASK_ID}'{p;q}' my-cluster-scripts/patch_gi.txt)
 
-python3 -m bin.revalidate_patch --scenario scenario/sat4j/AC/validate_${SGE_TASK_ID}.txt --patch $PATCH
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/GI/validate_${SGE_TASK_ID}.txt --patch $PATCH
