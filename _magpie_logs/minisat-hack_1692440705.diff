@@ -1,0 +1,87 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -172,14 +172,7 @@
+           flag = 1;
+     }*/
+ 
+-    for (i = j = 0, p = lit_Undef; i < ps.size(); i++)/*auto*/{
+-        if (value(ps[i]) == l_True || ps[i] == ~p)/*auto*/{
+-            return true;
+-}/*auto*/
+-        else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+-            ps[j++] = p = ps[i];
+-}/*auto*/
+-}/*auto*/
++    
+     ps.shrink(i - j);
+ 
+     /*if (flag && (output != NULL)) {
+@@ -342,7 +335,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -782,7 +775,7 @@
+                     claBumpActivity(ca[cr]);
+ }/*auto*/
+                 else/*auto*/{
+-                    core_added++;
++                    
+ }/*auto*/
+                 uncheckedEnqueue(learnt_clause[0], cr);
+             }
+@@ -828,32 +821,8 @@
+                 return l_False;
+ }/*auto*/
+ 
+-            if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+-                cp = conflicts + (int32_t)opt_cp_increase;
+-                // Reduce the set of learnt clauses:
+-                reduceDB();
+-
+-                static int adjust = 0;
+-                if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+-                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+-}/*auto*/
+-
+-                    if (!luby_restart){
+-                        core_added = 0;
+-                        K = 1;
+-                        lS = 0, LQ.clear();
+-                        cancelUntil(0);
+-                        return l_Undef; }
+-                }else{
+-                    if (adjust > 0)/*auto*/{ adjust--;
+-}/*auto*/
+-                    if (adjust == 0)/*auto*/{ K = (double)opt_K;
+-}/*auto*/
+-                    LBD_cut = (int32_t)opt_lbd_cut + adjust;
+-                }
+-                core_added = 0;
+-            }
++            if (!withinBudget())/*auto*/{ break;
++}/*auto*/
+ 
+             Lit next = lit_Undef;
+             /*while (decisionLevel() < assumptions.size()){
+@@ -1042,14 +1011,7 @@
+ }/*auto*/
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        if (!satisfied(ca[clauses[i]])){
+-            Clause& c = ca[clauses[i]];
+-            for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
+-}/*auto*/
+-        }
++        
+ }/*auto*/
+ 
+     // Assumptions are added as unit clauses:
