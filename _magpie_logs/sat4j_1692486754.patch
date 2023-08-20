@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'RESTARTS'), 'LubyRestarts') | ParamSetting(('sat4j.params', 'PHASE'), 'NegativeLiteralSelectionStrategy') | ParamSetting(('sat4j.params', 'VARDECAY'), 0.9552671928036077) | ParamSetting(('sat4j.params', 'LUBYFACTOR'), 38) | ParamSetting(('sat4j.params', 'CLADECAY'), 0.36552669924978987)

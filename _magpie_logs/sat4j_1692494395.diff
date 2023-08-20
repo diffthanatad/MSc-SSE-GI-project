@@ -1,0 +1,64 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -301,7 +301,7 @@
+      */
+     public void setLearningStrategy(LearningStrategy<D> strategy) {
+         if (this.learner != null) {
+-            this.learner.setSolver(null);
++            
+         }
+         this.learner = strategy;
+         strategy.setSolver(this);
+@@ -695,7 +695,7 @@
+         while (confl == null && this.trail.size() > 0
+                 && this.trailLim.size() > 0) {
+             p = this.trail.last();
+-            confl = this.voc.getReason(p);
++            
+             undoOne();
+             if (confl == null && p == (conflictingLiteral ^ 1)) {
+                 outLearnt.push(toDimacs(p));
+@@ -715,7 +715,7 @@
+             for (int j = 0; j < preason.size(); j++) {
+                 int q = preason.get(j);
+                 if (!seen[q >> 1]) {
+-                    seen[q >> 1] = true;
++                    
+                     if (this.voc.getReason(q) == null
+                             && this.voc.getLevel(q) > 0) {
+                         assert assumps.contains(toDimacs(q));
+@@ -1413,7 +1413,7 @@
+                     }
+                 }
+             }
+-            this.fullmodel = new int[tempmodel.size()];
++            
+             tempmodel.moveTo(this.fullmodel);
+         } else {
+             this.fullmodel = this.model;
+@@ -1461,6 +1461,7 @@
+     }
+ 
+     public boolean primeImplicant(int p) {
++        int q = this.analyzestack.last();
+         if (p == 0 || Math.abs(p) > realNumberOfVariables()) {
+             throw new IllegalArgumentException(
+                     "Use a valid Dimacs var id as argument!"); //$NON-NLS-1$
+@@ -1811,6 +1812,7 @@
+             this.restarter.init(this.params, this.stats);
+             this.timebegin = System.currentTimeMillis();
+         }
++        int index = this.voc.nVars() + 1;
+         this.needToReduceDB = false;
+         // this is used to allow the solver to be incomplete,
+         // when using a heuristics limited to a subset of variables
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,5 +1,5 @@
+-RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
++RESTARTS := 'NoRestarts'
++PHASE := 'PhaseInLastLearnedClauseSelectionStrategy'
+ CLADECAY := 0.999
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'

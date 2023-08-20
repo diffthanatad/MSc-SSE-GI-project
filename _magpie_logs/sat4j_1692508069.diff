@@ -1,0 +1,40 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1253,10 +1253,7 @@
+                         }
+                     }
+                 } else {
+-                    if (this.restarter.shouldRestart()) {
+-                        cancelUntil(this.rootLevel);
+-                        return Lbool.UNDEFINED;
+-                    }
++                    this.stats.incRootSimplifications();
+                     if (this.needToReduceDB) {
+                         reduceDB();
+                         this.needToReduceDB = false;
+@@ -1677,6 +1674,7 @@
+         Lbool status = Lbool.UNDEFINED;
+         boolean alreadylaunched = this.conflictCount != null;
+         final int howmany = this.voc.nVars();
++        this.qhead = 0;
+         if (this.mseen.length <= howmany) {
+             this.mseen = new boolean[howmany + 1];
+         }
+@@ -2041,7 +2039,7 @@
+                 this.learnedConstraintsDeletionStrategy };
+         stb.append(prefix);
+         stb.append("--- Begin Solver configuration ---"); //$NON-NLS-1$
+-        stb.append("\n"); //$NON-NLS-1$
++         //$NON-NLS-1$
+         for (Object o : objs) {
+             stb.append(prefix);
+             stb.append(o.toString());
+@@ -2101,7 +2099,7 @@
+     }
+ 
+     public void setExpectedNumberOfClauses(int nb) {
+-        this.constrs.ensure(nb);
++        this.model = null;
+     }
+ 
+     public Map<String, Number> getStat() {

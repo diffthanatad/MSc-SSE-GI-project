@@ -1,0 +1,289 @@
+2023-08-20 04:19:52,226	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/sat4j
+target_files = 
+	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
+	sat4j.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 150
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 150
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_5.sh
+run_timeout = 2261
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 100
+elitism_size = 10
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-20 04:19:52,227	[INFO]	==== WARMUP ====
+2023-08-20 04:47:09,748	[INFO]	WARM    SUCCESS               9435619849469           
+2023-08-20 04:47:09,749	[INFO]	INITIAL SUCCESS               9435619849469           
+2023-08-20 04:47:09,749	[INFO]	==== START: ValidTest ====
+2023-08-20 04:47:09,874	[DEBUG]	CLEAN_PATCH: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 836)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 215)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 589)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 363)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 700)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 771)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 461), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 356)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1123), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 322))
+2023-08-20 04:47:09,874	[DEBUG]	CLEAN_SIZE: 8 (was 8)
+2023-08-20 05:12:27,389	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 836)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 215)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 589)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 363)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 700)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 771)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 461), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 356)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1123), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 322))
+2023-08-20 05:12:27,389	[INFO]	1       SUCCESS              *8884832093890 (94.16%) [8 edit(s)] 
+2023-08-20 05:12:27,405	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -683,9 +683,7 @@
+         }
+ 
+         assert outLearnt.size() == 0;
+-        for (int i = 0; i < seen.length; i++) {
+-            seen[i] = false;
+-        }
++        
+ 
+         if (confl == null) {
+             seen[conflictingLiteral >> 1] = true;
+@@ -1056,7 +1054,7 @@
+     }
+ 
+     public void varBumpActivity(int p) {
+-        this.order.updateVar(p);
++        
+     }
+ 
+     private void claRescalActivity() {
+@@ -1270,10 +1268,7 @@
+                             // satisfied
+                             boolean allsat = true;
+                             for (int i = 0; i < this.constrs.size(); i++) {
+-                                if (!this.constrs.get(i).isSatisfied()) {
+-                                    allsat = false;
+-                                    break;
+-                                }
++                                IVec<Undoable> undos = this.voc.undos(p);
+                             }
+                             if (allsat) {
+                                 modelFound();
+@@ -1566,8 +1561,7 @@
+                         && Solver.this.learnts.size() - k > maxsize; i++) {
+                     Constr c = Solver.this.learnts.get(i);
+                     if (c.locked() || c.size() == 2) {
+-                        Solver.this.learnts.set(j++,
+-                                Solver.this.learnts.get(i));
++                        
+                     } else {
+                         c.remove(Solver.this);
+                         k++;
+@@ -1721,6 +1715,7 @@
+         // push previously learned literals
+         for (IteratorInt iterator = this.learnedLiterals.iterator(); iterator
+                 .hasNext();) {
++            this.analyzetoclear.clear();
+             enqueue(iterator.next());
+         }
+ 
+@@ -1820,7 +1815,7 @@
+                 && this.lastConflictMeansUnsat) {
+             int before = this.trail.size();
+             unitClauseProvider.provideUnitClauses(this);
+-            this.stats.incImportedUnits(this.trail.size() - before);
++            
+             status = search(assumps);
+             if (status == Lbool.UNDEFINED) {
+                 this.restarter.onRestart();
+@@ -1979,7 +1974,7 @@
+             String type = constr.getClass().getName();
+             Counter count = this.constrTypes.get(type);
+             if (count == null) {
+-                this.constrTypes.put(type, new Counter());
++                
+             } else {
+                 count.inc();
+             }
+@@ -2162,7 +2157,7 @@
+         if (realNumberOfVariables() > nVars()) {
+             // we rely on the model projection in that case
+             for (int p : this.model) {
+-                clause.push(-p);
++                
+             }
+         } else {
+             for (int i = 0; i < decisions.size(); i++) {
+
+2023-08-20 05:12:27,418	[INFO]	==== END ====
+2023-08-20 05:12:27,418	[INFO]	Reason: validation end
+2023-08-20 05:12:27,419	[INFO]	
+2023-08-20 05:12:27,419	[INFO]	==== REPORT ====
+2023-08-20 05:12:27,419	[INFO]	Termination: validation end
+2023-08-20 05:12:27,419	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/sat4j_1692501587.log
+2023-08-20 05:12:27,433	[INFO]	Patch file: _magpie_logs/sat4j_1692501587.patch
+2023-08-20 05:12:27,433	[INFO]	Diff file: _magpie_logs/sat4j_1692501587.diff
+2023-08-20 05:12:27,433	[INFO]	Best fitness: 8884832093890
+2023-08-20 05:12:27,433	[INFO]	Best patch: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 836)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 215)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 589)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 363)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 700)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 771)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 461), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 356)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1123), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 322))
+2023-08-20 05:12:27,433	[INFO]	Diff:
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -683,9 +683,7 @@
+         }
+ 
+         assert outLearnt.size() == 0;
+-        for (int i = 0; i < seen.length; i++) {
+-            seen[i] = false;
+-        }
++        
+ 
+         if (confl == null) {
+             seen[conflictingLiteral >> 1] = true;
+@@ -1056,7 +1054,7 @@
+     }
+ 
+     public void varBumpActivity(int p) {
+-        this.order.updateVar(p);
++        
+     }
+ 
+     private void claRescalActivity() {
+@@ -1270,10 +1268,7 @@
+                             // satisfied
+                             boolean allsat = true;
+                             for (int i = 0; i < this.constrs.size(); i++) {
+-                                if (!this.constrs.get(i).isSatisfied()) {
+-                                    allsat = false;
+-                                    break;
+-                                }
++                                IVec<Undoable> undos = this.voc.undos(p);
+                             }
+                             if (allsat) {
+                                 modelFound();
+@@ -1566,8 +1561,7 @@
+                         && Solver.this.learnts.size() - k > maxsize; i++) {
+                     Constr c = Solver.this.learnts.get(i);
+                     if (c.locked() || c.size() == 2) {
+-                        Solver.this.learnts.set(j++,
+-                                Solver.this.learnts.get(i));
++                        
+                     } else {
+                         c.remove(Solver.this);
+                         k++;
+@@ -1721,6 +1715,7 @@
+         // push previously learned literals
+         for (IteratorInt iterator = this.learnedLiterals.iterator(); iterator
+                 .hasNext();) {
++            this.analyzetoclear.clear();
+             enqueue(iterator.next());
+         }
+ 
+@@ -1820,7 +1815,7 @@
+                 && this.lastConflictMeansUnsat) {
+             int before = this.trail.size();
+             unitClauseProvider.provideUnitClauses(this);
+-            this.stats.incImportedUnits(this.trail.size() - before);
++            
+             status = search(assumps);
+             if (status == Lbool.UNDEFINED) {
+                 this.restarter.onRestart();
+@@ -1979,7 +1974,7 @@
+             String type = constr.getClass().getName();
+             Counter count = this.constrTypes.get(type);
+             if (count == null) {
+-                this.constrTypes.put(type, new Counter());
++                
+             } else {
+                 count.inc();
+             }
+@@ -2162,7 +2157,7 @@
+         if (realNumberOfVariables() > nVars()) {
+             // we rely on the model projection in that case
+             for (int p : this.model) {
+-                clause.push(-p);
++                
+             }
+         } else {
+             for (int i = 0; i < decisions.size(); i++) {
+

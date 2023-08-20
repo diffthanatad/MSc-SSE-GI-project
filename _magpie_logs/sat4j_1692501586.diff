@@ -1,0 +1,47 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -513,7 +513,7 @@
+                     cs[type].moveTo(j++, i);
+                 }
+             }
+-            cs[type].shrinkTo(j);
++            
+         }
+         return true;
+     }
+@@ -778,7 +778,7 @@
+         private static final long serialVersionUID = 1L;
+ 
+         public void simplify(IVecInt conflictToReduce) {
+-            expensiveSimplification(conflictToReduce);
++            
+         }
+ 
+         @Override
+@@ -820,7 +820,7 @@
+             Logger.getLogger("org.sat4j.core").log(Level.INFO,
+                     "Issue when assigning simplifier: disabling simplification",
+                     e);
+-            this.simplifier = NO_SIMPLIFICATION;
++            
+         }
+     }
+ 
+@@ -1944,7 +1944,7 @@
+         }
+         this.constrs.clear();
+         clearLearntClauses();
+-        this.voc.resetPool();
++        
+         this.dsfactory.reset();
+         this.stats.reset();
+         this.constrTypes.clear();
+@@ -2276,7 +2276,7 @@
+     public void backtrack(int[] reason) {
+         IVecInt clause = new VecInt(reason.length);
+         for (int d : reason) {
+-            clause.push(LiteralsUtils.toInternal(d));
++            
+         }
+         this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
+         learn(this.sharedConflict);
