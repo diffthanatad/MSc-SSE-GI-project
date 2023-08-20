@@ -507,7 +507,6 @@
 		<delete dir="${build}" />
                 <delete dir="${testreport.dir}"/>
 		<delete dir="${doc}" />
-                <delete dir="${dist}" />
 	</target>
 
 </project>
