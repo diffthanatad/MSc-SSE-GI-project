@@ -1,0 +1,32 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -244,7 +244,7 @@
+         this.dsfactory.setUnitPropagationListener(this);
+         this.dsfactory.setLearner(this);
+         this.voc = dsf.getVocabulary();
+-        this.order.setLits(this.voc);
++        
+     }
+ 
+     /**
+@@ -1833,7 +1833,7 @@
+         if (!global && this.timeBasedTimeout) {
+             synchronized (this) {
+                 if (this.timer != null) {
+-                    this.timer.cancel();
++                    Solver.this.timer.cancel();
+                     this.timer = null;
+                 }
+             }
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+ RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
+-VARDECAY := 0.95
++PHASE := 'NegativeLiteralSelectionStrategy'
++CLADECAY := 0.5770776998348756
++VARDECAY := 0.971789274722897
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

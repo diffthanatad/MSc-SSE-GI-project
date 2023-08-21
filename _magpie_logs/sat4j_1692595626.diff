@@ -1,0 +1,56 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -360,7 +360,7 @@
+     }
+ 
+     public void expireTimeout() {
+-        this.undertimeout = false;
++        
+         if (this.timeBasedTimeout) {
+             if (this.timer != null) {
+                 this.timer.cancel();
+@@ -1063,7 +1063,7 @@
+         for (int i = 0; i < this.learnts.size(); i++) {
+             this.learnts.get(i).rescaleBy(CLAUSE_RESCALE_FACTOR);
+         }
+-        this.claInc *= CLAUSE_RESCALE_FACTOR;
++        
+     }
+ 
+     final IVec<Propagatable> watched = new Vec<Propagatable>();
+@@ -1090,6 +1090,7 @@
+         }
+         return null;
+     }
++    IConstr prevConfl = null;
+ 
+     private Constr reduceClausesContainingTheNegationOf(int p) {
+         // p is the literal to propagate
+@@ -1411,6 +1412,7 @@
+                             this.implied.push(tempmodel.last());
+                         }
+                     }
++                    SolverStats lstats = this.stats;
+                 }
+             }
+             this.fullmodel = new int[tempmodel.size()];
+@@ -1797,7 +1799,7 @@
+                 this.undertimeout = true;
+                 ConflictTimer conflictTimeout = new ConflictTimerAdapter(this,
+                         (int) this.timeout) {
+-                    private static final long serialVersionUID = 1L;
++                    
+ 
+                     @Override
+                     public void run() {
+@@ -2109,9 +2111,7 @@
+     }
+ 
+     public int[] findModel() throws TimeoutException {
+-        if (isSatisfiable()) {
+-            return model();
+-        }
++        
+         // DLB findbugs ok
+         // A zero length array would mean that the formula is a tautology.
+         return null;

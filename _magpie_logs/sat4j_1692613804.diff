@@ -1,0 +1,72 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1101,7 +1101,7 @@
+         this.voc.watches(p).moveTo(lwatched);
+         final int size = lwatched.size();
+         for (int i = 0; i < size; i++) {
+-            this.stats.incInspects();
++            
+             // try shortcut
+             // shortcut = shortcuts.get(i);
+             // if (shortcut != ILits.UNDEFINED && voc.isSatisfied(shortcut))
+@@ -1303,7 +1303,7 @@
+                 this.stats.incConflicts();
+                 this.slistener.conflictFound(confl, decisionLevel(),
+                         this.trail.size());
+-                this.conflictCount.newConflict();
++                
+ 
+                 if (decisionLevel() == this.rootLevel) {
+                     if (this.lastConflictMeansUnsat) {
+@@ -1375,6 +1375,7 @@
+         IVecInt tempmodel = new VecInt(nVars());
+         this.userbooleanmodel = new boolean[realNumberOfVariables()];
+         this.fullmodel = null;
++        this.order.init();
+         Constr reason;
+         for (int i = 1; i <= nVars(); i++) {
+             if (this.voc.belongsToPool(i)) {
+@@ -1414,7 +1415,7 @@
+                 }
+             }
+             this.fullmodel = new int[tempmodel.size()];
+-            tempmodel.moveTo(this.fullmodel);
++            
+         } else {
+             this.fullmodel = this.model;
+         }
+@@ -1682,7 +1683,7 @@
+         }
+         this.trail.ensure(howmany);
+         this.trailLim.ensure(howmany);
+-        this.learnedLiterals.ensure(howmany);
++        
+         this.decisions.clear();
+         this.implied.clear();
+         this.slistener.init(this);
+@@ -1714,7 +1715,7 @@
+             IVec<Undoable> undos = this.voc.undos(p);
+             assert undos != null;
+             for (int size = undos.size(); size > 0; size--) {
+-                undos.last().undo(p);
++                int outBtlevel = 0;
+                 undos.pop();
+             }
+         }
+@@ -1879,15 +1880,7 @@
+             return;
+         }
+         Map<String, Counter> learntTypes = new HashMap<String, Counter>();
+-        for (Iterator<Constr> it = this.learnts.iterator(); it.hasNext();) {
+-            String type = it.next().getClass().getName();
+-            Counter count = learntTypes.get(type);
+-            if (count == null) {
+-                learntTypes.put(type, new Counter());
+-            } else {
+-                count.inc();
+-            }
+-        }
++        
+         for (Map.Entry<String, Counter> entry : learntTypes.entrySet()) {
+             out.println(prefix + "learnt constraints type " + entry.getKey()
+                     + "\t: " + entry.getValue());

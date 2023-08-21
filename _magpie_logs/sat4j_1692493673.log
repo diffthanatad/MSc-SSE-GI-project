@@ -1,0 +1,272 @@
+2023-08-20 02:08:04,746	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/sat4j
+target_files = 
+	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
+	sat4j.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 150
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 150
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_5.sh
+run_timeout = 2261
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 100
+elitism_size = 10
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-20 02:08:04,756	[INFO]	==== WARMUP ====
+2023-08-20 02:35:39,273	[INFO]	WARM    SUCCESS               9424798589729           
+2023-08-20 02:35:39,276	[INFO]	INITIAL SUCCESS               9424798589729           
+2023-08-20 02:35:39,276	[INFO]	==== START: ValidTest ====
+2023-08-20 02:35:39,358	[DEBUG]	CLEAN_PATCH: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 644)) | ParamSetting(('sat4j.params', 'PHASE'), 'PhaseInLastLearnedClauseSelectionStrategy') | ParamSetting(('sat4j.params', 'RESTARTS'), 'NoRestarts') | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 656)) | ParamSetting(('sat4j.params', 'CLADECAY'), 0.25072700717654495) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 352)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 252), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 833))
+2023-08-20 02:35:39,358	[DEBUG]	CLEAN_SIZE: 7 (was 7)
+2023-08-20 03:03:00,434	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 644)) | ParamSetting(('sat4j.params', 'PHASE'), 'PhaseInLastLearnedClauseSelectionStrategy') | ParamSetting(('sat4j.params', 'RESTARTS'), 'NoRestarts') | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 656)) | ParamSetting(('sat4j.params', 'CLADECAY'), 0.25072700717654495) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 352)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 252), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 833))
+2023-08-20 03:03:00,434	[INFO]	1       SUCCESS              *9340544619179 (99.11%) [7 edit(s)] 
+2023-08-20 03:03:00,446	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -302,6 +302,7 @@
+     public void setLearningStrategy(LearningStrategy<D> strategy) {
+         if (this.learner != null) {
+             this.learner.setSolver(null);
++            IVecInt clause = new VecInt(decisions.size());
+         }
+         this.learner = strategy;
+         strategy.setSolver(this);
+@@ -1023,7 +1024,7 @@
+         int x = p >> 1;
+         // unassign variable
+         this.voc.unassign(p);
+-        this.voc.setReason(p, null);
++        
+         this.voc.setLevel(p, -1);
+         // update heuristics value
+         this.order.undo(x);
+@@ -1719,10 +1720,7 @@
+             }
+         }
+         // push previously learned literals
+-        for (IteratorInt iterator = this.learnedLiterals.iterator(); iterator
+-                .hasNext();) {
+-            enqueue(iterator.next());
+-        }
++        
+ 
+         // propagate constraints
+         Constr confl = propagate();
+@@ -1739,25 +1737,7 @@
+         for (IteratorInt iterator = localAssumps.iterator(); iterator
+                 .hasNext();) {
+             int p = iterator.next();
+-            if (!this.voc.isSatisfied(p) && !assume(p)
+-                    || (confl = propagate()) != null) {
+-                if (confl == null) {
+-                    this.slistener.conflictFound(p);
+-                    this.unsatExplanationInTermsOfAssumptions = analyzeFinalConflictInTermsOfAssumptions(
+-                            null, assumps, p);
+-                    this.unsatExplanationInTermsOfAssumptions.push(toDimacs(p));
+-                } else {
+-                    this.slistener.conflictFound(confl, decisionLevel(),
+-                            this.trail.size());
+-                    this.unsatExplanationInTermsOfAssumptions = analyzeFinalConflictInTermsOfAssumptions(
+-                            confl, assumps, ILits.UNDEFINED);
+-                }
+-
+-                this.slistener.end(Lbool.FALSE);
+-                cancelUntil(0);
+-                cancelLearntLiterals(learnedLiteralsLimit);
+-                return false;
+-            }
++            
+         }
+         this.rootLevel = decisionLevel();
+         // moved initialization here if new literals are added in the
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+-RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
++RESTARTS := 'NoRestarts'
++PHASE := 'PhaseInLastLearnedClauseSelectionStrategy'
++CLADECAY := 0.25072700717654495
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'
+
+2023-08-20 03:03:00,457	[INFO]	==== END ====
+2023-08-20 03:03:00,457	[INFO]	Reason: validation end
+2023-08-20 03:03:00,457	[INFO]	
+2023-08-20 03:03:00,457	[INFO]	==== REPORT ====
+2023-08-20 03:03:00,457	[INFO]	Termination: validation end
+2023-08-20 03:03:00,457	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/sat4j_1692493673.log
+2023-08-20 03:03:00,468	[INFO]	Patch file: _magpie_logs/sat4j_1692493673.patch
+2023-08-20 03:03:00,468	[INFO]	Diff file: _magpie_logs/sat4j_1692493673.diff
+2023-08-20 03:03:00,468	[INFO]	Best fitness: 9340544619179
+2023-08-20 03:03:00,468	[INFO]	Best patch: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 644)) | ParamSetting(('sat4j.params', 'PHASE'), 'PhaseInLastLearnedClauseSelectionStrategy') | ParamSetting(('sat4j.params', 'RESTARTS'), 'NoRestarts') | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 656)) | ParamSetting(('sat4j.params', 'CLADECAY'), 0.25072700717654495) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 352)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 252), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 833))
+2023-08-20 03:03:00,468	[INFO]	Diff:
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -302,6 +302,7 @@
+     public void setLearningStrategy(LearningStrategy<D> strategy) {
+         if (this.learner != null) {
+             this.learner.setSolver(null);
++            IVecInt clause = new VecInt(decisions.size());
+         }
+         this.learner = strategy;
+         strategy.setSolver(this);
+@@ -1023,7 +1024,7 @@
+         int x = p >> 1;
+         // unassign variable
+         this.voc.unassign(p);
+-        this.voc.setReason(p, null);
++        
+         this.voc.setLevel(p, -1);
+         // update heuristics value
+         this.order.undo(x);
+@@ -1719,10 +1720,7 @@
+             }
+         }
+         // push previously learned literals
+-        for (IteratorInt iterator = this.learnedLiterals.iterator(); iterator
+-                .hasNext();) {
+-            enqueue(iterator.next());
+-        }
++        
+ 
+         // propagate constraints
+         Constr confl = propagate();
+@@ -1739,25 +1737,7 @@
+         for (IteratorInt iterator = localAssumps.iterator(); iterator
+                 .hasNext();) {
+             int p = iterator.next();
+-            if (!this.voc.isSatisfied(p) && !assume(p)
+-                    || (confl = propagate()) != null) {
+-                if (confl == null) {
+-                    this.slistener.conflictFound(p);
+-                    this.unsatExplanationInTermsOfAssumptions = analyzeFinalConflictInTermsOfAssumptions(
+-                            null, assumps, p);
+-                    this.unsatExplanationInTermsOfAssumptions.push(toDimacs(p));
+-                } else {
+-                    this.slistener.conflictFound(confl, decisionLevel(),
+-                            this.trail.size());
+-                    this.unsatExplanationInTermsOfAssumptions = analyzeFinalConflictInTermsOfAssumptions(
+-                            confl, assumps, ILits.UNDEFINED);
+-                }
+-
+-                this.slistener.end(Lbool.FALSE);
+-                cancelUntil(0);
+-                cancelLearntLiterals(learnedLiteralsLimit);
+-                return false;
+-            }
++            
+         }
+         this.rootLevel = decisionLevel();
+         // moved initialization here if new literals are added in the
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+-RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
++RESTARTS := 'NoRestarts'
++PHASE := 'PhaseInLastLearnedClauseSelectionStrategy'
++CLADECAY := 0.25072700717654495
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'
+

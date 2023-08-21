@@ -1,0 +1,225 @@
+2023-08-20 05:16:57,894	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/sat4j
+target_files = 
+	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
+	sat4j.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 150
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 150
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_8.sh
+run_timeout = 2302
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 100
+elitism_size = 10
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-20 05:16:57,895	[INFO]	==== WARMUP ====
+2023-08-20 05:44:42,783	[INFO]	WARM    SUCCESS               9423891996005           
+2023-08-20 05:44:43,033	[INFO]	INITIAL SUCCESS               9423891996005           
+2023-08-20 05:44:43,034	[INFO]	==== START: ValidTest ====
+2023-08-20 05:44:43,091	[DEBUG]	CLEAN_PATCH: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 365)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 935)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 267)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 462)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 649))
+2023-08-20 05:44:43,091	[DEBUG]	CLEAN_SIZE: 5 (was 5)
+2023-08-20 06:11:34,777	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 365)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 935)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 267)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 462)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 649))
+2023-08-20 06:11:34,778	[INFO]	1       SUCCESS              *9423149265428 (99.99%) [5 edit(s)] 
+2023-08-20 06:11:34,790	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -832,7 +832,7 @@
+      * .ISimplifier)
+      */
+     public void setSimplifier(ISimplifier simp) {
+-        this.simplifier = simp;
++        
+     }
+ 
+     /*
+@@ -1061,7 +1061,7 @@
+ 
+     private void claRescalActivity() {
+         for (int i = 0; i < this.learnts.size(); i++) {
+-            this.learnts.get(i).rescaleBy(CLAUSE_RESCALE_FACTOR);
++            
+         }
+         this.claInc *= CLAUSE_RESCALE_FACTOR;
+     }
+@@ -1271,7 +1271,7 @@
+                             boolean allsat = true;
+                             for (int i = 0; i < this.constrs.size(); i++) {
+                                 if (!this.constrs.get(i).isSatisfied()) {
+-                                    allsat = false;
++                                    
+                                     break;
+                                 }
+                             }
+@@ -1728,7 +1728,7 @@
+         Constr confl = propagate();
+         if (confl != null) {
+             analyzeAtRootLevel(confl);
+-            this.slistener.conflictFound(confl, 0, 0);
++            
+             this.slistener.end(Lbool.FALSE);
+             cancelUntil(0);
+             cancelLearntLiterals(learnedLiteralsLimit);
+@@ -2445,7 +2445,7 @@
+         for (int d : lliterals) {
+             clause.push(LiteralsUtils.toInternal(d));
+         }
+-        this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
++        
+         this.sharedConflict.register();
+         addConstr(this.sharedConflict);
+         return this.sharedConflict;
+
+2023-08-20 06:11:34,801	[INFO]	==== END ====
+2023-08-20 06:11:34,801	[INFO]	Reason: validation end
+2023-08-20 06:11:34,801	[INFO]	
+2023-08-20 06:11:34,801	[INFO]	==== REPORT ====
+2023-08-20 06:11:34,801	[INFO]	Termination: validation end
+2023-08-20 06:11:34,801	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/sat4j_1692505012.log
+2023-08-20 06:11:34,812	[INFO]	Patch file: _magpie_logs/sat4j_1692505012.patch
+2023-08-20 06:11:34,812	[INFO]	Diff file: _magpie_logs/sat4j_1692505012.diff
+2023-08-20 06:11:34,812	[INFO]	Best fitness: 9423149265428
+2023-08-20 06:11:34,812	[INFO]	Best patch: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 365)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 935)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 267)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 462)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 649))
+2023-08-20 06:11:34,812	[INFO]	Diff:
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -832,7 +832,7 @@
+      * .ISimplifier)
+      */
+     public void setSimplifier(ISimplifier simp) {
+-        this.simplifier = simp;
++        
+     }
+ 
+     /*
+@@ -1061,7 +1061,7 @@
+ 
+     private void claRescalActivity() {
+         for (int i = 0; i < this.learnts.size(); i++) {
+-            this.learnts.get(i).rescaleBy(CLAUSE_RESCALE_FACTOR);
++            
+         }
+         this.claInc *= CLAUSE_RESCALE_FACTOR;
+     }
+@@ -1271,7 +1271,7 @@
+                             boolean allsat = true;
+                             for (int i = 0; i < this.constrs.size(); i++) {
+                                 if (!this.constrs.get(i).isSatisfied()) {
+-                                    allsat = false;
++                                    
+                                     break;
+                                 }
+                             }
+@@ -1728,7 +1728,7 @@
+         Constr confl = propagate();
+         if (confl != null) {
+             analyzeAtRootLevel(confl);
+-            this.slistener.conflictFound(confl, 0, 0);
++            
+             this.slistener.end(Lbool.FALSE);
+             cancelUntil(0);
+             cancelLearntLiterals(learnedLiteralsLimit);
+@@ -2445,7 +2445,7 @@
+         for (int d : lliterals) {
+             clause.push(LiteralsUtils.toInternal(d));
+         }
+-        this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
++        
+         this.sharedConflict.register();
+         addConstr(this.sharedConflict);
+         return this.sharedConflict;
+

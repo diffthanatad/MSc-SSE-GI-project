@@ -1,0 +1,44 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -713,6 +713,8 @@
+             confl.calcReason(p, preason);
+             // Trace reason for p
+             for (int j = 0; j < preason.size(); j++) {
++                this.learnedConstraintsDeletionStrategy
++                        .onConflictAnalysis(confl);
+                 int q = preason.get(j);
+                 if (!seen[q >> 1]) {
+                     seen[q >> 1] = true;
+@@ -1101,7 +1103,7 @@
+         this.voc.watches(p).moveTo(lwatched);
+         final int size = lwatched.size();
+         for (int i = 0; i < size; i++) {
+-            this.stats.incInspects();
++            
+             // try shortcut
+             // shortcut = shortcuts.get(i);
+             // if (shortcut != ILits.UNDEFINED && voc.isSatisfied(shortcut))
+@@ -2365,9 +2367,7 @@
+                     timer);
+             break;
+         }
+-        if (this.conflictCount != null) {
+-            this.learnedConstraintsDeletionStrategy.init();
+-        }
++        
+     }
+ 
+     /**
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+-RESTARTS := 'Glucose21Restarts'
++RESTARTS := 'NoRestarts'
+ PHASE := 'RSATPhaseSelectionStrategy'
+ CLADECAY := 0.999
+-VARDECAY := 0.95
+-SIMP := 'EXPENSIVE_SIMPLIFICATION'
+-CLEANING := 'LBD2'
++VARDECAY := 0.9083092489680472
++SIMP := 'SIMPLE_SIMPLIFICATION'
++CLEANING := 'LBD'

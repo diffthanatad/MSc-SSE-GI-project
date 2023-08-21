@@ -10,10 +10,11 @@ target_files =
 fitness = perf_instructions
 
 setup_cmd = ./compile.sh
+setup_timeout = 150
 compile_cmd = ./compile.sh
-compile_timeout = 20
+compile_timeout = 150
 run_cmd = perf stat run-sh/test_3.sh
-run_timeout = 22239
+run_timeout = 11673
 
 [search]
 warmup = 1

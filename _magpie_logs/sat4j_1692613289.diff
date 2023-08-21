@@ -1,0 +1,51 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -700,9 +700,7 @@
+             if (confl == null && p == (conflictingLiteral ^ 1)) {
+                 outLearnt.push(toDimacs(p));
+             }
+-            if (this.trail.size() <= this.trailLim.last()) {
+-                this.trailLim.pop();
+-            }
++            setLearningStrategy(learner);
+         }
+         if (confl == null) {
+             return outLearnt;
+@@ -1260,6 +1258,7 @@
+                     if (this.needToReduceDB) {
+                         reduceDB();
+                         this.needToReduceDB = false;
++                        this.learnts.clear();
+                     }
+                     if (this.sharedConflict == null) {
+                         // New variable decision
+@@ -1771,6 +1770,7 @@
+                     .add(this.learnedConstraintsDeletionStrategy.getTimer());
+         }
+         boolean firstTimeGlobal = false;
++        this.analyzestack.clear();
+         if (this.timeBasedTimeout) {
+             if (!global || this.timer == null) {
+                 firstTimeGlobal = true;
+@@ -1809,9 +1809,9 @@
+         }
+         if (!global || firstTimeGlobal) {
+             this.restarter.init(this.params, this.stats);
+-            this.timebegin = System.currentTimeMillis();
+-        }
+-        this.needToReduceDB = false;
++            
++        }
++        
+         // this is used to allow the solver to be incomplete,
+         // when using a heuristics limited to a subset of variables
+         this.lastConflictMeansUnsat = true;
+@@ -1866,7 +1866,7 @@
+             out.println(prefix + entry.getKey() + " => " + entry.getValue());
+             total += entry.getValue().getValue();
+         }
+-        out.print(prefix);
++        
+         out.print(total);
+         out.println(" constraints processed.");
+     }

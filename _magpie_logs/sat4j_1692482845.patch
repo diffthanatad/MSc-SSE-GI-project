@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'VARDECAY'), 0.8877558273505208) | ParamSetting(('sat4j.params', 'CLEANING'), 'LBD') | ParamSetting(('sat4j.params', 'PHASE'), 'NegativeLiteralSelectionStrategy') | ParamSetting(('sat4j.params', 'CLADECAY'), 0.05863974029507035)
