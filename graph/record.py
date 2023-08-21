@@ -322,7 +322,7 @@ LOGS = [
     # "minisat-hack_1691276371",
     # "minisat-hack_1691276588",
 
-    "minisat-hack_1692371461", ## GeneticAlgorithm New Config Train
+    "minisat-hack_1692371461", ## GeneticAlgorithm (100 pop) Train
     "minisat-hack_1692371462",
     "minisat-hack_1692371463",
     "minisat-hack_1692382794",
@@ -352,9 +352,40 @@ LOGS = [
     "minisat-hack_1692474732",
     "minisat-hack_1692474735",
     "minisat-hack_1692474881",
+
+    "minisat-hack_1692606990", ## GeneticAlgorithm (100 pop) Validate
+    "minisat-hack_1692606991",
+    "minisat-hack_1692606992",
+    "minisat-hack_1692609035",
+    "minisat-hack_1692609155",
+    "minisat-hack_1692609376",
+    "minisat-hack_1692611220",
+    "minisat-hack_1692611221",
+    "minisat-hack_1692611498",
+    "minisat-hack_1692613161",
+    "minisat-hack_1692613302",
+    "minisat-hack_1692613457",
+    "minisat-hack_1692615055",
+    "minisat-hack_1692615169",
+    "minisat-hack_1692615326",
+    "minisat-hack_1692617047",
+    "minisat-hack_1692617226",
+    "minisat-hack_1692617955",
+    "minisat-hack_1692618941",
+    "minisat-hack_1692619183",
+    "minisat-hack_1692619831",
+    "minisat-hack_1692620962",
+    "minisat-hack_1692621490",
+    "minisat-hack_1692622450",
+    "minisat-hack_1692622713",
+    "minisat-hack_1692623780",
+    "minisat-hack_1692623866",
+    "minisat-hack_1692624637",
+    "minisat-hack_1692625555",
+    "minisat-hack_1692626504",
 ]
 
-main(LOGS, NEXT_PHASE="validate", BENCHMARK="minisat")
+main(LOGS, NEXT_PHASE="test", BENCHMARK="minisat")
 
 if len(EMPTY_PATCH) != 0:
     print("EMPTY patch")
