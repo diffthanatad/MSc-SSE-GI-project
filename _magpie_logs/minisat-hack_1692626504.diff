@@ -1,0 +1,31 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -459,7 +459,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -550,7 +550,7 @@
+ {
+     CRef    confl     = CRef_Undef;
+     int     num_props = 0;
+-    watches.cleanAll();
++    
+ 
+     while (qhead < trail.size()){
+         Lit            p   = trail[qhead++];     // 'p' is enqueued fact to propagate.
+@@ -824,9 +824,7 @@
+                 return l_Undef; }
+ 
+             // Simplify the set of problem clauses:
+-            if (decisionLevel() == 0 && !simplify())/*auto*/{
+-                return l_False;
+-}/*auto*/
++            
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;

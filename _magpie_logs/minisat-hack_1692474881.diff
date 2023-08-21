@@ -1,0 +1,50 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -235,7 +235,7 @@
+ 
+     if (c.learnt())/*auto*/{ learnts_literals -= c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals -= c.size();
++    else/*auto*/{            
+ }/*auto*/ }
+ 
+ 
+@@ -254,7 +254,7 @@
+     if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
+ }/*auto*/
+     c.mark(1); 
+-    ca.free(cr);
++    
+ }
+ 
+ 
+@@ -376,7 +376,8 @@
+         
+         // Select next clause to look at:
+         while (!seen[var(trail[index--])])/*auto*/{;
+-}/*auto*/
++}/*auto*/Lit     first = c[0];
++
+         p     = trail[index+1];
+         confl = reason(var(p));
+         seen[var(p)] = 0;
+@@ -496,7 +497,7 @@
+ void Solver::analyzeFinal(Lit p, vec<Lit>& out_conflict)
+ {
+     out_conflict.clear();
+-    out_conflict.push(p);
++    int beg = i == 0 ? 0 : trail_lim[i - 1];
+ 
+     if (decisionLevel() == 0)/*auto*/{
+         return;
+@@ -749,9 +750,7 @@
+         if (confl != CRef_Undef){
+             // CONFLICT
+             conflicts++; conflictC++;
+-            if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+-                var_decay += 0.01;
+-}/*auto*/
++            static IntOption     opt_ccmin_mode        (_cat, "ccmin-mode",  "Controls conflict clause minimization (0=none, 1=basic, 2=deep)", 2, IntRange(0, 2));
+             if (decisionLevel() == 0)/*auto*/{ return l_False;
+ }/*auto*/
+ 

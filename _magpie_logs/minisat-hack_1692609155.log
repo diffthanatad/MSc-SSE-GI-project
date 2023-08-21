@@ -1,0 +1,182 @@
+2023-08-21 10:12:39,026	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_2.sh
+run_timeout = 1565
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 100
+elitism_size = 10
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-21 10:12:39,027	[INFO]	==== WARMUP ====
+2023-08-21 10:29:33,934	[INFO]	WARM    SUCCESS               1818764434037           
+2023-08-21 10:29:33,934	[INFO]	INITIAL SUCCESS               1818764434037           
+2023-08-21 10:29:33,934	[INFO]	==== START: ValidTest ====
+2023-08-21 10:29:33,963	[DEBUG]	CLEAN_PATCH: ParamSetting(('minisat.params', 'var-decay'), 0.8816365677356667) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False')
+2023-08-21 10:29:33,963	[DEBUG]	CLEAN_SIZE: 3 (was 3)
+2023-08-21 10:46:59,388	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8816365677356667) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False')
+2023-08-21 10:46:59,389	[INFO]	1       SUCCESS              *1887185712698 (103.76%) [3 edit(s)] 
+2023-08-21 10:46:59,400	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -3,19 +3,19 @@
+ cp-increase := 15000
+ core-tolerance := 0.02
+ R-val := 1.4
+-var-decay := 0.8
++var-decay := 0.8816365677356667
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+-rnd-init := 'False'
++rnd-init := 'True'
+ luby := 0
+ gc-frac := 0.2
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'True'
++elim := 'False'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
+2023-08-21 10:46:59,410	[INFO]	==== END ====
+2023-08-21 10:46:59,410	[INFO]	Reason: validation end
+2023-08-21 10:46:59,410	[INFO]	
+2023-08-21 10:46:59,410	[INFO]	==== REPORT ====
+2023-08-21 10:46:59,411	[INFO]	Termination: validation end
+2023-08-21 10:46:59,411	[INFO]	Log file: /cs/research/crest/home0/jpetke/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1692609155.log
+2023-08-21 10:46:59,420	[INFO]	Patch file: _magpie_logs/minisat-hack_1692609155.patch
+2023-08-21 10:46:59,420	[INFO]	Diff file: _magpie_logs/minisat-hack_1692609155.diff
+2023-08-21 10:46:59,421	[INFO]	Best fitness: 1887185712698
+2023-08-21 10:46:59,421	[INFO]	Best patch: ParamSetting(('minisat.params', 'var-decay'), 0.8816365677356667) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False')
+2023-08-21 10:46:59,421	[INFO]	Diff:
+--- before: minisat.params
++++ after: minisat.params
+@@ -3,19 +3,19 @@
+ cp-increase := 15000
+ core-tolerance := 0.02
+ R-val := 1.4
+-var-decay := 0.8
++var-decay := 0.8816365677356667
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+-rnd-init := 'False'
++rnd-init := 'True'
+ luby := 0
+ gc-frac := 0.2
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+-elim := 'True'
++elim := 'False'
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+
