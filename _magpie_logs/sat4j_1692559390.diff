@@ -1,0 +1,30 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -382,6 +382,7 @@
+     }
+ 
+     public void learn(Constr c) {
++        int top = this.analyzetoclear.size();
+         this.slistener.learn(c);
+         this.learnts.push(c);
+         c.setLearnt();
+@@ -2054,7 +2055,7 @@
+             stb.append("s\n");
+         } else {
+             stb.append(this.timeout);
+-            stb.append(" conflicts\n");
++            
+         }
+         stb.append(prefix);
+         stb.append("DB Simplification allowed=");
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+-RESTARTS := 'Glucose21Restarts'
++RESTARTS := 'ArminRestarts'
+ PHASE := 'RSATPhaseSelectionStrategy'
+ CLADECAY := 0.999
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+-CLEANING := 'LBD2'
++CLEANING := 'LBD'

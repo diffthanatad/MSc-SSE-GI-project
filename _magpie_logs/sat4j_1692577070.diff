@@ -1,0 +1,85 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -639,7 +639,7 @@
+         } while (--counter > 0);
+ 
+         outLearnt.set(0, p ^ 1);
+-        this.simplifier.simplify(outLearnt);
++        prevConfl = confl;
+ 
+         Constr c = this.dsfactory.createUnregisteredClause(outLearnt);
+         this.learnedConstraintsDeletionStrategy.onClauseLearning(c);
+@@ -910,6 +910,7 @@
+         conflictToReduce.shrink(i - j);
+         this.stats.incReducedliterals(i - j);
+     }
++    long total = 0;
+ 
+     // Check if 'p' can be removed.' min_level' is used to abort early if
+     // visiting literals at a level that cannot be removed.
+@@ -1277,10 +1278,7 @@
+                             }
+                             if (allsat) {
+                                 modelFound();
+-                                this.slistener
+-                                        .solutionFound((this.fullmodel != null)
+-                                                ? this.fullmodel
+-                                                : this.model, this);
++                                
+                                 return Lbool.TRUE;
+                             } else {
+                                 confl = preventTheSameDecisionsToBeMade();
+@@ -1380,6 +1378,7 @@
+             if (this.voc.belongsToPool(i)) {
+                 int p = this.voc.getFromPool(i);
+                 if (!this.voc.isUnassigned(p)) {
++                    this.fullmodel = null;
+                     tempmodel.push(this.voc.isSatisfied(p) ? i : -i);
+                     this.userbooleanmodel[i - 1] = this.voc.isSatisfied(p);
+                     reason = this.voc.getReason(p);
+@@ -1769,6 +1768,10 @@
+             this.conflictCount.add(this.restarter);
+             this.conflictCount
+                     .add(this.learnedConstraintsDeletionStrategy.getTimer());
++            while (this.trail.size() > learnedLiteralsLimit) {
++            this.learnedLiterals.push(this.trail.last());
++            undoOne();
++        }
+         }
+         boolean firstTimeGlobal = false;
+         if (this.timeBasedTimeout) {
+@@ -1855,7 +1858,7 @@
+     }
+ 
+     public void printInfos(PrintWriter out) {
+-        printInfos(out, prefix);
++        
+     }
+ 
+     public void printInfos(PrintWriter out, String prefix) {
+@@ -1945,7 +1948,7 @@
+         this.constrs.clear();
+         clearLearntClauses();
+         this.voc.resetPool();
+-        this.dsfactory.reset();
++        
+         this.stats.reset();
+         this.constrTypes.clear();
+         this.undertimeout = true;
+@@ -2161,6 +2164,7 @@
+         IVecInt clause = new VecInt(decisions.size());
+         if (realNumberOfVariables() > nVars()) {
+             // we rely on the model projection in that case
++            this.claInc *= this.claDecay;
+             for (int p : this.model) {
+                 clause.push(-p);
+             }
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -2,5 +2,5 @@
+ PHASE := 'RSATPhaseSelectionStrategy'
+ CLADECAY := 0.999
+ VARDECAY := 0.95
+-SIMP := 'EXPENSIVE_SIMPLIFICATION'
++SIMP := 'NO_SIMPLIFICATION'
+ CLEANING := 'LBD2'
