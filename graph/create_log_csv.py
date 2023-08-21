@@ -186,4 +186,50 @@ ls_gi_logs = [
 for i in range(10):
     main(i+1, ls_gi_logs[i], "gi", "ls")
 
+""" Genetic Algorithm 100 population size """
+ga_ac_logs = [
+    "minisat-hack_1692371461",
+    "minisat-hack_1692382819",
+    "minisat-hack_1692394207",
+    "minisat-hack_1692405859",
+    "minisat-hack_1692417279",
+    "minisat-hack_1692371462",
+    "minisat-hack_1692382794",
+    "minisat-hack_1692394183",
+    "minisat-hack_1692405812",
+    "minisat-hack_1692417149",
+]
+for i in range(10):
+    main(i+1, ga_ac_logs[i], "ac", "ga100")
+
+ga_ac_gi_logs = [
+    "minisat-hack_1692371463",
+    "minisat-hack_1692382852",
+    "minisat-hack_1692394265",
+    "minisat-hack_1692405876",
+    "minisat-hack_1692417306",
+    "minisat-hack_1692429365",
+    "minisat-hack_1692440722",
+    "minisat-hack_1692452066",
+    "minisat-hack_1692463410",
+    "minisat-hack_1692474735",
+]
+for i in range(10):
+    main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga100")
+
+ga_gi_logs = [
+    "minisat-hack_1692429363",
+    "minisat-hack_1692440755",
+    "minisat-hack_1692452100",
+    "minisat-hack_1692463509",
+    "minisat-hack_1692474881",
+    "minisat-hack_1692429364",
+    "minisat-hack_1692440705",
+    "minisat-hack_1692452058",
+    "minisat-hack_1692463407",
+    "minisat-hack_1692474732",
+]
+for i in range(10):
+    main(i+1, ga_gi_logs[i], "gi", "ga100")
+
 np.savetxt("../results/edit_analysis.csv", all_patch, delimiter=",", fmt='% s', header="algorithm,search_space,k_th,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement,gen", comments='')
