@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 10735) | ParamSetting(('minisat.params', 'var-decay'), 0.9413603053915668) | ParamSetting(('minisat.params', 'cla-decay'), 0.9380051547811026) | ParamSetting(('minisat.params', 'verb'), '2')

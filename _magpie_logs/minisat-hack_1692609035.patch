@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 5544) | ParamSetting(('minisat.params', 'cla-decay'), 0.2812520957039175) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'rcheck'), 'True')

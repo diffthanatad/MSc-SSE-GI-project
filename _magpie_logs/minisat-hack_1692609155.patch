@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'var-decay'), 0.8816365677356667) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False')
