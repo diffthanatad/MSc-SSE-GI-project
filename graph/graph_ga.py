@@ -59,49 +59,49 @@ def main(i_th, file_name, search_space, algorithm, view):
         # plt.show()
 
 ga_ac_gi_logs = [
-    "ga_ac-gi_1",
-    "ga_ac-gi_2",
-    "ga_ac-gi_3",
-    "ga_ac-gi_4",
-    "ga_ac-gi_5",
-    "ga_ac-gi_6",
-    "ga_ac-gi_7",
-    "ga_ac-gi_8",
-    "ga_ac-gi_9",
-    "ga_ac-gi_10",
+    "ga100_ac-gi_1",
+    "ga100_ac-gi_2",
+    "ga100_ac-gi_3",
+    "ga100_ac-gi_4",
+    "ga100_ac-gi_5",
+    "ga100_ac-gi_6",
+    "ga100_ac-gi_7",
+    "ga100_ac-gi_8",
+    "ga100_ac-gi_9",
+    "ga100_ac-gi_10",
 ]
 for i in range(10):
-    main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga", "Fitness View")
-    main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga", "Percentage View")
+    # main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga100", "Fitness View")
+    main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga100", "Percentage View")
 
 ga_ac_logs = [
-    "ga_ac_1",
-    "ga_ac_2",
-    "ga_ac_3",
-    "ga_ac_4",
-    "ga_ac_5",
-    "ga_ac_6",
-    "ga_ac_7",
-    "ga_ac_8",
-    "ga_ac_9",
-    "ga_ac_10",
+    "ga100_ac_1",
+    "ga100_ac_2",
+    "ga100_ac_3",
+    "ga100_ac_4",
+    "ga100_ac_5",
+    "ga100_ac_6",
+    "ga100_ac_7",
+    "ga100_ac_8",
+    "ga100_ac_9",
+    "ga100_ac_10",
 ]
 for i in range(10):
-    main(i+1, ga_ac_logs[i], "ac", "ga", "Fitness View")
-    main(i+1, ga_ac_logs[i], "ac", "ga", "Percentage View")
+    # main(i+1, ga_ac_logs[i], "ac", "ga100", "Fitness View")
+    main(i+1, ga_ac_logs[i], "ac", "ga100", "Percentage View")
 
 ga_gi_logs = [
-    "ga_gi_1",
-    "ga_gi_2",
-    "ga_gi_3",
-    "ga_gi_4",
-    "ga_gi_5",
-    "ga_gi_6",
-    "ga_gi_7",
-    "ga_gi_8",
-    "ga_gi_9",
-    "ga_gi_10",
+    "ga100_gi_1",
+    "ga100_gi_2",
+    "ga100_gi_3",
+    "ga100_gi_4",
+    "ga100_gi_5",
+    "ga100_gi_6",
+    "ga100_gi_7",
+    "ga100_gi_8",
+    "ga100_gi_9",
+    "ga100_gi_10",
 ]
 for i in range(10):
-    main(i+1, ga_gi_logs[i], "gi", "ga", "Fitness View")
-    main(i+1, ga_gi_logs[i], "gi", "ga", "Percentage View")
+    # main(i+1, ga_gi_logs[i], "gi", "ga100", "Fitness View")
+    main(i+1, ga_gi_logs[i], "gi", "ga100", "Percentage View")
