@@ -1,0 +1,1 @@
+StmtDeletion(('core/Solver.cc.xml', 'stmt', 80)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 180), ('core/Solver.cc.xml', 'stmt', 234)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 309), ('core/Solver.cc.xml', 'stmt', 13)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 194), ('core/Solver.cc.xml', 'stmt', 374)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 74))

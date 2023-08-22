@@ -1,0 +1,40 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -156,7 +156,7 @@
+ bool Solver::addClause_(vec<Lit>& ps)
+ {
+     assert(decisionLevel() == 0);
+-    if (!ok)/*auto*/{ return false;
++    if (!ok)/*auto*/{ conflict.clear();
+ }/*auto*/
+ 
+     // Check if clause is satisfied and remove false/duplicate literals:
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,22 +1,22 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5516
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+-phase-saving := '2'
++phase-saving := '1'
+ rnd-init := 'False'
+ luby := 0
+ gc-frac := 0.2
+ verb := '1'
+-pre := 'True'
++pre := 'False'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 0
+ simp-gc-frac := 0.5

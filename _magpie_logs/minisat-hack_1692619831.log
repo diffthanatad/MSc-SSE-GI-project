@@ -1,4 +1,4 @@
-2023-08-21 06:21:25,094	[DEBUG]	==== CONFIG ====
+2023-08-21 13:10:34,790	[DEBUG]	==== CONFIG ====
 [magpie]
 import = 
 seed = 
@@ -13,10 +13,10 @@ default_lengthout = 1e6
 diff_method = unified
 
 [software]
-path = code/sat4j
+path = code/minisat-hack
 target_files = 
-	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
-	sat4j.params
+	core/Solver.cc.xml
+	minisat.params
 program = BasicProgram
 engine_rules = 
 	*.params : ConfigFileParamsEngine
@@ -26,16 +26,16 @@ engine_config =
 	*.params : [params]
 	*.xml : [srcml]
 setup_cmd = ./compile.sh
-setup_timeout = 150
+setup_timeout = 
 setup_lengthout = 
 compile_cmd = ./compile.sh
-compile_timeout = 150
+compile_timeout = 16
 compile_lengthout = 
 test_cmd = 
 test_timeout = 
 test_lengthout = 
-run_cmd = perf stat run-sh/train_10.sh
-run_timeout = 153
+run_cmd = perf stat run-sh/validate_7.sh
+run_timeout = 1582
 run_lengthout = 
 fitness = perf_instructions
 
@@ -61,16 +61,15 @@ silent_suffix = $
 
 [search]
 protocol = BasicProtocol
-algorithm = FirstImprovement
+algorithm = ValidTest
 possible_edits = 
 	StmtReplacement
 	StmtInsertion
 	StmtDeletion
-	ParamSetting
 warmup = 1
 warmup_strategy = last
 max_steps = 
-max_time = 17720
+max_time = 
 target_fitness = 
 cache_maxsize = 40
 cache_keep = 0.2
@@ -109,23 +108,17 @@ c1 = 1.49
 c2 = 1.49
 
 
-2023-08-21 06:21:25,095	[INFO]	==== WARMUP ====
-2023-08-21 06:24:23,889	[INFO]	WARM    RUN_TIMEOUT           None                    
-2023-08-21 06:24:23,890	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-2023-08-21 06:24:23,890	[INFO]	CWD: /home/tsongpet/MSc-SSE-GI-project/_magpie_work/sat4j_1692595279/sat4j
-2023-08-21 06:24:23,890	[INFO]	CMD: ['perf', 'stat', 'run-sh/train_10.sh', '-s', 'Default', '-S', 'RESTARTS=Glucose21Restarts,PHASE=RSATPhaseSelectionStrategy,SIMP=EXPENSIVE_SIMPLIFICATION,CLEANING=LBD2,PARAMS=SearchParams/claDecay:0.999/varDecay:0.95']
-2023-08-21 06:24:23,890	[INFO]	STATUS: TIMEOUT
-2023-08-21 06:24:23,890	[INFO]	RETURN_CODE: -9
-2023-08-21 06:24:23,890	[INFO]	RUNTIME: 153.1509871482849
-2023-08-21 06:24:23,890	[INFO]	STDOUT:
-
-2023-08-21 06:24:23,890	[INFO]	STDERR:
-
-2023-08-21 06:24:23,890	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-2023-08-21 06:24:23,890	[INFO]	Magpie stopped because it was unable to run the (unmodified) target software
-2023-08-21 06:24:23,890	[INFO]	Self-diagnostic:
-2023-08-21 06:24:23,890	[INFO]	The "run_cmd" command took too long to run
-2023-08-21 06:24:23,890	[INFO]	--> consider increasing "run_timeout"
-2023-08-21 06:24:23,890	[INFO]	!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*!*
-2023-08-21 06:24:23,890	[INFO]	==== END ====
-2023-08-21 06:24:23,890	[INFO]	Reason: None
+2023-08-21 13:10:34,791	[INFO]	==== WARMUP ====
+2023-08-21 13:27:43,865	[INFO]	WARM    SUCCESS               1850327303446           
+2023-08-21 13:27:43,866	[INFO]	INITIAL SUCCESS               1850327303446           
+2023-08-21 13:27:43,866	[INFO]	==== START: ValidTest ====
+2023-08-21 13:27:43,955	[DEBUG]	CLEAN_PATCH: StmtReplacement(('core/Solver.cc.xml', 'stmt', 345), ('core/Solver.cc.xml', 'stmt', 403)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 331)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 43)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 112)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 441))
+2023-08-21 13:27:43,956	[DEBUG]	CLEAN_SIZE: 5 (was 5)
+2023-08-21 13:54:09,707	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 345), ('core/Solver.cc.xml', 'stmt', 403)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 331)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 43)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 112)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 441))
+2023-08-21 13:54:09,708	[INFO]	1       RUN_TIMEOUT           None  [5 edit(s)]       
+2023-08-21 13:54:09,708	[INFO]	==== END ====
+2023-08-21 13:54:09,709	[INFO]	Reason: validation end
+2023-08-21 13:54:09,709	[INFO]	
+2023-08-21 13:54:09,709	[INFO]	==== REPORT ====
+2023-08-21 13:54:09,709	[INFO]	Termination: validation end
+2023-08-21 13:54:09,709	[INFO]	Log file: /cs/research/crest/home0/jpetke/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1692619831.log

@@ -1,0 +1,15 @@
+--- before: minisat.params
++++ after: minisat.params
+@@ -7,10 +7,10 @@
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+-phase-saving := '2'
++phase-saving := '1'
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
++gc-frac := 0.2170022403311222
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'

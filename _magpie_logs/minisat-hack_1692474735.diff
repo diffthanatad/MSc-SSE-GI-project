@@ -1,0 +1,18 @@
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5827
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+@@ -17,6 +17,6 @@
+ rcheck := 'False'
+ elim := 'True'
+ grow := 0
+-cl-lim := 20
++cl-lim := 863
+ sub-lim := 1000
+ simp-gc-frac := 0.5
