@@ -1,0 +1,40 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -454,7 +454,7 @@
+         }
+         Constr c = (Constr) co;
+         c.remove(this);
+-        this.constrs.pop();
++        
+         String type = c.getClass().getName();
+         this.constrTypes.get(type).dec();
+         return true;
+@@ -1076,6 +1076,10 @@
+         SolverStats lstats = this.stats;
+         IOrder lorder = this.order;
+         SearchListener lslistener = this.slistener;
++        if (this.needToReduceDB) {
++                        reduceDB();
++                        this.needToReduceDB = false;
++                    }
+         // ltrail.size() changes due to propagation
+         // cannot cache that value.
+         while (this.qhead < ltrail.size()) {
+@@ -1570,7 +1574,7 @@
+                                 Solver.this.learnts.get(i));
+                     } else {
+                         c.remove(Solver.this);
+-                        k++;
++                        
+                     }
+                 }
+                 for (; i < Solver.this.learnts.size(); i++) {
+@@ -1766,7 +1770,7 @@
+ 
+         if (!alreadylaunched) {
+             this.conflictCount = new ConflictTimerContainer();
+-            this.conflictCount.add(this.restarter);
++            
+             this.conflictCount
+                     .add(this.learnedConstraintsDeletionStrategy.getTimer());
+         }
