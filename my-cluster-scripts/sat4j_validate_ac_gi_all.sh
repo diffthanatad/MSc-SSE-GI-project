@@ -2,7 +2,7 @@
 #$ -l tmem=7.5G
 #$ -l h_vmem=7.5G
 #$ -N val_ac_gi_all
-#$ -t 3-10
+#$ -t 1-10
 #$ -wd /home/tsongpet/MSc-SSE-GI-project
 #$ -j y
 #$ -l hostname=burns-610-43|fry-611-118

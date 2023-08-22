@@ -136,15 +136,15 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
     np.savetxt("records.csv", records, delimiter=",", fmt='% s')
 
     # for graph
-    np.savetxt("AC_LOG.csv", AC_LOG, delimiter=",", fmt='% s')
-    np.savetxt("GI_LOG.csv", GI_LOG, delimiter=",", fmt='% s')
-    np.savetxt("AC_GI_LOG.csv", AC_GI_LOG, delimiter=",", fmt='% s')
+    # np.savetxt("AC_LOG.csv", AC_LOG, delimiter=",", fmt='% s')
+    # np.savetxt("GI_LOG.csv", GI_LOG, delimiter=",", fmt='% s')
+    # np.savetxt("AC_GI_LOG.csv", AC_GI_LOG, delimiter=",", fmt='% s')
 
     # for validation phase. creating scripts.
-    ALL_SCRIPTS = AC_SCRIPT + AC_GI_SCRIPT + GI_SCRIPT 
-    with open('g_all.sh','w') as file:
-        for i in range(len(ALL_SCRIPTS)):
-            file.write(ALL_SCRIPTS[i] + "\n")
+    # ALL_SCRIPTS = AC_SCRIPT + AC_GI_SCRIPT + GI_SCRIPT 
+    # with open('g_all.sh','w') as file:
+    #     for i in range(len(ALL_SCRIPTS)):
+    #         file.write(ALL_SCRIPTS[i] + "\n")
     
     # with open('patch_ac.txt', 'w') as file:
     #     for i in range(10):
@@ -492,6 +492,9 @@ LOGS = [
     "sat4j_1692631369",
     "sat4j_1692631556",
     "sat4j_1692633725",
+    "sat4j_1692655849",
+    "sat4j_1692690339",
+    "sat4j_1692690347",
 ]
 
 main(LOGS, NEXT_PHASE="validate", BENCHMARK="sat4j")

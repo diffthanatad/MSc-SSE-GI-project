@@ -1,10 +1,10 @@
-_magpie_logs/sat4j_1692423347.patch
-_magpie_logs/sat4j_1692350136 ***.patch
-_magpie_logs/sat4j_1692350135.patch
-_magpie_logs/sat4j_1692350858.patch
-_magpie_logs/sat4j_1692368168.patch
-_magpie_logs/sat4j_1692368311.patch
-_magpie_logs/sat4j_1692368312.patch
-_magpie_logs/sat4j_1692369169.patch
-_magpie_logs/sat4j_1692386287.patch
-_magpie_logs/sat4j_1692459229.patch
+_magpie_logs/sat4j_1692559034.patch
+_magpie_logs/sat4j_1692559031.patch
+_magpie_logs/sat4j_1692559390.patch
+_magpie_logs/sat4j_1692577068.patch
+_magpie_logs/sat4j_1692577069.patch
+_magpie_logs/sat4j_1692577070.patch
+_magpie_logs/sat4j_1692577407.patch
+_magpie_logs/sat4j_1692595104.patch
+_magpie_logs/sat4j_1692595280.patch
+_magpie_logs/sat4j_1692633725.patch
