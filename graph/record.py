@@ -145,6 +145,18 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
     with open('g_all.sh','w') as file:
         for i in range(len(ALL_SCRIPTS)):
             file.write(ALL_SCRIPTS[i] + "\n")
+    
+    with open('patch_ac.txt', 'w') as file:
+        for i in range(10):
+            file.write("_magpie_logs/{}.patch\n".format(AC_LOG[i][1:-6:]))
+    
+    with open('patch_ac_gi.txt', 'w') as file:
+        for i in range(10):
+            file.write("_magpie_logs/{}.patch\n".format(AC_GI_LOG[i][1:-6:]))
+    
+    with open('patch_gi.txt', 'w') as file:
+        for i in range(10):
+            file.write("_magpie_logs/{}.patch\n".format(GI_LOG[i][1:-6:]))
 
     # with open('g1.sh','w') as file:
     #     for i in range(0, 8):
@@ -162,10 +174,8 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
     #     for i in range(23, 30):
     #         file.write(ALL_SCRIPTS[i] + "\n")
 
-
-
 LOGS = [
-    # "minisat-hack_1690929578", ## FirstImprovement Train
+    # "minisat-hack_1690929578", ## Minisat FirstImprovement Train
     # "minisat-hack_1690929608",
     # "minisat-hack_1690929633",
     # "minisat-hack_1690929637",
@@ -196,7 +206,7 @@ LOGS = [
     # "minisat-hack_1691043918",
     # "minisat-hack_1691043948",
 
-    # "minisat-hack_1690989310", ## FirstImprovement Validate
+    # "minisat-hack_1690989310", ## Minisat FirstImprovement Validate
     # "minisat-hack_1690989316",
     # "minisat-hack_1690989325",
     # "minisat-hack_1690989329",
@@ -227,7 +237,7 @@ LOGS = [
     # "minisat-hack_1691067083",
     # "minisat-hack_1691067179",
 
-    # "minisat-hack_1691080228", ## FirstImprovement Test
+    # "minisat-hack_1691080228", ## Minisat FirstImprovement Test
     # "minisat-hack_1691080293",
     # "minisat-hack_1691080391",
     # "minisat-hack_1691080497",
@@ -243,7 +253,7 @@ LOGS = [
     # "minisat-hack_1691099942",
     # "minisat-hack_1691100036",
 
-    # "minisat-hack_1691133962", ## GeneticAlgorithm Train
+    # "minisat-hack_1691133962", ## Minisat GeneticAlgorithm Train
     # "minisat-hack_1691133979",
     # "minisat-hack_1691133995",
     # "minisat-hack_1691134014",
@@ -274,7 +284,7 @@ LOGS = [
     # "minisat-hack_1691221371",
     # "minisat-hack_1691221374",
 
-    # "minisat-hack_1691241709",  ## GeneticAlgorithm Validate
+    # "minisat-hack_1691241709",  ## Minisat GeneticAlgorithm Validate
     # "minisat-hack_1691241722",
     # "minisat-hack_1691241747",
     # "minisat-hack_1691241757",
@@ -305,7 +315,7 @@ LOGS = [
     # "minisat-hack_1691250703",
     # "minisat-hack_1691251050",
 
-    # "minisat-hack_1691255851", ## GeneticAlgorithm Test
+    # "minisat-hack_1691255851", ## Minisat GeneticAlgorithm Test
     # "minisat-hack_1691255867",
     # "minisat-hack_1691255910",
     # "minisat-hack_1691255940",
@@ -383,9 +393,80 @@ LOGS = [
     "minisat-hack_1692624637",
     "minisat-hack_1692625555",
     "minisat-hack_1692626504",
+
+    # "sat4j_1692313299", ## sat4j FirstImprovement Train
+    # "sat4j_1692313300",
+    # "sat4j_1692313310",
+    # "sat4j_1692313311",
+    # "sat4j_1692313841",
+    # "sat4j_1692331630",
+    # "sat4j_1692331631",
+    # "sat4j_1692331818",
+    # "sat4j_1692332172",
+    # "sat4j_1692349947",
+    # "sat4j_1692350134",
+    # "sat4j_1692350135",
+    # "sat4j_1692350136",
+    # "sat4j_1692350858",
+    # "sat4j_1692368168",
+    # "sat4j_1692368311",
+    # "sat4j_1692368312",
+    # "sat4j_1692369169",
+    # "sat4j_1692386287",
+    # "sat4j_1692386461",
+    # "sat4j_1692386462",
+    # "sat4j_1692387004",
+    # "sat4j_1692387312",
+    # "sat4j_1692387681",
+    # "sat4j_1692388212",
+    # "sat4j_1692404458",
+    # "sat4j_1692404810",
+    # "sat4j_1692405164",
+    # "sat4j_1692406431",
+    # "sat4j_1692422627",
+    # "sat4j_1692422992",
+    # "sat4j_1692422993",
+    # "sat4j_1692423347",
+    # "sat4j_1692424608",
+    # "sat4j_1692430908",
+    # "sat4j_1692431268",
+    # "sat4j_1692441038",
+    # "sat4j_1692441217",
+    # "sat4j_1692441584",
+    # "sat4j_1692459229",
+
+    "sat4j_1692482842", ## sat4j FirstImprovement Validate
+    "sat4j_1692482843",
+    "sat4j_1692482844",
+    "sat4j_1692482845",
+    "sat4j_1692486395",
+    "sat4j_1692486396",
+    "sat4j_1692486578",
+    "sat4j_1692486754",
+    "sat4j_1692490079",
+    "sat4j_1692490247",
+    "sat4j_1692490248",
+    "sat4j_1692490495",
+    "sat4j_1692493672",
+    "sat4j_1692493673",
+    "sat4j_1692494035",
+    "sat4j_1692494395",
+    "sat4j_1692497281",
+    "sat4j_1692497450",
+    "sat4j_1692497800",
+    "sat4j_1692497801",
+    "sat4j_1692500867",
+    "sat4j_1692501404",
+    "sat4j_1692501586",
+    "sat4j_1692501587",
+    "sat4j_1692504289",
+    "sat4j_1692504828",
+    "sat4j_1692505012",
+    "sat4j_1692505362",
+    "sat4j_1692508069",
 ]
 
-main(LOGS, NEXT_PHASE="test", BENCHMARK="minisat")
+main(LOGS, NEXT_PHASE="test", BENCHMARK="sat4j")
 
 if len(EMPTY_PATCH) != 0:
     print("EMPTY patch")

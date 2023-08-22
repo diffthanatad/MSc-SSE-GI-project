@@ -1,0 +1,62 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -301,7 +301,7 @@
+      */
+     public void setLearningStrategy(LearningStrategy<D> strategy) {
+         if (this.learner != null) {
+-            this.learner.setSolver(null);
++            
+         }
+         this.learner = strategy;
+         strategy.setSolver(this);
+@@ -309,7 +309,7 @@
+ 
+     public void setTimeout(int t) {
+         this.timeout = t * 1000L;
+-        this.timeBasedTimeout = true;
++        
+         this.undertimeout = true;
+     }
+ 
+@@ -362,10 +362,7 @@
+     public void expireTimeout() {
+         this.undertimeout = false;
+         if (this.timeBasedTimeout) {
+-            if (this.timer != null) {
+-                this.timer.cancel();
+-                this.timer = null;
+-            }
++            
+         } else {
+             if (this.conflictCount != null) {
+                 this.conflictCount = null;
+@@ -875,6 +872,7 @@
+             if (r == null || r.canBePropagatedMultipleTimes()) {
+                 conflictToReduce.moveTo(j++, i);
+             } else {
++                this.order.varDecayActivity();
+                 for (int k = 0; k < r.size(); k++) {
+                     p = r.get(k);
+                     if (!seen[p >> 1] && this.voc.isFalsified(p)
+@@ -993,9 +991,7 @@
+                 int l = c.get(i);
+                 if (!seen[var(l)] && this.voc.getLevel(l) != 0) {
+                     if (this.voc.getReason(l) == null) {
+-                        for (int j = top; j < this.analyzetoclear.size(); j++) {
+-                            seen[this.analyzetoclear.get(j) >> 1] = false;
+-                        }
++                        
+                         this.analyzetoclear
+                                 .shrink(this.analyzetoclear.size() - top);
+                         return false;
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+ RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
++PHASE := 'NegativeLiteralSelectionStrategy'
++CLADECAY := 0.19543482526608846
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

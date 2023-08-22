@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'RESTARTS'), 'MiniSATRestarts') | ParamSetting(('sat4j.params', 'CONFLICTBOUNDINCFACTOR'), 1.5134513908373388) | ParamSetting(('sat4j.params', 'SIMP'), 'NO_SIMPLIFICATION') | ParamSetting(('sat4j.params', 'CLADECAY'), 0.8496770211204794)

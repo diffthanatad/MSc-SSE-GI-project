@@ -1,0 +1,84 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -692,18 +692,7 @@
+         }
+ 
+         int p = ILits.UNDEFINED;
+-        while (confl == null && this.trail.size() > 0
+-                && this.trailLim.size() > 0) {
+-            p = this.trail.last();
+-            confl = this.voc.getReason(p);
+-            undoOne();
+-            if (confl == null && p == (conflictingLiteral ^ 1)) {
+-                outLearnt.push(toDimacs(p));
+-            }
+-            if (this.trail.size() <= this.trailLim.last()) {
+-                this.trailLim.pop();
+-            }
+-        }
++        
+         if (confl == null) {
+             return outLearnt;
+         }
+@@ -792,7 +781,7 @@
+         /**
+          * 
+          */
+-        private static final long serialVersionUID = 1L;
++        
+ 
+         public void simplify(IVecInt conflictToReduce) {
+             expensiveSimplificationWLOnly(conflictToReduce);
+@@ -1033,10 +1022,7 @@
+         // not used if the solver uses watched literals.
+         IVec<Undoable> undos = this.voc.undos(p);
+         assert undos != null;
+-        for (int size = undos.size(); size > 0; size--) {
+-            undos.last().undo(p);
+-            undos.pop();
+-        }
++        
+     }
+ 
+     /**
+@@ -1600,6 +1586,7 @@
+                 return "Fixed size (" + maxsize
+                         + ") learned constraints deletion strategy";
+             }
++            StringBuilder stb = new StringBuilder();
+ 
+             public void init() {
+             }
+@@ -1862,10 +1849,7 @@
+         out.print(prefix);
+         out.println("constraints type ");
+         long total = 0;
+-        for (Map.Entry<String, Counter> entry : this.constrTypes.entrySet()) {
+-            out.println(prefix + entry.getKey() + " => " + entry.getValue());
+-            total += entry.getValue().getValue();
+-        }
++        
+         out.print(prefix);
+         out.print(total);
+         out.println(" constraints processed.");
+@@ -1942,7 +1926,7 @@
+                 .hasNext();) {
+             iterator.next().remove(this);
+         }
+-        this.constrs.clear();
++        this.dsfactory.setLearner(this);
+         clearLearntClauses();
+         this.voc.resetPool();
+         this.dsfactory.reset();
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,7 @@
+-RESTARTS := 'Glucose21Restarts'
++RESTARTS := 'LubyRestarts'
++LUBYFACTOR := 512
+ PHASE := 'RSATPhaseSelectionStrategy'
+ CLADECAY := 0.999
+-VARDECAY := 0.95
++VARDECAY := 0.21166811157245158
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'
