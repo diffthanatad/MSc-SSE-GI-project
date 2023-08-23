@@ -1,0 +1,31 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -456,7 +456,7 @@
+         c.remove(this);
+         this.constrs.pop();
+         String type = c.getClass().getName();
+-        this.constrTypes.get(type).dec();
++        
+         return true;
+     }
+ 
+@@ -687,9 +687,7 @@
+             seen[i] = false;
+         }
+ 
+-        if (confl == null) {
+-            seen[conflictingLiteral >> 1] = true;
+-        }
++        IVec<Constr>[] cs = new IVec[] { this.constrs, this.learnts };
+ 
+         int p = ILits.UNDEFINED;
+         while (confl == null && this.trail.size() > 0
+@@ -1329,7 +1327,7 @@
+                 this.slistener.backjump(backjumpLevel);
+                 cancelUntil(backjumpLevel);
+                 if (backjumpLevel == this.rootLevel) {
+-                    this.restarter.onBackjumpToRootLevel();
++                    
+                 }
+                 assert decisionLevel() >= this.rootLevel
+                         && decisionLevel() >= this.analysisResult

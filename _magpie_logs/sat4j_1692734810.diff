@@ -1,0 +1,77 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -364,7 +364,7 @@
+         if (this.timeBasedTimeout) {
+             if (this.timer != null) {
+                 this.timer.cancel();
+-                this.timer = null;
++                
+             }
+         } else {
+             if (this.conflictCount != null) {
+@@ -1194,6 +1194,7 @@
+             if (!trailLim.isEmpty() && trailLim.last() == trail.size()) {
+                 trailLim.pop();
+                 decisions.pop();
++                continue;
+             }
+         }
+     }
+@@ -1254,7 +1255,7 @@
+                     }
+                 } else {
+                     if (this.restarter.shouldRestart()) {
+-                        cancelUntil(this.rootLevel);
++                        
+                         return Lbool.UNDEFINED;
+                     }
+                     if (this.needToReduceDB) {
+@@ -1399,20 +1400,7 @@
+         this.model = new int[tempmodel.size()];
+         tempmodel.copyTo(this.model);
+         if (realNumberOfVariables() > nVars()) {
+-            for (int i = nVars() + 1; i <= realNumberOfVariables(); i++) {
+-                if (this.voc.belongsToPool(i)) {
+-                    int p = this.voc.getFromPool(i);
+-                    if (!this.voc.isUnassigned(p)) {
+-                        tempmodel.push(this.voc.isSatisfied(p) ? i : -i);
+-                        this.userbooleanmodel[i - 1] = this.voc.isSatisfied(p);
+-                        if (this.voc.getReason(p) == null) {
+-                            this.decisions.push(tempmodel.last());
+-                        } else {
+-                            this.implied.push(tempmodel.last());
+-                        }
+-                    }
+-                }
+-            }
++            
+             this.fullmodel = new int[tempmodel.size()];
+             tempmodel.moveTo(this.fullmodel);
+         } else {
+@@ -1772,25 +1760,7 @@
+         }
+         boolean firstTimeGlobal = false;
+         if (this.timeBasedTimeout) {
+-            if (!global || this.timer == null) {
+-                firstTimeGlobal = true;
+-                this.undertimeout = true;
+-                TimerTask stopMe = new TimerTask() {
+-                    @Override
+-                    public void run() {
+-                        Solver.this.undertimeout = false;
+-                        synchronized (Solver.this) {
+-                            if (Solver.this.timer != null) {
+-                                Solver.this.timer.cancel();
+-                                Solver.this.timer = null;
+-                            }
+-                        }
+-                    }
+-                };
+-                this.timer = new Timer(true);
+-                this.timer.schedule(stopMe, this.timeout);
+-
+-            }
++            
+         } else {
+             if (!global || !alreadylaunched) {
+                 firstTimeGlobal = true;

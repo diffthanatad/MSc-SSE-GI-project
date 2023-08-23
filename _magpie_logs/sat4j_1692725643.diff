@@ -1,0 +1,61 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -558,15 +558,13 @@
+             // conflicting enqueued assignment
+             return false;
+         }
+-        this.slistener.enqueueing(toDimacs(p), from);
++        
+         // new fact, store it
+         this.voc.satisfies(p);
+         this.voc.setLevel(p, decisionLevel());
+         this.voc.setReason(p, from);
+         this.trail.push(p);
+-        if (from != null && from.learnt()) {
+-            this.learnedConstraintsDeletionStrategy.onPropagation(from);
+-        }
++        
+         return true;
+     }
+ 
+@@ -743,7 +741,7 @@
+         /**
+          * 
+          */
+-        private static final long serialVersionUID = 1L;
++        
+ 
+         public void simplify(IVecInt outLearnt) {
+         }
+@@ -1023,7 +1021,7 @@
+         int x = p >> 1;
+         // unassign variable
+         this.voc.unassign(p);
+-        this.voc.setReason(p, null);
++        
+         this.voc.setLevel(p, -1);
+         // update heuristics value
+         this.order.undo(x);
+@@ -1249,7 +1247,7 @@
+                             this.sharedConflict.assertConstraint(this);
+                             this.sharedConflict = null;
+ 
+-                            continue;
++                            this.fullmodel = this.model;
+                         }
+                     }
+                 } else {
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+ RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
+-VARDECAY := 0.95
+-SIMP := 'EXPENSIVE_SIMPLIFICATION'
+-CLEANING := 'LBD2'
++PHASE := 'PhaseInLastLearnedClauseSelectionStrategy'
++CLADECAY := 0.9559688003063762
++VARDECAY := 0.8993319177595209
++SIMP := 'SIMPLE_SIMPLIFICATION'
++CLEANING := 'LBD'

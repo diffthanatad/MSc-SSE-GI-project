@@ -1,0 +1,11 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -2166,7 +2166,7 @@
+             }
+         } else {
+             for (int i = 0; i < decisions.size(); i++) {
+-                clause.push(-decisions.get(i));
++                
+             }
+         }
+ 
