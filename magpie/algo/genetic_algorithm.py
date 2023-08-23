@@ -30,8 +30,8 @@ class GeneticAlgorithm(Algorithm):
     def setup(self):
         super().setup()
         self.name = 'Genetic Algorithm'
-        self.config['pop_size'] = 100
-        self.config['elitism_size'] = 10
+        self.config['pop_size'] = 10
+        self.config['elitism_size'] = 2
 
         self.config['cxpb_chrm'] = 0.5
         self.config['cxpb_gene'] = 0.5
