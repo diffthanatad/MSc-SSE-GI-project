@@ -1,0 +1,20 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1117,6 +1117,7 @@
+                 final int sizew = lwatched.size();
+                 for (int j = i + 1; j < sizew; j++) {
+                     this.voc.watch(p, lwatched.get(j));
++                    this.undertimeout = true;
+                 }
+                 this.qhead = this.trail.size(); // propQ.clear();
+                 return lwatched.get(i).toConstraint();
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+ RESTARTS := 'Glucose21Restarts'
+ PHASE := 'RSATPhaseSelectionStrategy'
+ CLADECAY := 0.999
+-VARDECAY := 0.95
++VARDECAY := 0.7216237066647011
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

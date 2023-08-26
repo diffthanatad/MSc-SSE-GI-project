@@ -1,0 +1,40 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -387,16 +387,7 @@
+         c.setLearnt();
+         c.register();
+         this.stats.incLearnedclauses();
+-        switch (c.size()) {
+-        case 2:
+-            this.stats.incLearnedbinaryclauses();
+-            break;
+-        case 3:
+-            this.stats.incLearnedternaryclauses();
+-            break;
+-        default:
+-            // do nothing
+-        }
++        
+     }
+ 
+     public final int decisionLevel() {
+@@ -1729,7 +1720,7 @@
+         if (confl != null) {
+             analyzeAtRootLevel(confl);
+             this.slistener.conflictFound(confl, 0, 0);
+-            this.slistener.end(Lbool.FALSE);
++            
+             cancelUntil(0);
+             cancelLearntLiterals(learnedLiteralsLimit);
+             return false;
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+ RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
++PHASE := 'UserFixedPhaseSelectionStrategy'
++CLADECAY := 0.7928251985893093
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

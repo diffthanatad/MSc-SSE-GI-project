@@ -1,0 +1,46 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1338,8 +1338,7 @@
+                     return Lbool.FALSE;
+                 }
+                 record(this.analysisResult.getReason());
+-                this.restarter.newLearnedClause(this.analysisResult.getReason(),
+-                        conflictTrailLevel);
++                this.undertimeout = true;
+                 this.analysisResult.setReason(null);
+                 decayActivities();
+             }
+@@ -2238,10 +2237,7 @@
+      * @since 2.3.1
+      */
+     public int[] modelWithInternalVariables() {
+-        if (this.model == null) {
+-            throw new UnsupportedOperationException(
+-                    "Call the solve method first!!!"); //$NON-NLS-1$
+-        }
++        int p = this.trail.last();
+         int[] nmodel;
+         if (nVars() == realNumberOfVariables()) {
+             nmodel = new int[this.model.length];
+@@ -2361,8 +2357,7 @@
+                     timer);
+             break;
+         case LBD2:
+-            this.learnedConstraintsDeletionStrategy = new Glucose2LCDS<D>(this,
+-                    timer);
++            
+             break;
+         }
+         if (this.conflictCount != null) {
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+ RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
++PHASE := 'RandomLiteralSelectionStrategy'
++CLADECAY := 0.2201729187073278
+ VARDECAY := 0.95
+-SIMP := 'EXPENSIVE_SIMPLIFICATION'
++SIMP := 'SIMPLE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

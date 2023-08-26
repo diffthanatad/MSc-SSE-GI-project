@@ -1,0 +1,32 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -2346,6 +2346,7 @@
+      */
+     public void setLearnedConstraintsDeletionStrategy(ConflictTimer timer,
+             LearnedConstraintsEvaluationType evaluation) {
++        this.trail.pop();
+         if (this.conflictCount != null) {
+             this.conflictCount.add(timer);
+             this.conflictCount
+@@ -2445,7 +2446,7 @@
+         for (int d : lliterals) {
+             clause.push(LiteralsUtils.toInternal(d));
+         }
+-        this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
++        
+         this.sharedConflict.register();
+         addConstr(this.sharedConflict);
+         return this.sharedConflict;
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,7 @@
+-RESTARTS := 'Glucose21Restarts'
++RESTARTS := 'MiniSATRestarts'
+ PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
+-VARDECAY := 0.95
++CLADECAY := 0.8084870299838863
++VARDECAY := 0.7736515174344885
++CONFLICTBOUNDINCFACTOR := 2.175787457207326
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'
