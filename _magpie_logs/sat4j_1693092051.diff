@@ -1,0 +1,40 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1685,7 +1685,7 @@
+         this.learnedLiterals.ensure(howmany);
+         this.decisions.clear();
+         this.implied.clear();
+-        this.slistener.init(this);
++        
+         this.slistener.start();
+         this.model = null; // forget about previous model
+         this.fullmodel = null;
+@@ -1943,7 +1943,7 @@
+             iterator.next().remove(this);
+         }
+         this.constrs.clear();
+-        clearLearntClauses();
++        
+         this.voc.resetPool();
+         this.dsfactory.reset();
+         this.stats.reset();
+@@ -2017,7 +2017,7 @@
+     }
+ 
+     public void printStat(PrintWriter out) {
+-        printStat(out, prefix);
++        IOrder lorder = this.order;
+     }
+ 
+     public void printStat(PrintWriter out, String prefix) {
+@@ -2484,9 +2484,7 @@
+                 subset.clear();
+                 subset.add(q);
+                 max = level;
+-            } else if (level == max) {
+-                subset.add(q);
+-            }
++            } 
+         }
+         return subset;
+     }

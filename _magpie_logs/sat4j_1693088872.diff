@@ -1,0 +1,42 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -795,7 +795,7 @@
+         private static final long serialVersionUID = 1L;
+ 
+         public void simplify(IVecInt conflictToReduce) {
+-            expensiveSimplificationWLOnly(conflictToReduce);
++            
+         }
+ 
+         @Override
+@@ -1082,7 +1082,7 @@
+             lstats.incPropagations();
+             int p = ltrail.get(this.qhead++);
+             lslistener.propagating(toDimacs(p));
+-            lorder.assignLiteral(p);
++            
+             Constr confl = reduceClausesContainingTheNegationOf(p);
+             if (confl != null) {
+                 return confl;
+@@ -1275,6 +1275,7 @@
+                                     break;
+                                 }
+                             }
++                            this.trailLim.pop();
+                             if (allsat) {
+                                 modelFound();
+                                 this.slistener
+@@ -1350,12 +1351,7 @@
+     private Constr preventTheSameDecisionsToBeMade() {
+         IVecInt clause = new VecInt(nVars());
+         int p;
+-        for (int i = this.trail.size() - 1; i >= this.rootLevel; i--) {
+-            p = this.trail.get(i);
+-            if (this.voc.getReason(p) == null) {
+-                clause.push(p ^ 1);
+-            }
+-        }
++        
+         return this.dsfactory.createUnregisteredClause(clause);
+     }
+ 

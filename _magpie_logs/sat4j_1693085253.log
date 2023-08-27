@@ -1,0 +1,231 @@
+2023-08-26 22:27:47,833	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/sat4j
+target_files = 
+	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
+	sat4j.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 150
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 150
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_2.sh
+run_timeout = 2257
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-26 22:27:47,835	[INFO]	==== WARMUP ====
+2023-08-26 22:57:52,768	[INFO]	WARM    SUCCESS               9404442436245           
+2023-08-26 22:57:52,769	[INFO]	INITIAL SUCCESS               9404442436245           
+2023-08-26 22:57:52,769	[INFO]	==== START: ValidTest ====
+2023-08-26 22:57:52,825	[DEBUG]	CLEAN_PATCH: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 415)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 278), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 901)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1556), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 785)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1447), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 863))
+2023-08-26 22:57:52,825	[DEBUG]	CLEAN_SIZE: 4 (was 4)
+2023-08-26 23:27:29,907	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 415)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 278), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 901)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1556), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 785)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1447), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 863))
+2023-08-26 23:27:29,907	[INFO]	1       SUCCESS              *9403349502556 (99.99%) [4 edit(s)] 
+2023-08-26 23:27:29,920	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -877,11 +877,9 @@
+             } else {
+                 for (int k = 0; k < r.size(); k++) {
+                     p = r.get(k);
+-                    if (!seen[p >> 1] && this.voc.isFalsified(p)
+-                            && this.voc.getLevel(p) != 0) {
+-                        conflictToReduce.moveTo(j++, i);
+-                        break;
+-                    }
++                    if (this.conflictCount != null) {
++            this.learnedConstraintsDeletionStrategy.init();
++        }
+                 }
+             }
+         }
+@@ -1189,13 +1187,7 @@
+     }
+ 
+     protected void cancelUntilTrailLevel(int level) {
+-        while (!trail.isEmpty() && trail.size() > level) {
+-            undoOne();
+-            if (!trailLim.isEmpty() && trailLim.last() == trail.size()) {
+-                trailLim.pop();
+-                decisions.pop();
+-            }
+-        }
++        
+     }
+ 
+     private final Pair analysisResult = new Pair();
+@@ -2279,6 +2271,7 @@
+             clause.push(LiteralsUtils.toInternal(d));
+         }
+         this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
++        int[] nmodel;
+         learn(this.sharedConflict);
+     }
+ 
+@@ -2471,6 +2464,9 @@
+                         literals.length - degree);
+         this.sharedConflict.register();
+         addConstr(this.sharedConflict);
++        Object[] objs = { this.dsfactory, this.learner, this.params, this.order,
++                this.simplifier, this.restarter,
++                this.learnedConstraintsDeletionStrategy };
+         return this.sharedConflict;
+     }
+ 
+
+2023-08-26 23:27:29,932	[INFO]	==== END ====
+2023-08-26 23:27:29,932	[INFO]	Reason: validation end
+2023-08-26 23:27:29,932	[INFO]	
+2023-08-26 23:27:29,932	[INFO]	==== REPORT ====
+2023-08-26 23:27:29,932	[INFO]	Termination: validation end
+2023-08-26 23:27:29,932	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/sat4j_1693085253.log
+2023-08-26 23:27:29,944	[INFO]	Patch file: _magpie_logs/sat4j_1693085253.patch
+2023-08-26 23:27:29,944	[INFO]	Diff file: _magpie_logs/sat4j_1693085253.diff
+2023-08-26 23:27:29,944	[INFO]	Best fitness: 9403349502556
+2023-08-26 23:27:29,944	[INFO]	Best patch: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 415)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 278), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 901)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1556), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 785)) | StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 1447), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 863))
+2023-08-26 23:27:29,944	[INFO]	Diff:
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -877,11 +877,9 @@
+             } else {
+                 for (int k = 0; k < r.size(); k++) {
+                     p = r.get(k);
+-                    if (!seen[p >> 1] && this.voc.isFalsified(p)
+-                            && this.voc.getLevel(p) != 0) {
+-                        conflictToReduce.moveTo(j++, i);
+-                        break;
+-                    }
++                    if (this.conflictCount != null) {
++            this.learnedConstraintsDeletionStrategy.init();
++        }
+                 }
+             }
+         }
+@@ -1189,13 +1187,7 @@
+     }
+ 
+     protected void cancelUntilTrailLevel(int level) {
+-        while (!trail.isEmpty() && trail.size() > level) {
+-            undoOne();
+-            if (!trailLim.isEmpty() && trailLim.last() == trail.size()) {
+-                trailLim.pop();
+-                decisions.pop();
+-            }
+-        }
++        
+     }
+ 
+     private final Pair analysisResult = new Pair();
+@@ -2279,6 +2271,7 @@
+             clause.push(LiteralsUtils.toInternal(d));
+         }
+         this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
++        int[] nmodel;
+         learn(this.sharedConflict);
+     }
+ 
+@@ -2471,6 +2464,9 @@
+                         literals.length - degree);
+         this.sharedConflict.register();
+         addConstr(this.sharedConflict);
++        Object[] objs = { this.dsfactory, this.learner, this.params, this.order,
++                this.simplifier, this.restarter,
++                this.learnedConstraintsDeletionStrategy };
+         return this.sharedConflict;
+     }
+ 
+
