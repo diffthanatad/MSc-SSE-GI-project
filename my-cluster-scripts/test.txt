@@ -1,0 +1,8 @@
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/AC/test_5.txt --patch _magpie_logs/sat4j_1693098892.patch
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/AC/test_6.txt --patch _magpie_logs/sat4j_1693099253.patch
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/AC/test_10.txt --patch _magpie_logs/sat4j_1693102492.patch
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/GI/test_2.txt --patch _magpie_logs/sat4j_1693085253.patch
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/GI/test_4.txt --patch _magpie_logs/sat4j_1693088694.patch
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/GI/test_8.txt --patch _magpie_logs/sat4j_1693092051.patch
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/GI/test_9.txt --patch _magpie_logs/sat4j_1693092591.patch
+python3 -m bin.revalidate_patch --scenario scenario/sat4j/GI/test_10.txt --patch _magpie_logs/sat4j_1693092772.patch
