@@ -141,10 +141,10 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
     # np.savetxt("AC_GI_LOG.csv", AC_GI_LOG, delimiter=",", fmt='% s')
 
     # for validation phase. creating scripts.
-    # ALL_SCRIPTS = AC_SCRIPT + AC_GI_SCRIPT + GI_SCRIPT 
-    # with open('g_all.sh','w') as file:
-    #     for i in range(len(ALL_SCRIPTS)):
-    #         file.write(ALL_SCRIPTS[i] + "\n")
+    ALL_SCRIPTS = AC_SCRIPT + AC_GI_SCRIPT + GI_SCRIPT 
+    with open('g_all.sh','w') as file:
+        for i in range(len(ALL_SCRIPTS)):
+            file.write(ALL_SCRIPTS[i] + "\n")
     
     # with open('patch_ac.txt', 'w') as file:
     #     for i in range(10):
