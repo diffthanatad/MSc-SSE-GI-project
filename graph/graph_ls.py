@@ -36,12 +36,12 @@ def main(i_th, file_name, search_space, algorithm, view):
         """ Fitness View """
         plt.ylabel('CPU instructions')
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
-        plt.savefig('../images-sat4j/{}_{}_k-{}_fitness_view.png'.format(algorithm, search_space, i_th, view), bbox_inches='tight')
+        plt.savefig('../images/{}_{}_k-{}_fitness_view.png'.format(algorithm, search_space, i_th, view), bbox_inches='tight')
         # plt.show()
     else:
         """ Percentage View """
         plt.ylabel('Percentage')
-        plt.savefig('../images-sat4j/{}_{}_k-{}_percentage_view.png'.format(algorithm, search_space, i_th, view), bbox_inches='tight')
+        plt.savefig('../images/{}_{}_k-{}_percentage_view.png'.format(algorithm, search_space, i_th, view), bbox_inches='tight')
         # plt.show()
     plt.close()
 
@@ -143,5 +143,5 @@ def sat4j():
         # main(i+1, ls_gi_logs[i], "gi", "ls", "Fitness View")
         main(i+1, ls_gi_logs[i], "gi", "ls", "Percentage View")
 
-# minisat()
-sat4j()
+minisat()
+# sat4j()

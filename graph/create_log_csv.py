@@ -90,7 +90,7 @@ def main(i, file_name, search_space, algorithm):
                 StmtDeletion = 0
                 StmtReplacement = 0
     
-    np.savetxt("../results-sat4j/{}_{}_{}.csv".format(algorithm, search_space, i), rows, delimiter=",", fmt='% s', header="variant_number,timestamp,time_elapse,status,fitness,percentage,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement", comments='')
+    np.savetxt("../results/{}_{}_{}.csv".format(algorithm, search_space, i), rows, delimiter=",", fmt='% s', header="variant_number,timestamp,time_elapse,status,fitness,percentage,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement", comments='')
 
 # main(1, "minisat-hack_1691145361", "ac-gi", "ga")
 # print(all_patch)
@@ -284,5 +284,5 @@ def sat4j():
     
     np.savetxt("../results-sat4j/edit_analysis.csv", all_patch, delimiter=",", fmt='% s', header="algorithm,search_space,k_th,edit,ParamSetting,StmtInsertion,StmtDeletion,StmtReplacement,gen", comments='')
     
-# minisat()
-sat4j()
+minisat()
+# sat4j()

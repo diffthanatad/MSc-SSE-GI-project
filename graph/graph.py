@@ -116,24 +116,25 @@ def main(PERCENTAGE_VIEW, PROGRAM, SEARCH_STRATEGY):
 
         for i in range(3):
             plt.axvline(x = 3600*(1+i), color = "purple")
+        plt.axvline(x = 3600, color = "purple", label = "every 1 hr.")
 
-        plt.xlabel('Time')
+        plt.xlabel('Time (seconds)')
         if PERCENTAGE_VIEW:
             plt.ylabel('Percentage')
         else:
             plt.ylabel('Fitness')
         plt.title(GRAPH_TITLE)
         plt.legend()
-        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
-
+        plt.grid()
+        # plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
 
         plt.savefig('./{FILE_NAME}.png'.format(FILE_NAME=IMAGE_NAME), bbox_inches='tight')
 
-main(
-    PERCENTAGE_VIEW = False, 
-    PROGRAM = 'Mini-SAT',
-    SEARCH_STRATEGY = 'FirstImprovement'
-)
+# main(
+#     PERCENTAGE_VIEW = False, 
+#     PROGRAM = 'Mini-SAT',
+#     SEARCH_STRATEGY = 'FirstImprovement'
+# )
 
 main(
     PERCENTAGE_VIEW = True, 
