@@ -11,14 +11,17 @@ ga_ac = [None,None,8255827763805,None,7117904137029,7869973917542,None,703498672
 ga_gi = [None,7419055909991,None,None,None,7544293823527,None,6887225088091,8877206556775,None]
 ga_ac_gi = [None,None,None,None,None,8405936014853,None,None,None,None]
 
-plt.figure()
-plt.plot(variants, ls_ac, marker="$c$", color="blue")
-plt.plot(variants, ls_gi, marker="$s$", color="blue")
-plt.plot(variants, ls_ac_gi, marker="$j$", color="blue")
+f = plt.figure()
+# f.set_figwidth(10)
+# f.set_figheight(5)
 
-plt.plot(variants, ga_ac, marker="$c$", color="red")
-plt.plot(variants, ga_gi, marker="$s$", color="red")
-plt.plot(variants, ga_ac_gi, marker="$j$", color="red")
+plt.scatter(variants, ga_ac, marker="*", color="red")
+plt.scatter(variants, ga_gi, marker="o", color="red")
+plt.scatter(variants, ga_ac_gi, marker="D", color="red")
+
+plt.scatter(variants, ls_ac, marker="*", color="blue")
+plt.scatter(variants, ls_gi, marker="o", color="blue")
+plt.scatter(variants, ls_ac_gi, marker="D", color="blue")
 
 plt.axhline(base_line, linestyle="-", color="green", label="base line")
 plt.xticks(variants)
@@ -26,12 +29,15 @@ plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
 
 plt.plot([], color='blue', label='First Improvement')
 plt.plot([], color='red', label='Genetic Algorithm')
+# plt.plot([], marker="*", label='AC')
+# plt.plot([], marker="o", label='GI')
+# plt.plot([], marker="D", label='AC + GI')
 
-plt.xlabel('Repetition')
+plt.xlabel('K-fold')
 plt.ylabel('CPU instructions')
 plt.title("First Improvement vs. Genetic Algorithm")
 
 plt.legend()
 plt.grid()
 # plt.show()
-plt.savefig('../images/first_improvement_and_genetic_algorithm_2.png', bbox_inches='tight')
+plt.savefig('../images/first_improvement_and_genetic_algorithm_3.png', bbox_inches='tight')
