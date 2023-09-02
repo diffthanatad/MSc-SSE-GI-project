@@ -1,0 +1,205 @@
+2023-08-22 09:34:27,131	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/test_6.sh
+run_timeout = 5287
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 100
+elitism_size = 10
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-22 09:34:27,132	[INFO]	==== WARMUP ====
+2023-08-22 10:47:07,956	[INFO]	WARM    SUCCESS               8210235438928           
+2023-08-22 10:47:07,956	[INFO]	INITIAL SUCCESS               8210235438928           
+2023-08-22 10:47:07,956	[INFO]	==== START: ValidTest ====
+2023-08-22 10:47:08,007	[DEBUG]	CLEAN_PATCH: StmtDeletion(('core/Solver.cc.xml', 'stmt', 232)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 441), ('core/Solver.cc.xml', 'stmt', 141)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 23))
+2023-08-22 10:47:08,007	[DEBUG]	CLEAN_SIZE: 4 (was 4)
+2023-08-22 11:45:36,328	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 232)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 441), ('core/Solver.cc.xml', 'stmt', 141)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 23))
+2023-08-22 11:45:36,339	[INFO]	1       SUCCESS              *6645163653252 (80.94%) [4 edit(s)] 
+2023-08-22 11:45:36,357	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -118,7 +118,7 @@
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
+     K = (double)opt_K;
+-    R = (double)opt_R;
++    
+ }
+ 
+ 
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -571,7 +571,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -769,6 +769,7 @@
+             if (!luby_restart){
+                 gS += L;
+                 PUSH(LQ, L, 50, lS);
++                uint32_t abstract_level = 0;
+             }
+ 
+             if (learnt_clause.size() == 1){
+
+2023-08-22 11:45:36,373	[INFO]	==== END ====
+2023-08-22 11:45:36,374	[INFO]	Reason: validation end
+2023-08-22 11:45:36,374	[INFO]	
+2023-08-22 11:45:36,374	[INFO]	==== REPORT ====
+2023-08-22 11:45:36,374	[INFO]	Termination: validation end
+2023-08-22 11:45:36,374	[INFO]	Log file: /cs/research/crest/home0/jpetke/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1692693264.log
+2023-08-22 11:45:36,390	[INFO]	Patch file: _magpie_logs/minisat-hack_1692693264.patch
+2023-08-22 11:45:36,390	[INFO]	Diff file: _magpie_logs/minisat-hack_1692693264.diff
+2023-08-22 11:45:36,390	[INFO]	Best fitness: 6645163653252
+2023-08-22 11:45:36,390	[INFO]	Best patch: StmtDeletion(('core/Solver.cc.xml', 'stmt', 232)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 441), ('core/Solver.cc.xml', 'stmt', 141)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 130)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 23))
+2023-08-22 11:45:36,390	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -118,7 +118,7 @@
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
+     K = (double)opt_K;
+-    R = (double)opt_R;
++    
+ }
+ 
+ 
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -571,7 +571,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -769,6 +769,7 @@
+             if (!luby_restart){
+                 gS += L;
+                 PUSH(LQ, L, 50, lS);
++                uint32_t abstract_level = 0;
+             }
+ 
+             if (learnt_clause.size() == 1){
+

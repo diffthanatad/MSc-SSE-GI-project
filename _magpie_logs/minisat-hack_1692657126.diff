@@ -1,0 +1,11 @@
+--- before: minisat.params
++++ after: minisat.params
+@@ -3,7 +3,7 @@
+ cp-increase := 15000
+ core-tolerance := 0.02
+ R-val := 1.4
+-var-decay := 0.8
++var-decay := 0.9633240012705103
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
