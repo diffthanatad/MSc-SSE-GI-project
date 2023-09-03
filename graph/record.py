@@ -141,10 +141,10 @@ def main(LOGS, NEXT_PHASE, BENCHMARK):
     # np.savetxt("AC_GI_LOG.csv", AC_GI_LOG, delimiter=",", fmt='% s')
 
     # for validation phase. creating scripts.
-    ALL_SCRIPTS = AC_SCRIPT + AC_GI_SCRIPT + GI_SCRIPT 
-    with open('g_all.sh','w') as file:
-        for i in range(len(ALL_SCRIPTS)):
-            file.write(ALL_SCRIPTS[i] + "\n")
+    # ALL_SCRIPTS = AC_SCRIPT + AC_GI_SCRIPT + GI_SCRIPT 
+    # with open('g_all.sh','w') as file:
+    #     for i in range(len(ALL_SCRIPTS)):
+    #         file.write(ALL_SCRIPTS[i] + "\n")
     
     # with open('patch_ac.txt', 'w') as file:
     #     for i in range(10):
@@ -394,6 +394,23 @@ LOGS = [
     # "minisat-hack_1692625555",
     # "minisat-hack_1692626504",
 
+    "minisat-hack_1692648815", ## GeneticAlgorithm (100 pop) Test
+    "minisat-hack_1692648816",
+    "minisat-hack_1692648817",
+    "minisat-hack_1692657126",
+    "minisat-hack_1692657696",
+    "minisat-hack_1692657783",
+    "minisat-hack_1692665294",
+    "minisat-hack_1692666907",
+    "minisat-hack_1692666996",
+    "minisat-hack_1692674481",
+    "minisat-hack_1692675815",
+    "minisat-hack_1692675990",
+    "minisat-hack_1692683469",
+    "minisat-hack_1692684664",
+    "minisat-hack_1692684833",
+    "minisat-hack_1692693264",
+
     # "sat4j_1692313299", ## sat4j FirstImprovement Train old
     # "sat4j_1692313300",
     # "sat4j_1692313310",
@@ -596,17 +613,17 @@ LOGS = [
     # "sat4j_1693102137",
     # "sat4j_1693102492",
 
-    "sat4j_1693126795", ## sat4j Genetic Algorithm Test
-    "sat4j_1693126796",
-    "sat4j_1693126804",
-    "sat4j_1693126805",
-    "sat4j_1693138569",
-    "sat4j_1693138570",
-    "sat4j_1693146793",
-    "sat4j_1693148936",
+    # "sat4j_1693126795", ## sat4j Genetic Algorithm Test
+    # "sat4j_1693126796",
+    # "sat4j_1693126804",
+    # "sat4j_1693126805",
+    # "sat4j_1693138569",
+    # "sat4j_1693138570",
+    # "sat4j_1693146793",
+    # "sat4j_1693148936",
 ]
 
-main(LOGS, NEXT_PHASE="test", BENCHMARK="sat4j")
+main(LOGS, NEXT_PHASE="test", BENCHMARK="minisat")
 
 if len(EMPTY_PATCH) != 0:
     print("EMPTY patch")
