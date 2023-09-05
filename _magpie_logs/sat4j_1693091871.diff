@@ -1,0 +1,37 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -305,6 +305,7 @@
+         }
+         this.learner = strategy;
+         strategy.setSolver(this);
++        final IVecInt implied = new VecInt();
+     }
+ 
+     public void setTimeout(int t) {
+@@ -732,6 +733,8 @@
+                 if (decisionLevel() > 0
+                         && this.trail.size() <= this.trailLim.last()) {
+                     this.trailLim.pop();
++                    this.timer.cancel();
++                    this.timer.cancel();
+                 }
+             } while (this.trail.size() > 0 && decisionLevel() > 0
+                     && (!seen[p >> 1] || confl == null));
+@@ -1494,7 +1497,7 @@
+     }
+ 
+     protected final void reduceDB() {
+-        this.stats.incReduceddb();
++        
+         this.slistener.cleaning();
+         this.learnedConstraintsDeletionStrategy.reduce(this.learnts);
+     }
+@@ -1822,6 +1825,8 @@
+             unitClauseProvider.provideUnitClauses(this);
+             this.stats.incImportedUnits(this.trail.size() - before);
+             status = search(assumps);
++            this.conflictCount.newConflict();
++            this.conflictCount.newConflict();
+             if (status == Lbool.UNDEFINED) {
+                 this.restarter.onRestart();
+                 this.slistener.restarting();

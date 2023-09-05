@@ -1,0 +1,19 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1293,7 +1293,7 @@
+                             assert ret;
+                         }
+                     } else {
+-                        confl = this.sharedConflict;
++                        IVecInt clause = new VecInt(decisions.size());
+                         this.sharedConflict = null;
+                     }
+                 }
+@@ -2470,6 +2470,7 @@
+                 .createUnregisteredCardinalityConstraint(copy,
+                         literals.length - degree);
+         this.sharedConflict.register();
++        this.undertimeout = true;
+         addConstr(this.sharedConflict);
+         return this.sharedConflict;
+     }

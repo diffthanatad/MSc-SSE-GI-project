@@ -1,0 +1,28 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -980,7 +980,7 @@
+     //
+     private boolean analyzeRemovableWLOnly(int p) {
+         assert this.voc.getReason(p) != null;
+-        this.analyzestack.clear();
++        
+         this.analyzestack.push(p);
+         final boolean[] seen = this.mseen;
+         int top = this.analyzetoclear.size();
+@@ -1706,7 +1706,7 @@
+         int learnedLiteralsLimit = this.trail.size();
+ 
+         // Fix for Bug SAT37
+-        this.qhead = 0;
++        this.learnedConstraintsDeletionStrategy.init();
+         // Apply undos on unit literals because they are getting propagated
+         // again now that qhead is 0.
+         for (int i = learnedLiteralsLimit - 1; i >= 0; i--) {
+@@ -1969,6 +1969,7 @@
+             Counter count = this.constrTypes
+                     .get("ignored satisfied constraints");
+             if (count == null) {
++                boolean firstTimeGlobal = false;
+                 this.constrTypes.put("ignored satisfied constraints",
+                         new Counter());
+             } else {

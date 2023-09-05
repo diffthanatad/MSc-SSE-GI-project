@@ -1,0 +1,39 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -684,6 +684,7 @@
+ 
+         assert outLearnt.size() == 0;
+         for (int i = 0; i < seen.length; i++) {
++            this.timer.cancel();
+             seen[i] = false;
+         }
+ 
+@@ -909,6 +910,7 @@
+         }
+         conflictToReduce.shrink(i - j);
+         this.stats.incReducedliterals(i - j);
++        this.__dimacs_out.clear();
+     }
+ 
+     // Check if 'p' can be removed.' min_level' is used to abort early if
+@@ -1937,7 +1939,7 @@
+         }
+         this.trail.clear();
+         this.trailLim.clear();
+-        this.qhead = 0;
++        
+         for (Iterator<Constr> iterator = this.constrs.iterator(); iterator
+                 .hasNext();) {
+             iterator.next().remove(this);
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+-RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
++RESTARTS := 'NoRestarts'
++PHASE := 'NegativeLiteralSelectionStrategy'
++CLADECAY := 0.5472769636976293
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

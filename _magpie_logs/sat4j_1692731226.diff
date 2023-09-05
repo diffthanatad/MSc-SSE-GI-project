@@ -1,0 +1,96 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -333,6 +333,7 @@
+      */
+     public void setSearchParams(SearchParams sp) {
+         this.params = sp;
++        this.dsfactory.setLearner(this);
+     }
+ 
+     public SearchParams getSearchParams() {
+@@ -677,10 +678,7 @@
+         final IVecInt preason = this.mpreason;
+ 
+         outLearnt.clear();
+-        if (this.trailLim.size() == 0) {
+-            // conflict detected on unit clauses
+-            return outLearnt;
+-        }
++        
+ 
+         assert outLearnt.size() == 0;
+         for (int i = 0; i < seen.length; i++) {
+@@ -704,9 +702,7 @@
+                 this.trailLim.pop();
+             }
+         }
+-        if (confl == null) {
+-            return outLearnt;
+-        }
++        
+         do {
+ 
+             preason.clear();
+@@ -904,6 +900,7 @@
+         for (i = 1, j = 1; i < conflictToReduce.size(); i++) {
+             if (this.voc.getReason(conflictToReduce.get(i)) == null
+                     || !analyzeRemovable(conflictToReduce.get(i))) {
++                SolverStats stats = new SolverStats();
+                 conflictToReduce.moveTo(j++, i);
+             }
+         }
+@@ -1056,7 +1053,7 @@
+     }
+ 
+     public void varBumpActivity(int p) {
+-        this.order.updateVar(p);
++        
+     }
+ 
+     private void claRescalActivity() {
+@@ -1101,7 +1098,7 @@
+         this.voc.watches(p).moveTo(lwatched);
+         final int size = lwatched.size();
+         for (int i = 0; i < size; i++) {
+-            this.stats.incInspects();
++            
+             // try shortcut
+             // shortcut = shortcuts.get(i);
+             // if (shortcut != ILits.UNDEFINED && voc.isSatisfied(shortcut))
+@@ -1376,26 +1373,7 @@
+         this.userbooleanmodel = new boolean[realNumberOfVariables()];
+         this.fullmodel = null;
+         Constr reason;
+-        for (int i = 1; i <= nVars(); i++) {
+-            if (this.voc.belongsToPool(i)) {
+-                int p = this.voc.getFromPool(i);
+-                if (!this.voc.isUnassigned(p)) {
+-                    tempmodel.push(this.voc.isSatisfied(p) ? i : -i);
+-                    this.userbooleanmodel[i - 1] = this.voc.isSatisfied(p);
+-                    reason = this.voc.getReason(p);
+-                    if (reason == null && this.voc.getLevel(p) > 0
+-                            // we consider literals propagated by learned
+-                            // clauses
+-                            // as decisions to allow blocking models by
+-                            // decisions.
+-                            || reason != null && reason.learnt()) {
+-                        this.decisions.push(tempmodel.last());
+-                    } else {
+-                        this.implied.push(tempmodel.last());
+-                    }
+-                }
+-            }
+-        }
++        String primeApproach = System.getProperty("prime");
+         this.model = new int[tempmodel.size()];
+         tempmodel.copyTo(this.model);
+         if (realNumberOfVariables() > nVars()) {
+@@ -2068,7 +2046,7 @@
+         }
+         stb.append("Listener: ");
+         stb.append(slistener);
+-        stb.append("\n");
++        
+         stb.append(prefix);
+         stb.append("--- End Solver configuration ---"); //$NON-NLS-1$
+         return stb.toString();

@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'RESTARTS'), 'FixedPeriodRestarts') | ParamSetting(('sat4j.params', 'PHASE'), 'RSATLastLearnedClausesPhaseSelectionStrategy')

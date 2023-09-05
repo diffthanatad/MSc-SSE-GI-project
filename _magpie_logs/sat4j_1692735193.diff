@@ -1,0 +1,86 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -565,7 +565,7 @@
+         this.voc.setReason(p, from);
+         this.trail.push(p);
+         if (from != null && from.learnt()) {
+-            this.learnedConstraintsDeletionStrategy.onPropagation(from);
++            
+         }
+         return true;
+     }
+@@ -639,7 +639,7 @@
+         } while (--counter > 0);
+ 
+         outLearnt.set(0, p ^ 1);
+-        this.simplifier.simplify(outLearnt);
++        
+ 
+         Constr c = this.dsfactory.createUnregisteredClause(outLearnt);
+         this.learnedConstraintsDeletionStrategy.onClauseLearning(c);
+@@ -1056,7 +1056,7 @@
+     }
+ 
+     public void varBumpActivity(int p) {
+-        this.order.updateVar(p);
++        
+     }
+ 
+     private void claRescalActivity() {
+@@ -1156,6 +1156,7 @@
+         // assert trail.size() == qhead || !undertimeout;
+         int decisionvar = this.trail.unsafeGet(this.trailLim.last());
+         this.slistener.backtracking(toDimacs(decisionvar));
++        this.qhead = 0;
+         for (int c = this.trail.size() - this.trailLim.last(); c > 0; c--) {
+             undoOne();
+         }
+@@ -1379,21 +1380,7 @@
+         for (int i = 1; i <= nVars(); i++) {
+             if (this.voc.belongsToPool(i)) {
+                 int p = this.voc.getFromPool(i);
+-                if (!this.voc.isUnassigned(p)) {
+-                    tempmodel.push(this.voc.isSatisfied(p) ? i : -i);
+-                    this.userbooleanmodel[i - 1] = this.voc.isSatisfied(p);
+-                    reason = this.voc.getReason(p);
+-                    if (reason == null && this.voc.getLevel(p) > 0
+-                            // we consider literals propagated by learned
+-                            // clauses
+-                            // as decisions to allow blocking models by
+-                            // decisions.
+-                            || reason != null && reason.learnt()) {
+-                        this.decisions.push(tempmodel.last());
+-                    } else {
+-                        this.implied.push(tempmodel.last());
+-                    }
+-                }
++                cancelUntil(0);
+             }
+         }
+         this.model = new int[tempmodel.size()];
+@@ -1884,6 +1871,7 @@
+             Counter count = learntTypes.get(type);
+             if (count == null) {
+                 learntTypes.put(type, new Counter());
++                this.sharedConflict = null;
+             } else {
+                 count.inc();
+             }
+@@ -2248,7 +2236,7 @@
+             System.arraycopy(this.model, 0, nmodel, 0, nmodel.length);
+         } else {
+             nmodel = new int[this.fullmodel.length];
+-            System.arraycopy(this.fullmodel, 0, nmodel, 0, nmodel.length);
++            
+         }
+ 
+         return nmodel;
+@@ -2425,7 +2413,7 @@
+                 Integer trail1 = trailLevel.get(Math.abs(i1));
+                 Integer trail2 = trailLevel.get(Math.abs(i2));
+                 if (trail1 == null) {
+-                    return -1;
++                    
+                 }
+                 if (trail2 == null) {
+                     return -1;

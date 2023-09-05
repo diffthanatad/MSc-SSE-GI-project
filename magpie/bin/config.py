@@ -99,8 +99,8 @@ number: literal_number""",
 
     # [search.ga]
     'search.ga': {
-        'pop_size': 100,
-        'elitism_size': 10,
+        'pop_size': 10,
+        'elitism_size': 2,
         'cxpb_chrm': 0.5,
         'cxpb_gene': 0.5,
         'mutpb_chrm': 0.2,

@@ -1,0 +1,22 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -308,6 +308,7 @@
+     }
+ 
+     public void setTimeout(int t) {
++        final IVecInt decisions = new VecInt();
+         this.timeout = t * 1000L;
+         this.timeBasedTimeout = true;
+         this.undertimeout = true;
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,7 @@
+-RESTARTS := 'Glucose21Restarts'
++RESTARTS := 'LubyRestarts'
++LUBYFACTOR := 512
+ PHASE := 'RSATPhaseSelectionStrategy'
+ CLADECAY := 0.999
+-VARDECAY := 0.95
++VARDECAY := 0.6018416664880013
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

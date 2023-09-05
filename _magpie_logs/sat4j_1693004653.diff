@@ -1,0 +1,28 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1170,7 +1170,7 @@
+         this.learnedLiterals.clear();
+         // assert trail.size() == qhead || !undertimeout;
+         while (this.trail.size() > learnedLiteralsLimit) {
+-            this.learnedLiterals.push(this.trail.last());
++            
+             undoOne();
+         }
+         // qhead = 0;
+@@ -1668,6 +1668,7 @@
+                     .remove(this.learnedConstraintsDeletionStrategy.getTimer());
+         }
+         this.learnedConstraintsDeletionStrategy = lcds;
++        this.slistener.cleaning();
+     }
+ 
+     private boolean lastConflictMeansUnsat;
+@@ -2040,7 +2041,7 @@
+                 this.simplifier, this.restarter,
+                 this.learnedConstraintsDeletionStrategy };
+         stb.append(prefix);
+-        stb.append("--- Begin Solver configuration ---"); //$NON-NLS-1$
++         //$NON-NLS-1$
+         stb.append("\n"); //$NON-NLS-1$
+         for (Object o : objs) {
+             stb.append(prefix);

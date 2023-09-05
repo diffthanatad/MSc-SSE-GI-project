@@ -1,0 +1,215 @@
+2023-08-26 23:28:02,211	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/sat4j
+target_files = 
+	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
+	sat4j.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 150
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 150
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_5.sh
+run_timeout = 2261
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-26 23:28:02,211	[INFO]	==== WARMUP ====
+2023-08-26 23:58:01,238	[INFO]	WARM    SUCCESS               9412774960814           
+2023-08-26 23:58:01,239	[INFO]	INITIAL SUCCESS               9412774960814           
+2023-08-26 23:58:01,239	[INFO]	==== START: ValidTest ====
+2023-08-26 23:58:01,288	[DEBUG]	CLEAN_PATCH: StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 837), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 208)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 259)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 376)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 500))
+2023-08-26 23:58:01,288	[DEBUG]	CLEAN_SIZE: 4 (was 4)
+2023-08-27 00:29:31,775	[DEBUG]	StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 837), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 208)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 259)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 376)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 500))
+2023-08-27 00:29:31,776	[INFO]	1       SUCCESS              *9884757608387 (105.01%) [4 edit(s)] 
+2023-08-27 00:29:31,787	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -795,7 +795,7 @@
+         private static final long serialVersionUID = 1L;
+ 
+         public void simplify(IVecInt conflictToReduce) {
+-            expensiveSimplificationWLOnly(conflictToReduce);
++            
+         }
+ 
+         @Override
+@@ -1082,7 +1082,7 @@
+             lstats.incPropagations();
+             int p = ltrail.get(this.qhead++);
+             lslistener.propagating(toDimacs(p));
+-            lorder.assignLiteral(p);
++            
+             Constr confl = reduceClausesContainingTheNegationOf(p);
+             if (confl != null) {
+                 return confl;
+@@ -1275,6 +1275,7 @@
+                                     break;
+                                 }
+                             }
++                            this.trailLim.pop();
+                             if (allsat) {
+                                 modelFound();
+                                 this.slistener
+@@ -1350,12 +1351,7 @@
+     private Constr preventTheSameDecisionsToBeMade() {
+         IVecInt clause = new VecInt(nVars());
+         int p;
+-        for (int i = this.trail.size() - 1; i >= this.rootLevel; i--) {
+-            p = this.trail.get(i);
+-            if (this.voc.getReason(p) == null) {
+-                clause.push(p ^ 1);
+-            }
+-        }
++        
+         return this.dsfactory.createUnregisteredClause(clause);
+     }
+ 
+
+2023-08-27 00:29:31,797	[INFO]	==== END ====
+2023-08-27 00:29:31,797	[INFO]	Reason: validation end
+2023-08-27 00:29:31,797	[INFO]	
+2023-08-27 00:29:31,797	[INFO]	==== REPORT ====
+2023-08-27 00:29:31,797	[INFO]	Termination: validation end
+2023-08-27 00:29:31,797	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/sat4j_1693088872.log
+2023-08-27 00:29:31,807	[INFO]	Patch file: _magpie_logs/sat4j_1693088872.patch
+2023-08-27 00:29:31,808	[INFO]	Diff file: _magpie_logs/sat4j_1693088872.diff
+2023-08-27 00:29:31,808	[INFO]	Best fitness: 9884757608387
+2023-08-27 00:29:31,808	[INFO]	Best patch: StmtInsertion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', '_inter_block', 837), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 208)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 259)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 376)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 500))
+2023-08-27 00:29:31,808	[INFO]	Diff:
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -795,7 +795,7 @@
+         private static final long serialVersionUID = 1L;
+ 
+         public void simplify(IVecInt conflictToReduce) {
+-            expensiveSimplificationWLOnly(conflictToReduce);
++            
+         }
+ 
+         @Override
+@@ -1082,7 +1082,7 @@
+             lstats.incPropagations();
+             int p = ltrail.get(this.qhead++);
+             lslistener.propagating(toDimacs(p));
+-            lorder.assignLiteral(p);
++            
+             Constr confl = reduceClausesContainingTheNegationOf(p);
+             if (confl != null) {
+                 return confl;
+@@ -1275,6 +1275,7 @@
+                                     break;
+                                 }
+                             }
++                            this.trailLim.pop();
+                             if (allsat) {
+                                 modelFound();
+                                 this.slistener
+@@ -1350,12 +1351,7 @@
+     private Constr preventTheSameDecisionsToBeMade() {
+         IVecInt clause = new VecInt(nVars());
+         int p;
+-        for (int i = this.trail.size() - 1; i >= this.rootLevel; i--) {
+-            p = this.trail.get(i);
+-            if (this.voc.getReason(p) == null) {
+-                clause.push(p ^ 1);
+-            }
+-        }
++        
+         return this.dsfactory.createUnregisteredClause(clause);
+     }
+ 
+

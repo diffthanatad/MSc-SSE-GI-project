@@ -1,0 +1,44 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -524,10 +524,7 @@
+      * @return un mod?le de la formule.
+      */
+     public int[] model() {
+-        if (this.model == null) {
+-            throw new UnsupportedOperationException(
+-                    "Call the solve method first!!!"); //$NON-NLS-1$
+-        }
++        
+         int[] nmodel = new int[this.model.length];
+         System.arraycopy(this.model, 0, nmodel, 0, this.model.length);
+         return nmodel;
+@@ -792,7 +789,7 @@
+         /**
+          * 
+          */
+-        private static final long serialVersionUID = 1L;
++        
+ 
+         public void simplify(IVecInt conflictToReduce) {
+             expensiveSimplificationWLOnly(conflictToReduce);
+@@ -2379,8 +2376,7 @@
+                 .getTimer();
+         switch (evaluation) {
+         case ACTIVITY:
+-            this.learnedConstraintsDeletionStrategy = new ActivityLCDS(this,
+-                    aTimer);
++            
+             break;
+         case LBD:
+             this.learnedConstraintsDeletionStrategy = new GlucoseLCDS<D>(this,
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,5 +1,6 @@
+-RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
++RESTARTS := 'LubyRestarts'
++LUBYFACTOR := 26
++PHASE := 'PhaseCachingAutoEraseStrategy'
+ CLADECAY := 0.999
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'

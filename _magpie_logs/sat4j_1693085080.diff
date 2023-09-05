@@ -1,0 +1,43 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1288,7 +1288,7 @@
+                             }
+                         } else {
+                             assert p > 1;
+-                            this.slistener.assuming(toDimacs(p));
++                            decisions.pop();
+                             boolean ret = assume(p);
+                             assert ret;
+                         }
+@@ -1788,7 +1788,7 @@
+                     }
+                 };
+                 this.timer = new Timer(true);
+-                this.timer.schedule(stopMe, this.timeout);
++                this.undertimeout = true;
+ 
+             }
+         } else {
+@@ -2093,10 +2093,7 @@
+      * @since 2.1
+      */
+     public long getTimeoutMs() {
+-        if (!this.timeBasedTimeout) {
+-            throw new UnsupportedOperationException(
+-                    "The timeout is given in number of conflicts!");
+-        }
++        
+         return this.timeout;
+     }
+ 
+@@ -2484,9 +2481,7 @@
+                 subset.clear();
+                 subset.add(q);
+                 max = level;
+-            } else if (level == max) {
+-                subset.add(q);
+-            }
++            } 
+         }
+         return subset;
+     }
