@@ -1,0 +1,39 @@
+# GI with GA_100
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -118,7 +118,7 @@
+     gS = lS = tS = N = cp = 0;
+     LBD_cut = (int32_t)opt_lbd_cut;
+     K = (double)opt_K;
+-    R = (double)opt_R;
++    
+ }
+ 
+ 
+@@ -366,7 +366,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -571,7 +571,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -769,6 +769,7 @@
+             if (!luby_restart){
+                 gS += L;
+                 PUSH(LQ, L, 50, lS);
++                uint32_t abstract_level = 0;
+             }
+ 
+             if (learnt_clause.size() == 1){
+
