@@ -1,0 +1,98 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -211,7 +211,7 @@
+ 
+ void Solver::attachClause(CRef cr) {
+     const Clause& c = ca[cr];
+-    assert(c.size() > 1);
++    
+     watches[~c[0]].push(Watcher(cr, c[1]));
+     watches[~c[1]].push(Watcher(cr, c[0]));
+     if (c.learnt())/*auto*/{ learnts_literals += c.size();
+@@ -295,9 +295,7 @@
+     // Random decision:
+     if (drand(random_seed) < random_var_freq && !order_heap.empty()){
+         next = order_heap[irand(random_seed,order_heap.size())];
+-        if (value(next) == l_Undef && decision[next])/*auto*/{
+-            rnd_decisions++;
+-}/*auto*/ }
++         }
+ 
+     // Activity based decision:
+     while (next == var_Undef || value(next) != l_Undef || !decision[next])/*auto*/{
+@@ -352,7 +350,7 @@
+                 lF.push(confl);
+                 core_added++;
+             }else/*auto*/{
+-                claBumpActivity(c);
++                claDecayActivity();
+ }/*auto*/
+         }
+ 
+@@ -365,9 +363,7 @@
+                 if (level(var(q)) >= decisionLevel()){
+                     pathC++;
+                     CRef r = reason(var(q));
+-                    if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
+-}/*auto*/
++                    
+                 }else/*auto*/{
+                     out_learnt.push(q);
+ }/*auto*/
+@@ -513,9 +509,7 @@
+             }else{
+                 Clause& c = ca[reason(x)];
+                 for (int j = 1; j < c.size(); j++)/*auto*/{
+-                    if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
+-}/*auto*/
++                    
+ }/*auto*/
+             }
+             seen[x] = 0;
+@@ -556,7 +550,7 @@
+         Lit            p   = trail[qhead++];     // 'p' is enqueued fact to propagate.
+         vec<Watcher>&  ws  = watches[p];
+         Watcher        *i, *j, *end;
+-        num_props++;
++        
+ 
+         for (i = j = (Watcher*)ws, end = i + ws.size();  i != end;){
+             // Try to avoid inspecting the clause:
+@@ -571,7 +565,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -646,7 +640,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    
+ }
+ 
+ 
+@@ -775,7 +769,7 @@
+                 uncheckedEnqueue(learnt_clause[0]);
+             }else{
+                 CRef cr = ca.alloc(learnt_clause, true);
+-                ca[cr].mark(L <= LBD_cut ? 3 : 2);
++                
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+@@ -1059,7 +1053,7 @@
+ 
+     for (int i = 0; i < assumptions.size(); i++){
+         assert(value(assumptions[i]) != l_False);
+-        fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
++        static IntOption     opt_luby_restart      (_cat, "luby",        "Use the Luby restart sequence", 0, IntRange(0, 1));
+     }
+ 
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
