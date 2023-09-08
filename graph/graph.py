@@ -118,15 +118,18 @@ def main(PERCENTAGE_VIEW, PROGRAM, SEARCH_STRATEGY):
             plt.axvline(x = 3600*(1+i), color = "purple")
         plt.axvline(x = 3600, color = "purple", label = "every 1 hr.")
 
-        plt.xlabel('Time (seconds)')
+        plt.xlabel('Time (seconds)', fontsize="20")
         if PERCENTAGE_VIEW:
-            plt.ylabel('Percentage')
+            plt.ylabel('Percentage', fontsize="20")
         else:
-            plt.ylabel('Fitness')
-        plt.title(GRAPH_TITLE)
-        plt.legend()
+            plt.ylabel('Fitness', fontsize="20")
+        plt.title(GRAPH_TITLE, fontsize="20")
+        plt.legend(fontsize="20")
         plt.grid()
         # plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
+
+        plt.xticks(fontsize="20")
+        plt.yticks(fontsize="20")
 
         plt.savefig('./{FILE_NAME}.png'.format(FILE_NAME=IMAGE_NAME), bbox_inches='tight')
 

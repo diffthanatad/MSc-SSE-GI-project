@@ -36,72 +36,120 @@ def main(i_th, file_name, search_space, algorithm, view):
     plt.boxplot(bins)
 
     N_bins = len(bins)
-    if i_th == 9:
-        ticks = np.linspace(0, N_bins, dtype = int, num = (N_bins // 20))
-    else:
-        ticks = np.linspace(0, N_bins, dtype = int, num = (N_bins // 10))
-    plt.xticks(ticks, ticks)
+    ticks = np.linspace(0, N_bins, dtype = int, num = (N_bins // 40))
+    plt.xticks(ticks, ticks, fontsize="20")
 
-    plt.xlabel('Generation')
-    plt.title("Genetic Algorithm, {}, k-{}, {}".format(search_space.upper(), i_th, view))
+    plt.xlabel('Generation', fontsize="20")
+    plt.title("Genetic Algorithm, {}, k-{}, {}".format(search_space.upper(), i_th, view), fontsize="20")
     plt.grid()
 
     if view == "Fitness View":
         """ Fitness View """
-        plt.ylabel('CPU instructions')
+        plt.ylabel('CPU instructions', fontsize="20")
         plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
         plt.savefig('../images/{}_{}_k-{}_fitness_view.png'.format(algorithm, search_space, i_th, view), bbox_inches='tight')
         # plt.show()
     else:
         """ Percentage View """
-        plt.ylabel('Percentage')
+        plt.ylabel('Percentage', fontsize="20")
+        plt.yticks(fontsize="20")
         plt.savefig('../images/{}_{}_k-{}_percentage_view.png'.format(algorithm, search_space, i_th, view), bbox_inches='tight')
         # plt.show()
 
-ga_ac_gi_logs = [
-    "ga100_ac-gi_1",
-    "ga100_ac-gi_2",
-    "ga100_ac-gi_3",
-    "ga100_ac-gi_4",
-    "ga100_ac-gi_5",
-    "ga100_ac-gi_6",
-    "ga100_ac-gi_7",
-    "ga100_ac-gi_8",
-    "ga100_ac-gi_9",
-    "ga100_ac-gi_10",
-]
-for i in range(10):
-    # main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga100", "Fitness View")
-    main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga100", "Percentage View")
+# main(4, "ga_ac_4", "ac", "ga", "Percentage View")
 
-ga_ac_logs = [
-    "ga100_ac_1",
-    "ga100_ac_2",
-    "ga100_ac_3",
-    "ga100_ac_4",
-    "ga100_ac_5",
-    "ga100_ac_6",
-    "ga100_ac_7",
-    "ga100_ac_8",
-    "ga100_ac_9",
-    "ga100_ac_10",
-]
-for i in range(10):
-    # main(i+1, ga_ac_logs[i], "ac", "ga100", "Fitness View")
-    main(i+1, ga_ac_logs[i], "ac", "ga100", "Percentage View")
+# ga_ac_gi_logs = [
+#     "ga_ac-gi_1",
+#     "ga_ac-gi_2",
+#     "ga_ac-gi_3",
+#     "ga_ac-gi_4",
+#     "ga_ac-gi_5",
+#     "ga_ac-gi_6",
+#     "ga_ac-gi_7",
+#     "ga_ac-gi_8",
+#     "ga_ac-gi_9",
+#     "ga_ac-gi_10",
+# ]
+# for i in range(10):
+#     # main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga", "Fitness View")
+#     main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga", "Percentage View")
+
+# ga_ac_logs = [
+#     "ga_ac_1",
+#     "ga_ac_2",
+#     "ga_ac_3",
+#     "ga_ac_4",
+#     "ga_ac_5",
+#     "ga_ac_6",
+#     "ga_ac_7",
+#     "ga_ac_8",
+#     "ga_ac_9",
+#     "ga_ac_10",
+# ]
+# for i in range(10):
+#     # main(i+1, ga_ac_logs[i], "ac", "ga", "Fitness View")
+#     main(i+1, ga_ac_logs[i], "ac", "ga", "Percentage View")
 
 ga_gi_logs = [
-    "ga100_gi_1",
-    "ga100_gi_2",
-    "ga100_gi_3",
-    "ga100_gi_4",
-    "ga100_gi_5",
-    "ga100_gi_6",
-    "ga100_gi_7",
-    "ga100_gi_8",
-    "ga100_gi_9",
-    "ga100_gi_10",
+    "ga_gi_1",
+    "ga_gi_2",
+    "ga_gi_3",
+    "ga_gi_4",
+    "ga_gi_5",
+    "ga_gi_6",
+    "ga_gi_7",
+    "ga_gi_8",
+    "ga_gi_9",
+    "ga_gi_10",
 ]
 for i in range(10):
-    # main(i+1, ga_gi_logs[i], "gi", "ga100", "Fitness View")
-    main(i+1, ga_gi_logs[i], "gi", "ga100", "Percentage View")
+    # main(i+1, ga_gi_logs[i], "gi", "ga", "Fitness View")
+    main(i+1, ga_gi_logs[i], "gi", "ga", "Percentage View")
+
+# ga_ac_gi_logs = [
+#     "ga100_ac-gi_1",
+#     "ga100_ac-gi_2",
+#     "ga100_ac-gi_3",
+#     "ga100_ac-gi_4",
+#     "ga100_ac-gi_5",
+#     "ga100_ac-gi_6",
+#     "ga100_ac-gi_7",
+#     "ga100_ac-gi_8",
+#     "ga100_ac-gi_9",
+#     "ga100_ac-gi_10",
+# ]
+# for i in range(10):
+#     # main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga100", "Fitness View")
+#     main(i+1, ga_ac_gi_logs[i], "ac-gi", "ga100", "Percentage View")
+
+# ga_ac_logs = [
+#     "ga100_ac_1",
+#     "ga100_ac_2",
+#     "ga100_ac_3",
+#     "ga100_ac_4",
+#     "ga100_ac_5",
+#     "ga100_ac_6",
+#     "ga100_ac_7",
+#     "ga100_ac_8",
+#     "ga100_ac_9",
+#     "ga100_ac_10",
+# ]
+# for i in range(10):
+#     # main(i+1, ga_ac_logs[i], "ac", "ga100", "Fitness View")
+#     main(i+1, ga_ac_logs[i], "ac", "ga100", "Percentage View")
+
+# ga_gi_logs = [
+#     "ga100_gi_1",
+#     "ga100_gi_2",
+#     "ga100_gi_3",
+#     "ga100_gi_4",
+#     "ga100_gi_5",
+#     "ga100_gi_6",
+#     "ga100_gi_7",
+#     "ga100_gi_8",
+#     "ga100_gi_9",
+#     "ga100_gi_10",
+# ]
+# for i in range(10):
+#     # main(i+1, ga_gi_logs[i], "gi", "ga100", "Fitness View")
+#     main(i+1, ga_gi_logs[i], "gi", "ga100", "Percentage View")

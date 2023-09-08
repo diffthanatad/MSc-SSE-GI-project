@@ -112,7 +112,7 @@ def main(k_th, view):
         # plt.show()
     else:
         """ Percentage View """
-        plt.ylabel('Percentage')
+        plt.ylabel('Percentage', fontsize="20")
         # plt.savefig('../images/{}_{}_k-{}_percentage_view.png'.format("LS", k_th, view), bbox_inches='tight')
         plt.show()
     plt.close()
