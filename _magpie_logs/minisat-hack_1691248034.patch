@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'lbd-cut'), 8) | ParamSetting(('minisat.params', 'core-tolerance'), 0.7323748756525184) | ParamSetting(('minisat.params', 'var-decay'), 0.8818887548222448) | ParamSetting(('minisat.params', 'gc-frac'), 0.5580062825540127) | ParamSetting(('minisat.params', 'verb'), '0') | ParamSetting(('minisat.params', 'sub-lim'), 272)

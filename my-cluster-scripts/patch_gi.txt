@@ -1,0 +1,10 @@
+_magpie_logs/sat4j_1692987370.patch
+_magpie_logs/sat4j_1693004655.patch
+_magpie_logs/sat4j_1693004654.patch
+_magpie_logs/sat4j_1693004653.patch
+_magpie_logs/sat4j_1692839673.patch
+_magpie_logs/sat4j_1693005376.patch
+_magpie_logs/sat4j_1693038107.patch
+_magpie_logs/sat4j_1693022808.patch
+_magpie_logs/sat4j_1692840031.patch
+_magpie_logs/sat4j_1692784204.patch

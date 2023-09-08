@@ -1,0 +1,56 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -295,9 +295,7 @@
+     // Random decision:
+     if (drand(random_seed) < random_var_freq && !order_heap.empty()){
+         next = order_heap[irand(random_seed,order_heap.size())];
+-        if (value(next) == l_Undef && decision[next])/*auto*/{
+-            rnd_decisions++;
+-}/*auto*/ }
++        int curr_restarts = 0; }
+ 
+     // Activity based decision:
+     while (next == var_Undef || value(next) != l_Undef || !decision[next])/*auto*/{
+@@ -846,6 +844,7 @@
+                         cancelUntil(0);
+                         return l_Undef; }
+                 }else{
++                    core_added = 0;
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,22 +1,24 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5065
+ core-tolerance := 0.02
+-R-val := 1.4
++K-val := 0.8
+ var-decay := 0.8
+-cla-decay := 0.999
++cla-decay := 0.8943273618742873
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+ rnd-init := 'False'
+-luby := 0
+-gc-frac := 0.2
++luby := 1
++rfirst := 100.0
++rinc := 2.6409339205652205
++gc-frac := 0.2250827578439699
+ verb := '1'
+ pre := 'True'
+-asymm := 'False'
++asymm := 'True'
+ rcheck := 'False'
+ elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
+-simp-gc-frac := 0.5
++sub-lim := 440
++simp-gc-frac := 0.637383430428718

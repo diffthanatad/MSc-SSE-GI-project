@@ -5,7 +5,7 @@ ARGV=$@
 my_test() {
     FILENAME=$1
     EXPECTED=$2
-    java -jar ./dist/CUSTOM/sat4j-sat.jar $FILENAME > /dev/null
+    java -jar ./dist/CUSTOM/sat4j-sat.jar $FILENAME $ARGV > /dev/null
     RETURN=$?
     if [ $RETURN -ne $((EXPECTED)) ]
     then

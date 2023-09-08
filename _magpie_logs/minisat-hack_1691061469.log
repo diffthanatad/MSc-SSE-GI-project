@@ -1,0 +1,302 @@
+2023-08-03 12:17:53,855	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_7.sh
+run_timeout = 1582
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-03 12:17:53,859	[INFO]	==== WARMUP ====
+2023-08-03 12:36:21,888	[INFO]	WARM    SUCCESS               1850314111451           
+2023-08-03 12:36:21,889	[INFO]	INITIAL SUCCESS               1850314111451           
+2023-08-03 12:36:21,889	[INFO]	==== START: ValidTest ====
+2023-08-03 12:36:22,063	[DEBUG]	CLEAN_PATCH: StmtDeletion(('core/Solver.cc.xml', 'stmt', 80)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 210)) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.44490387450230673) | ParamSetting(('minisat.params', 'lbd-cut'), 4) | ParamSetting(('minisat.params', 'rcheck'), 'True') | StmtReplacement(('core/Solver.cc.xml', 'stmt', 473), ('core/Solver.cc.xml', 'stmt', 286)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 45)) | ParamSetting(('minisat.params', 'R-val'), 2.4744695428115397) | ParamSetting(('minisat.params', 'sub-lim'), 17) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 433), ('core/Solver.cc.xml', 'stmt', 429)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 506), ('core/Solver.cc.xml', 'stmt', 180))
+2023-08-03 12:36:22,063	[DEBUG]	CLEAN_SIZE: 11 (was 11)
+2023-08-03 13:01:02,891	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 80)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 210)) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.44490387450230673) | ParamSetting(('minisat.params', 'lbd-cut'), 4) | ParamSetting(('minisat.params', 'rcheck'), 'True') | StmtReplacement(('core/Solver.cc.xml', 'stmt', 473), ('core/Solver.cc.xml', 'stmt', 286)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 45)) | ParamSetting(('minisat.params', 'R-val'), 2.4744695428115397) | ParamSetting(('minisat.params', 'sub-lim'), 17) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 433), ('core/Solver.cc.xml', 'stmt', 429)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 506), ('core/Solver.cc.xml', 'stmt', 180))
+2023-08-03 13:01:02,892	[INFO]	1       SUCCESS              *2356225765074 (127.34%) [11 edit(s)] 
+2023-08-03 13:01:02,909	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -174,7 +174,7 @@
+ 
+     for (i = j = 0, p = lit_Undef; i < ps.size(); i++)/*auto*/{
+         if (value(ps[i]) == l_True || ps[i] == ~p)/*auto*/{
+-            return true;
++            
+ }/*auto*/
+         else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+             ps[j++] = p = ps[i];
+@@ -254,7 +254,7 @@
+     if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
+ }/*auto*/
+     c.mark(1); 
+-    ca.free(cr);
++    
+ }
+ 
+ 
+@@ -528,7 +528,7 @@
+ 
+ void Solver::uncheckedEnqueue(Lit p, CRef from)
+ {
+-    assert(value(p) == l_Undef);
++    
+     assigns[var(p)] = lbool(!sign(p));
+     vardata[var(p)] = mkVarData(from, decisionLevel());
+     trail.push_(p);
+@@ -879,6 +879,7 @@
+                 if (next == lit_Undef)/*auto*/{
+                     // Model found:
+                     return l_True;
++                    analyze_stack.pop();
+ }/*auto*/
+             }
+ 
+@@ -1028,7 +1029,7 @@
+     // Handle case when solver is in contradictory state:
+     if (!ok){
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+-        return; }
++        toDimacs(f, assumps); }
+ 
+     vec<Var> map; Var max = 0;
+ 
+@@ -1126,7 +1127,11 @@
+     // is not precise but should avoid some unnecessary reallocations for the new region:
+     ClauseAllocator to(ca.size() - ca.wasted()); 
+ 
+-    relocAll(to);
++    for (i = j = 0; i < V.size(); i++)/*auto*/{
++        if (ca[V[i]].mark() != 3)/*auto*/{
++            V[j++] = V[i];
++}/*auto*/
++}/*auto*/
+     if (verbosity >= 2)/*auto*/{
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,8 +1,8 @@
+-lbd-cut := 5
++lbd-cut := 4
+ lbd-cut-max := 10
+ cp-increase := 15000
+ core-tolerance := 0.02
+-R-val := 1.4
++R-val := 2.4744695428115397
+ var-decay := 0.8
+ cla-decay := 0.999
+ rnd-freq := 0.0
+@@ -14,9 +14,9 @@
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
+-rcheck := 'False'
++rcheck := 'True'
+ elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
+-simp-gc-frac := 0.5
++sub-lim := 17
++simp-gc-frac := 0.44490387450230673
+
+2023-08-03 13:01:02,923	[INFO]	==== END ====
+2023-08-03 13:01:02,923	[INFO]	Reason: validation end
+2023-08-03 13:01:02,924	[INFO]	
+2023-08-03 13:01:02,924	[INFO]	==== REPORT ====
+2023-08-03 13:01:02,924	[INFO]	Termination: validation end
+2023-08-03 13:01:02,924	[INFO]	Log file: /cs/student/projects1/sse/2022/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1691061469.log
+2023-08-03 13:01:02,938	[INFO]	Patch file: _magpie_logs/minisat-hack_1691061469.patch
+2023-08-03 13:01:02,939	[INFO]	Diff file: _magpie_logs/minisat-hack_1691061469.diff
+2023-08-03 13:01:02,939	[INFO]	Best fitness: 2356225765074
+2023-08-03 13:01:02,939	[INFO]	Best patch: StmtDeletion(('core/Solver.cc.xml', 'stmt', 80)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 210)) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.44490387450230673) | ParamSetting(('minisat.params', 'lbd-cut'), 4) | ParamSetting(('minisat.params', 'rcheck'), 'True') | StmtReplacement(('core/Solver.cc.xml', 'stmt', 473), ('core/Solver.cc.xml', 'stmt', 286)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 45)) | ParamSetting(('minisat.params', 'R-val'), 2.4744695428115397) | ParamSetting(('minisat.params', 'sub-lim'), 17) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 433), ('core/Solver.cc.xml', 'stmt', 429)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 506), ('core/Solver.cc.xml', 'stmt', 180))
+2023-08-03 13:01:02,939	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -174,7 +174,7 @@
+ 
+     for (i = j = 0, p = lit_Undef; i < ps.size(); i++)/*auto*/{
+         if (value(ps[i]) == l_True || ps[i] == ~p)/*auto*/{
+-            return true;
++            
+ }/*auto*/
+         else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+             ps[j++] = p = ps[i];
+@@ -254,7 +254,7 @@
+     if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
+ }/*auto*/
+     c.mark(1); 
+-    ca.free(cr);
++    
+ }
+ 
+ 
+@@ -528,7 +528,7 @@
+ 
+ void Solver::uncheckedEnqueue(Lit p, CRef from)
+ {
+-    assert(value(p) == l_Undef);
++    
+     assigns[var(p)] = lbool(!sign(p));
+     vardata[var(p)] = mkVarData(from, decisionLevel());
+     trail.push_(p);
+@@ -879,6 +879,7 @@
+                 if (next == lit_Undef)/*auto*/{
+                     // Model found:
+                     return l_True;
++                    analyze_stack.pop();
+ }/*auto*/
+             }
+ 
+@@ -1028,7 +1029,7 @@
+     // Handle case when solver is in contradictory state:
+     if (!ok){
+         fprintf(f, "p cnf 1 2\n1 0\n-1 0\n");
+-        return; }
++        toDimacs(f, assumps); }
+ 
+     vec<Var> map; Var max = 0;
+ 
+@@ -1126,7 +1127,11 @@
+     // is not precise but should avoid some unnecessary reallocations for the new region:
+     ClauseAllocator to(ca.size() - ca.wasted()); 
+ 
+-    relocAll(to);
++    for (i = j = 0; i < V.size(); i++)/*auto*/{
++        if (ca[V[i]].mark() != 3)/*auto*/{
++            V[j++] = V[i];
++}/*auto*/
++}/*auto*/
+     if (verbosity >= 2)/*auto*/{
+         printf("c |  Garbage collection:   %12d bytes => %12d bytes             |\n", 
+                ca.size()*ClauseAllocator::Unit_Size, to.size()*ClauseAllocator::Unit_Size);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,8 +1,8 @@
+-lbd-cut := 5
++lbd-cut := 4
+ lbd-cut-max := 10
+ cp-increase := 15000
+ core-tolerance := 0.02
+-R-val := 1.4
++R-val := 2.4744695428115397
+ var-decay := 0.8
+ cla-decay := 0.999
+ rnd-freq := 0.0
+@@ -14,9 +14,9 @@
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
+-rcheck := 'False'
++rcheck := 'True'
+ elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
+-simp-gc-frac := 0.5
++sub-lim := 17
++simp-gc-frac := 0.44490387450230673
+

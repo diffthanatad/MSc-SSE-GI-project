@@ -1,0 +1,38 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -639,7 +639,7 @@
+         } while (--counter > 0);
+ 
+         outLearnt.set(0, p ^ 1);
+-        this.simplifier.simplify(outLearnt);
++        
+ 
+         Constr c = this.dsfactory.createUnregisteredClause(outLearnt);
+         this.learnedConstraintsDeletionStrategy.onClauseLearning(c);
+@@ -1664,8 +1664,7 @@
+         if (this.conflictCount != null) {
+             this.conflictCount.add(lcds.getTimer());
+             assert this.learnedConstraintsDeletionStrategy != null;
+-            this.conflictCount
+-                    .remove(this.learnedConstraintsDeletionStrategy.getTimer());
++            
+         }
+         this.learnedConstraintsDeletionStrategy = lcds;
+     }
+@@ -1782,7 +1781,7 @@
+                         synchronized (Solver.this) {
+                             if (Solver.this.timer != null) {
+                                 Solver.this.timer.cancel();
+-                                Solver.this.timer = null;
++                                
+                             }
+                         }
+                     }
+@@ -2199,6 +2198,7 @@
+         }
+         this.qhead = this.trail.size();
+     }
++    int p = ILits.UNDEFINED;
+ 
+     /**
+      * @since 2.3.6

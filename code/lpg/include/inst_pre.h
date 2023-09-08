@@ -67,6 +67,10 @@ int position_in_constants_table( char *str );
 int position_in_predicates_table( char *str );
 void create_integer_representation( void );
 void make_Fact( Fact *f, PlNode *n, int num_vars );
+/* Timed initial Facts PDDL2.2 */
+void add_Timed_Facts_to_ops( PlOperator **ops );
+void clear_Timed_Fact_Nodes( void );
+/* PDDL2.2*/
 Bool is_subtype( int t1, int t2 );
 WffNode *make_Wff( PlNode *p, int num_vars );
 Effect *make_effect( PlNode *p, int num_vars );
@@ -84,7 +88,7 @@ void remove_unused_vars_in_wff( WffNode **w );
 void decrement_inferior_vars( int var, WffNode *w );
 Bool var_used_in_wff( int code_var, WffNode *w );
 void simplify_wff( WffNode **w );
-void expand_quantifiers_in_wff( WffNode **w, int var, int constant );
+void expand_quantifiers_in_wff( WffNode **w, char *var_name, int var, int constant );
 WffNode *copy_Wff( WffNode *w );
 Bool possibly_positive( Fact *f );
 Bool possibly_negative( Fact *f );
@@ -115,6 +119,9 @@ void ANDs_below_ORs_in_wff( WffNode **w );
 void collect_hitting_sets( WffNode *ORlist, int index );
 void merge_next_step_ANDs_and_ORs_in_wff( WffNode **w );
 
+Bool check_for_recursive_rules(void);
+void reverse_numeric_condition(PlNode *p);
 
+int count_all_facts(WffNode *w);
 
 #endif /* _INST_PRE_H */

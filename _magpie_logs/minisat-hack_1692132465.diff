@@ -1,0 +1,53 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -254,7 +254,7 @@
+     if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
+ }/*auto*/
+     c.mark(1); 
+-    ca.free(cr);
++    
+ }
+ 
+ 
+@@ -803,13 +803,7 @@
+                 //max_learnts             *= learntsize_inc;
+ 
+                 if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
++                    static IntOption     opt_phase_saving      (_cat, "phase-saving", "Controls the level of phase saving (0=none, 1=limited, 2=full)", 2, IntRange(0, 2));
+ }/*auto*/
+             }
+ 
+@@ -854,6 +848,8 @@
+                 }
+                 core_added = 0;
+             }
++
++            reduceDB();
+ 
+             Lit next = lit_Undef;
+             /*while (decisionLevel() < assumptions.size()){
+@@ -898,7 +894,7 @@
+     for (int i = 0; i <= decisionLevel(); i++){
+         int beg = i == 0 ? 0 : trail_lim[i - 1];
+         int end = i == decisionLevel() ? trail.size() : trail_lim[i];
+-        progress += pow(F, i) * (end - beg);
++        
+     }
+ 
+     return progress / nVars();
+@@ -951,7 +947,7 @@
+     if (verbosity >= 1){
+         printf("c ============================[ Search Statistics ]==============================\n");
+         printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+-        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
++        
+         printf("c ===============================================================================\n");
+     }
+ 

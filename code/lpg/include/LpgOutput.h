@@ -33,6 +33,9 @@
 #ifndef _LPGOUT_H
 #define _LPGOUT_H
 
+
+extern const char *goperator_string[];
+
 char *print_op_name_string (int pos, char *out_string);
 char *print_ft_name_string (int pos, char *out_string);
 char *print_noop_name_string (int pos, char *out_string);
@@ -50,7 +53,9 @@ void print_cri_computed_costs (int level);
 void print_cost_of_unsupported_facts ();
 void print_unsup_fact_vect ();
 void print_unsup_num_facts ();
+void print_unsup_timed_fact ();
 
+void print_pop();
 void print_actions_in_plan ();
 void print_actions_in_subgraph ();
 void print_temporal_plan (int levels);
@@ -60,10 +65,43 @@ void my_print_plan (int level);
 
 void print_parser_info_for_debug();
 
-void store_adapted_temporal_plan (int levels, char *fact_file_name, double time);
-int store_curr_plan (int max_time, PlanAction ** plan_actions);
-void store_adapted_temporal_plan_ff (char *fact_file_name);
+int restore_temp_plan (PlanAction *plan_actionsin, PlanAction ** plan_actionsout);
 
-void store_action_vect (PlanAction ** plan_actions, int act_pos, float start_time, float duration);
+void store_plan (double time);
+void store_plan_using_bestfirst (char *fact_file_name);
+void store_temporal_plan (int levels, char *fact_file_name, double time);
+
+int save_curr_plan (int max_time, PlanAction ** plan_actions);
+int save_temp_plan (int max_time, PlanAction ** plan_actions);
+void save_curr_temporal_plan (int levels, PlanAction ** plan_actions);
+
+void store_action_vect (PlanAction ** plan_actions, int act_pos, int level, float start_time, float duration);
+
+void print_ft_name_effect(int index);
+void print_efconn(void);
+void print_cond_efconn(void);
+void print_numeric_cond_effect();
+void print_numeric_effect();
+
+void print_numeric_ft(int index);
+
+void print_actions_in_temporal_plan( void );
+
+void print_solution_time_and_cost(void);
+
+void print_statistic_info(void);
+
+void print_solution_features(float plan_time, int num_restart);
+
+void store_compiled_domain(char *file_name);
+void store_compiled_problem(char *file_name);
+
+void print_numeric_ft(int index);
+
+char *print_numeric_ft_string(int index, char *str, CompositeNumVar *var);
+
+void convert_tolower(char *out_string);
+
+char *print_numeric_ft_string(int index, char *str, CompositeNumVar *var);
 
 #endif

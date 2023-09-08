@@ -17,21 +17,24 @@
 
 
 %{
-/*#define YYDEBUG 1*/
-#ifdef YYDEBUG
-  extern int yydebug=1;
 
+#define YYMAXDEPTH 1000000 
+#define YY_NO_UNPUT
 
-#define YYPRINT(file, type, value)   
-#define yyprint(file, type, value)
+#ifndef __SUN__
+#define YYSTACK_USE_ALLOCA FALSE
 #endif
-   
+
+
 #include <stdio.h>
 #include <string.h> 
 #include "ff.h"
 #include "memory.h"
 #include "parse.h"
 
+
+#define yyin ops_pddlin
+#define yytext ops_pddltext
 
 #ifndef SCAN_ERR
 #define SCAN_ERR
@@ -56,6 +59,7 @@
 #define NEG_FORMULA_EXPECTED      18
 #define NOT_SUPPORTED             19
 #define ACTION                    20
+#define DERIVED_PRED_EXPECTED     21
 #endif
 
 
@@ -86,6 +90,7 @@ static char *serrmsg[] = {
   "negated atomic formula expected",
   "requirement %s not supported by this IPP version",  
   "action definition is not correct",
+  "derived predicate definition is not correct",
   NULL
 };
 
@@ -96,15 +101,17 @@ static char *serrmsg[] = {
 static int sact_err;
 static char *sact_err_par = NULL;
 static PlOperator *scur_op = NULL;
+static PlOperator *der_op = NULL;
 static Bool sis_negated = FALSE;
 
+ int yylex(void);
+ int yyerror(char *msg); 
 
 /* 
  * call	bison -pops -bscan-ops scan-ops.y
  */
 
 void opserr( int errno, char *par )
-
 {
 
   sact_err = errno;
@@ -137,7 +144,7 @@ int supported( char *str )
 		     ":EQUALITY",":TYPING", 
 		   ":CONDITIONAL-EFFECTS", ":DISJUNCTIVE-PRECONDITIONS", 
 		   ":EXISTENTIAL-PRECONDITIONS", ":UNIVERSAL-PRECONDITIONS", 
-		   ":QUANTIFIED-PRECONDITIONS", ":ADL",
+		   ":QUANTIFIED-PRECONDITIONS", ":ADL", ":DERIVED",
 		   NULL };    
 
   return 1;
@@ -196,6 +203,7 @@ int supported( char *str )
 %type <pTokenList> f_head
 %type <pPlNode> da_adl_goal_description
 %type <pPlNode> da_adl_effect
+%type <pPlNode> da_adl_effect_star
 %type <pPlNode> timed_adl_goal_description
 %type <pPlNode> timed_adl_goal_description_plus
 %type <pstring> function_symbol
@@ -203,6 +211,7 @@ int supported( char *str )
 %type <pTokenList> variable_star
 %type <pPlNode> timed_adl_effect
 %type <pPlNode> timed_adl_effect_plus
+
 %type <pPlNode> binary_op
 %type <pPlNode> f_assign_da
 %type <pPlNode> assign_op
@@ -213,6 +222,9 @@ int supported( char *str )
 %type <pPlNode> d_value
 %type <pstring> type
 /*--PDDL2*/
+/*--PDDL2.2*/
+%type <pPlNode> derived_predicate_def
+/*PDDL2.2--*/
 
 %token DEFINE_TOK
 %token DOMAIN_TOK
@@ -251,6 +263,8 @@ int supported( char *str )
 /*--PDDL2*/
 %token ACTION_TOK
 %token VARS_TOK
+/*--PDDL2.2*/
+%token DERIVED_TOK
 /*%token CONTEXT_TOK*/
 /*%token IMPLIES_TOK*/
 %token PRECONDITION_TOK
@@ -269,7 +283,6 @@ int supported( char *str )
 %token OPEN_PAREN
 %token CLOSE_PAREN
 
-
 %left MINUS_TOK PLUS_TOK	
 %left MUL_TOK DIV_TOK
 %left UMINUS
@@ -279,7 +292,7 @@ int supported( char *str )
 /**********************************************************************/
 file:
 { 
-  opserr( DOMDEF_EXPECTED, NULL ); 
+  opserr( DOMDEF_EXPECTED, NULL );
 }
 domain_definition 
 ;
@@ -331,6 +344,10 @@ durative_action_def optional_domain_defs
 |
 functions_def optional_domain_defs
 /*--PDDL2*/
+|
+/*--PDDL2.2*/
+derived_def optional_domain_defs
+/*--PDDL2.2*/
 ;
 
 
@@ -414,20 +431,45 @@ OPEN_PAREN  NAME typed_list_variable  CLOSE_PAREN
 
 }
 functions_list
+|
+OPEN_PAREN  NAME typed_list_variable  CLOSE_PAREN  MINUS_TOK NAME
+{
+
+  TypedListList *tll;
+
+  if ( gparse_functions ) {
+    tll = gparse_functions;
+    while ( tll->next ) {
+      tll = tll->next;
+    }
+    tll->next = new_TypedListList();
+    tll = tll->next;
+  } else {
+    tll = new_TypedListList();
+    gparse_functions = tll;
+  }
+
+  tll->predicate = new_Token( strlen( $2 ) + 1);
+  strcpy( tll->predicate, $2 );
+
+  tll->args = $3;
+
+}
+functions_list
 ;
 
 /*--PDDL2*/
 /**********************************************************************/
 require_def:
 OPEN_PAREN  REQUIREMENTS_TOK 
-{ 
-  opserr( REQUIREM_EXPECTED, NULL ); 
+{
+  opserr( REQUIREM_EXPECTED, NULL );
 }
 NAME
 { 
   if ( !supported( $4 ) ) {
     opserr( NOT_SUPPORTED, $4 );
-    yyerror();
+    yyerror(NULL);
   }
 }
 require_key_star  CLOSE_PAREN
@@ -442,7 +484,7 @@ NAME
 { 
   if ( !supported( $1 ) ) {
     opserr( NOT_SUPPORTED, $1 );
-    yyerror();
+    yyerror(NULL);
   }
 }
 require_key_star
@@ -479,7 +521,7 @@ typed_list_name  CLOSE_PAREN
  * actions and their optional definitions
  **********************************************************************/
 action_def:
-OPEN_PAREN  ACTION_TOK  
+OPEN_PAREN  ACTION_TOK
 { 
 #if YYDEBUG != 0
   printf("\n\nin action_def rule\n\n\n"); 
@@ -602,7 +644,7 @@ OPEN_PAREN  IMPLY_TOK  adl_goal_description  adl_goal_description  CLOSE_PAREN
 }
 |
 OPEN_PAREN  EXISTS_TOK 
-OPEN_PAREN  typed_list_variable  CLOSE_PAREN 
+OPEN_PAREN  typed_list_variable  CLOSE_PAREN
 adl_goal_description  CLOSE_PAREN
 { 
 
@@ -617,7 +659,7 @@ adl_goal_description  CLOSE_PAREN
 }
 |
 OPEN_PAREN  FORALL_TOK 
-OPEN_PAREN  typed_list_variable  CLOSE_PAREN 
+OPEN_PAREN  typed_list_variable  CLOSE_PAREN
 adl_goal_description  CLOSE_PAREN
 { 
 
@@ -665,7 +707,7 @@ OPEN_PAREN MINUS_TOK f_exp CLOSE_PAREN %prec UMINUS
   PlNode *pln;
 
   $$=new_PlNode(F_EXP);
-  pln=new_PlNode(UMINUS_CONN); 
+  pln=new_PlNode(UMINUS_CONN);
   $$->sons = pln;
   $$->sons->sons = $3;
 }
@@ -957,7 +999,7 @@ OPEN_PAREN  AND_TOK  adl_effect_star  CLOSE_PAREN
 }
 |
 OPEN_PAREN  FORALL_TOK 
-OPEN_PAREN  typed_list_variable  CLOSE_PAREN 
+OPEN_PAREN  typed_list_variable  CLOSE_PAREN
 adl_effect  CLOSE_PAREN
 { 
 
@@ -1000,8 +1042,8 @@ OPEN_PAREN assign_op f_head f_exp CLOSE_PAREN
 
 /**********************************************************************/
 adl_effect_star:
-{ 
-  $$ = NULL; 
+{
+  $$ = NULL;
 }
 |
 adl_effect  adl_effect_star
@@ -1159,7 +1201,7 @@ VARIABLE  either  name_plus  CLOSE_PAREN  typed_list_variable
 /*
 VARIABLE  EITHER_TOK  name_plus  CLOSE_PAREN  typed_list_variable
 */
-{ 
+{
   $$ = new_TypedList();
   $$->name = new_Token( strlen($1)+1 );
   strcpy( $$->name, $1 );
@@ -1169,7 +1211,7 @@ VARIABLE  EITHER_TOK  name_plus  CLOSE_PAREN  typed_list_variable
 |
 VARIABLE  type  typed_list_variable   /* end of list for one type */
 /*
-VARIABLE  TYPE  typed_list_variable    
+VARIABLE  TYPE  typed_list_variable
 */
 {
   $$ = new_TypedList();
@@ -1202,15 +1244,15 @@ durative_action_def:
 OPEN_PAREN  DURATIVE_ACTION_TOK  
 { 
   opserr( ACTION, NULL ); 
-}  
+}
 NAME
-{ 
+{
   scur_op = new_PlOperator( $4 );
 }
 param_def  durative_action_def_body  CLOSE_PAREN
 {
   scur_op->next = gloaded_ops;
-  gloaded_ops = scur_op; 
+  gloaded_ops = scur_op;
 }
 ;
 /***********************************************/
@@ -1221,11 +1263,11 @@ VARS_TOK  OPEN_PAREN  typed_list_variable  CLOSE_PAREN  durative_action_def_body
 {
   TypedList *tl = NULL;
 
-  /* add vars as parameters 
+  /* add vars as parameters
    */
   if ( scur_op->parse_params ) {
     for( tl = scur_op->parse_params; tl->next; tl = tl->next ) {
-      /* empty, get to the end of list 
+      /* empty, get to the end of list
        */
     }
     tl->next = $3;
@@ -1238,23 +1280,86 @@ VARS_TOK  OPEN_PAREN  typed_list_variable  CLOSE_PAREN  durative_action_def_body
 DURATION_TOK duration_constraint
 {
 
-scur_op->duration = $2;
-  
+  scur_op->duration = $2;
+
 }
 durative_action_def_body
 |
 CONDITION_TOK  da_adl_goal_description
-{ 
-  scur_op->preconds = $2; 
+{
+  scur_op->preconds = $2;
 }
 durative_action_def_body
 |
 EFFECT_TOK  da_adl_effect
-{ 
-  scur_op->effects = $2; 
+{
+  scur_op->effects = $2;
 }
 durative_action_def_body
 ;
+
+/*--PDDL2.2*/
+/************************************************/
+derived_def:
+OPEN_PAREN DERIVED_TOK
+{
+  opserr(DERIVED_PRED_EXPECTED, NULL);
+}
+derived_predicate_def adl_goal_description CLOSE_PAREN
+{
+  der_op = new_PlOperator($4 -> atom -> item);
+  der_op -> parse_params = $4 -> parse_vars;
+  $4 -> parse_vars = NULL;
+  der_op -> effects  = $4;
+  der_op -> preconds = $5;
+  der_op -> next = gderived_predicates;
+  gderived_predicates = der_op;
+  gnum_derived_predicates++;
+}
+;
+
+
+derived_predicate_def:
+/*atomic_formula_term
+{
+  NB.
+  (1) <derived-def> ::= (:derived <atomic formula(term)> <GD>)
+  (2) <derived-def> ::= (:derived (<predicate> <typed list(variable)>) <GD>)
+
+  Per come è definita la typed_list_variable la (2) comprende anche la (1)
+  (in mancanza di indicazioni di tipo viene assegnato il tipo di default "OBJECT")
+}
+|
+*/
+/*
+adl_effect
+{
+  $$ = $1;
+}
+|
+*/
+OPEN_PAREN predicate typed_list_variable CLOSE_PAREN
+{
+  PlNode *pln;
+  TokenList *a;
+  TypedList *t;
+  pln = new_PlNode(ATOM);
+  pln -> atom = new_TokenList();
+  pln -> atom -> item = $2;
+  pln -> parse_vars = $3;
+  for (a = pln -> atom, t = $3; t; t = t -> next) {
+    a -> next = new_TokenList();
+    a = a -> next;
+    a -> item = (char *) calloc(strlen(t -> name) + 1 ,sizeof(char));
+    strcpy(a -> item, t -> name);
+  }
+
+  $$ = pln;
+}
+;
+
+
+/*PDDL2.2--*/
 
 /**********************************************************************/
 
@@ -1263,8 +1368,7 @@ durative_action_def_body
 da_adl_goal_description:
 timed_adl_goal_description
 {
-  $$ = new_PlNode(AND);
-  $$->sons = $1;
+  $$ = $1;
 }
 |
 OPEN_PAREN AND_TOK timed_adl_goal_description_plus CLOSE_PAREN
@@ -1311,8 +1415,19 @@ OPEN_PAREN OVER_ALL adl_goal_description CLOSE_PAREN
 /**********************************************************************/
 /*vedi pag 32*/
 
+da_adl_effect_star:
+{
+  $$ = NULL;
+}
+|
+da_adl_effect da_adl_effect_star
+{
+  $$ = $1;
+  $$->next = $2;
+}
+;
 da_adl_effect:
-OPEN_PAREN AND_TOK timed_adl_effect_plus CLOSE_PAREN
+OPEN_PAREN AND_TOK da_adl_effect_star CLOSE_PAREN
 {
   $$ = new_PlNode(AND);
   $$->sons = $3;
@@ -1320,13 +1435,12 @@ OPEN_PAREN AND_TOK timed_adl_effect_plus CLOSE_PAREN
 |
 timed_adl_effect
 {
-  $$ = new_PlNode(AND);
-  $$->sons = $1;
+  $$ = $1;
 }
 |
 /*OPEN_PAREN FORALL_TOK OPEN_PAREN variable_star CLOSE_PAREN da_adl_effect CLOSE_PAREN*/
-OPEN_PAREN  FORALL_TOK 
-OPEN_PAREN  typed_list_variable  CLOSE_PAREN 
+OPEN_PAREN  FORALL_TOK
+OPEN_PAREN  typed_list_variable  CLOSE_PAREN
 da_adl_effect  CLOSE_PAREN
 {
   PlNode *pln;
@@ -1338,7 +1452,8 @@ da_adl_effect  CLOSE_PAREN
   pln->sons = $6;
 }
 |
-OPEN_PAREN  WHEN_TOK  da_adl_goal_description  timed_adl_effect  CLOSE_PAREN
+/*OPEN_PAREN  WHEN_TOK  da_adl_goal_description  timed_adl_effect  CLOSE_PAREN*/
+OPEN_PAREN  WHEN_TOK  da_adl_goal_description  da_adl_effect CLOSE_PAREN
 {
   /* This will be conditional effects in FF representation, but here
    * a formula like (WHEN p q) will be saved as:
@@ -1346,7 +1461,7 @@ OPEN_PAREN  WHEN_TOK  da_adl_goal_description  timed_adl_effect  CLOSE_PAREN
    *  [sons]
    *   /  \
    * [p]  [q]
-   * That means, the first son is p, and the second one is q. 
+   * That means, the first son is p, and the second one is q.
    */
   $$ = new_PlNode(WHEN);
   $3->next = $4;
@@ -1404,16 +1519,22 @@ OPEN_PAREN AT_END f_assign_da CLOSE_PAREN
 |
 OPEN_PAREN INCREASE_TOK f_head f_exp_t CLOSE_PAREN
 {
-  $$ = new_PlNode(INCREASE_CONN);
-  $$->sons = $3;
-  $$->sons->next = $4;
+  PlNode *tmp;
+  tmp = new_PlNode(INCREASE_CONN);
+  tmp->sons = new_PlNode(FN_HEAD);
+  tmp->sons->atom = $3;
+  tmp->sons->next = $4;
+  $$ = tmp;
 }
 |
 OPEN_PAREN DECREASE_TOK f_head f_exp_t CLOSE_PAREN
 {
-  $$ = new_PlNode(DECREASE_CONN);
-  $$->sons = $3;
-  $$->sons->next = $4;
+  PlNode *tmp;
+  tmp = new_PlNode(DECREASE_CONN);
+  tmp->sons = new_PlNode(FN_HEAD);
+  tmp->sons->atom = $3;
+  tmp->sons->next = $4;
+  $$ = tmp;
 }
 ;
 
@@ -1445,7 +1566,7 @@ OPEN_PAREN MINUS_TOK f_exp_da CLOSE_PAREN %prec UMINUS
   PlNode *pln;
 
   $$=new_PlNode(F_EXP);
-  pln=new_PlNode(UMINUS_CONN); 
+  pln=new_PlNode(UMINUS_CONN);
   $$->sons = pln;
   $$->sons->sons = $3;
 }
@@ -1455,7 +1576,7 @@ DURATION_VAR_TOK
   PlNode *pln;
 
   $$=new_PlNode(F_EXP);
-  pln=new_PlNode(DURATION_VAR_ATOM); 
+  pln=new_PlNode(DURATION_VAR_ATOM);
   $$->sons = pln;
 }
 |
@@ -1469,7 +1590,7 @@ PLUS_TOK
   PlNode *pln;
 
   $$=new_PlNode(F_EXP);
-  pln=new_PlNode(PLUS_CONN); 
+  pln=new_PlNode(PLUS_CONN);
   $$->sons = pln;
 
 }
@@ -1479,7 +1600,7 @@ MINUS_TOK
   PlNode *pln;
 
   $$=new_PlNode(F_EXP);
-  pln=new_PlNode(MINUS_CONN); 
+  pln=new_PlNode(MINUS_CONN);
   $$->sons = pln;
 
 }
@@ -1489,7 +1610,7 @@ MUL_TOK
   PlNode *pln;
 
   $$=new_PlNode(F_EXP);
-  pln=new_PlNode(MUL_CONN); 
+  pln=new_PlNode(MUL_CONN);
   $$->sons = pln;
 
 }
@@ -1499,7 +1620,7 @@ DIV_TOK
   PlNode *pln;
 
   $$=new_PlNode(F_EXP);
-  pln=new_PlNode(DIV_CONN); 
+  pln=new_PlNode(DIV_CONN);
   $$->sons = pln;
 
 }
@@ -1507,20 +1628,19 @@ DIV_TOK
 
 
 f_exp_t:
-OPEN_PAREN '*' f_exp TIME_TOK CLOSE_PAREN
+OPEN_PAREN MUL_TOK f_exp TIME_TOK CLOSE_PAREN
 {
-  PlNode *pln, *pln2;
+  PlNode *pln;
 
   $$ = new_PlNode(F_EXP_T);
-  pln2 = new_PlNode(TIME_VAR);
-  pln=new_PlNode(MUL_CONN); 
+  pln = new_PlNode(MUL_CONN);
   $$->sons = pln;
   $$->sons->sons = $3;
-  $$->sons->sons->next = pln2;  
+  $$->sons->sons->next = $4;  
 
 }
 |
-OPEN_PAREN '*' TIME_TOK f_exp CLOSE_PAREN
+OPEN_PAREN MUL_TOK TIME_TOK f_exp CLOSE_PAREN
 {
   PlNode *pln, *pln2;
 
@@ -1529,7 +1649,7 @@ OPEN_PAREN '*' TIME_TOK f_exp CLOSE_PAREN
   pln=new_PlNode(MUL_CONN); 
   $$->sons = pln;
   $$->sons->sons = pln2;
-  $$->sons->sons->next = $3;  
+  $$->sons->sons->next = $4;  
 
 }
 |
@@ -1537,9 +1657,8 @@ TIME_TOK
 {
   PlNode *pln;
 
-  $$ = new_PlNode(F_EXP_T);
   pln = new_PlNode(TIME_VAR);
-  $$->sons = pln;
+  $$ = pln;
 }
 ;
 
@@ -1659,7 +1778,9 @@ int yyerror( char *msg )
 
 {
 
-  fflush(stdout);
+  if (msg)
+    printf("\n%s", msg);
+
   fprintf(stderr, "\n%s: syntax error in line %d, '%s':\n", 
 	  gact_filename, lineno, yytext);
 
@@ -1669,7 +1790,10 @@ int yyerror( char *msg )
     fprintf(stderr, "%s\n", serrmsg[sact_err]);
   }
 
+  fflush(stdout);
   exit( 1 );
+
+  return 0;
 
 }
 
@@ -1682,6 +1806,9 @@ void load_ops_file( char *filename )
   FILE * fp;/* pointer to input files */
   char tmp[MAX_LENGTH] = "";
 
+  gbracket_count = 0;
+
+   
   /* open operator file 
    */
   if( ( fp = fopen( filename, "r" ) ) == NULL ) {
@@ -1700,19 +1827,4 @@ void load_ops_file( char *filename )
 
 }
 
-#ifdef YYDEBUG
-     static void
-     yyprint (thisfile, mytype, value)
-         FILE *thisfile;
-          int mytype;
-          YYSTYPE value;
-     {
-         fprintf (thisfile, " %s", value.string);
-	 /*
-       if (type == VAR)
-         fprintf (file, " %s", value.tptr->name);
-       else if (type == NUM)
-         fprintf (file, " %d", value.val);
-	 */
-     }
-#endif
+

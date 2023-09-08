@@ -1,0 +1,686 @@
+2023-08-19 04:52:32,899	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/train_10.sh
+run_timeout = 76
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = GeneticAlgorithm
+possible_edits = 
+	ParamSetting
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 11270
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 100
+elitism_size = 10
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-19 04:52:32,900	[INFO]	==== WARMUP ====
+2023-08-19 04:53:49,157	[INFO]	WARM    SUCCESS               121258932067            
+2023-08-19 04:53:49,158	[INFO]	INITIAL SUCCESS               121258932067            
+2023-08-19 04:53:49,158	[INFO]	==== START: GeneticAlgorithm ====
+2023-08-19 04:53:49,171	[DEBUG]	
+2023-08-19 04:53:49,171	[DEBUG]	
+2023-08-19 04:53:49,172	[INFO]	0-1     SUCCESS              +121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,178	[DEBUG]	
+2023-08-19 04:53:49,184	[DEBUG]	
+2023-08-19 04:53:49,184	[INFO]	0-2     SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,191	[DEBUG]	
+2023-08-19 04:53:49,191	[INFO]	0-3     SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,197	[DEBUG]	
+2023-08-19 04:53:49,198	[INFO]	0-4     SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,204	[DEBUG]	
+2023-08-19 04:53:49,204	[INFO]	0-5     SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,211	[DEBUG]	
+2023-08-19 04:53:49,211	[INFO]	0-6     SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,217	[DEBUG]	
+2023-08-19 04:53:49,217	[INFO]	0-7     SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,224	[DEBUG]	
+2023-08-19 04:53:49,224	[INFO]	0-8     SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,230	[DEBUG]	
+2023-08-19 04:53:49,230	[INFO]	0-9     SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:53:49,237	[DEBUG]	
+2023-08-19 04:53:49,237	[INFO]	0-10    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 04:54:52,287	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -7,8 +7,8 @@
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+-phase-saving := '2'
+-rnd-init := 'False'
++phase-saving := '1'
++rnd-init := 'True'
+ luby := 0
+ gc-frac := 0.2
+ verb := '1'
+
+2023-08-19 04:54:52,288	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.6869459579116641) | ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'rnd-init'), 'True')
+2023-08-19 04:54:52,288	[INFO]	0-11    SUCCESS              *111656528335 (92.08%) [3 edit(s)] 
+2023-08-19 04:54:52,295	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -7,8 +7,8 @@
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+-phase-saving := '2'
+-rnd-init := 'False'
++phase-saving := '1'
++rnd-init := 'True'
+ luby := 0
+ gc-frac := 0.2
+ verb := '1'
+
+2023-08-19 04:56:11,468	[DEBUG]	ParamSetting(('minisat.params', 'rnd-freq'), 0.5611901418728427) | ParamSetting(('minisat.params', 'gc-frac'), 0.9032802340756781)
+2023-08-19 04:56:11,469	[INFO]	0-12    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 04:57:25,959	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5264) | ParamSetting(('minisat.params', 'rcheck'), 'True') | ParamSetting(('minisat.params', 'grow'), -38)
+2023-08-19 04:57:25,960	[INFO]	0-13    SUCCESS               127557277010 (105.19%) [3 edit(s)] 
+2023-08-19 04:58:18,096	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5025
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+@@ -19,4 +19,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.6803979261826945
+
+2023-08-19 04:58:18,097	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5025) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 04:58:18,097	[INFO]	0-14    SUCCESS              *90007199263 (74.23%) [2 edit(s)] 
+2023-08-19 04:58:18,104	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5025
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+@@ -19,4 +19,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.6803979261826945
+
+2023-08-19 04:59:37,367	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.7031782275305227) | ParamSetting(('minisat.params', 'ccmin-mode'), '0') | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 04:59:37,367	[INFO]	0-15    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 05:00:56,442	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.7277884411507664) | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False')
+2023-08-19 05:00:56,443	[INFO]	0-16    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 05:02:15,636	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'rcheck'), 'True') | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.29591436325432996)
+2023-08-19 05:02:15,636	[INFO]	0-17    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 05:03:34,698	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 05:03:34,699	[INFO]	0-18    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:04:53,802	[DEBUG]	ParamSetting(('minisat.params', 'rnd-freq'), 0.16170388992395557) | ParamSetting(('minisat.params', 'gc-frac'), 0.8240685336095435)
+2023-08-19 05:04:53,803	[INFO]	0-19    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:04:53,814	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 05:04:53,814	[INFO]	0-20    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:06:13,021	[DEBUG]	ParamSetting(('minisat.params', 'core-tolerance'), 0.6754722347841653) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 05:06:13,022	[INFO]	0-21    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:07:32,082	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.24858450659712872) | ParamSetting(('minisat.params', 'sub-lim'), 0)
+2023-08-19 05:07:32,083	[INFO]	0-22    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:08:51,263	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'grow'), -289)
+2023-08-19 05:08:51,264	[INFO]	0-23    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:10:10,048	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 6) | ParamSetting(('minisat.params', 'R-val'), 1.9447007989766858) | ParamSetting(('minisat.params', 'rfirst'), 2.852018708330358)
+2023-08-19 05:10:10,049	[INFO]	0-24    SUCCESS               135615569119 (111.84%) [3 edit(s)] 
+2023-08-19 05:11:29,236	[DEBUG]	ParamSetting(('minisat.params', 'rnd-init'), 'True')
+2023-08-19 05:11:29,237	[INFO]	0-25    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:12:48,396	[DEBUG]	ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-08-19 05:12:48,397	[INFO]	0-26    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:14:07,489	[DEBUG]	ParamSetting(('minisat.params', 'ccmin-mode'), '1') | ParamSetting(('minisat.params', 'rinc'), 2.4220754831705875)
+2023-08-19 05:14:07,490	[INFO]	0-27    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:15:01,622	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.5682268660855541) | ParamSetting(('minisat.params', 'R-val'), 1.298686520163319) | ParamSetting(('minisat.params', 'cl-lim'), 244)
+2023-08-19 05:15:01,623	[INFO]	0-28    SUCCESS               96085511929 (79.24%) [3 edit(s)] 
+2023-08-19 05:16:20,817	[DEBUG]	ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 05:16:20,817	[INFO]	0-29    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:17:39,990	[DEBUG]	ParamSetting(('minisat.params', 'core-tolerance'), 0.4624491338862229) | ParamSetting(('minisat.params', 'rnd-freq'), 0.7147578493528334)
+2023-08-19 05:17:39,991	[INFO]	0-30    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:18:59,109	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.8101716462642798) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'luby'), 1)
+2023-08-19 05:18:59,109	[INFO]	0-31    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 05:19:52,656	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 05:19:52,657	[INFO]	0-32    SUCCESS               94626285523 (78.04%) [2 edit(s)] 
+2023-08-19 05:21:11,823	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 9) | ParamSetting(('minisat.params', 'R-val'), 1.4716226682937585)
+2023-08-19 05:21:11,824	[INFO]	0-33    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:21:11,833	[DEBUG]	ParamSetting(('minisat.params', 'rfirst'), 1.3124173010556583) | ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-08-19 05:21:11,833	[INFO]	0-34    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:22:30,913	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.6990792990970803) | ParamSetting(('minisat.params', 'rnd-freq'), 0.39357899198645485)
+2023-08-19 05:22:30,914	[INFO]	0-35    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:23:50,025	[DEBUG]	ParamSetting(('minisat.params', 'core-tolerance'), 0.730724314643667)
+2023-08-19 05:23:50,026	[INFO]	0-36    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:24:57,967	[DEBUG]	ParamSetting(('minisat.params', 'gc-frac'), 0.3380113942224699)
+2023-08-19 05:24:57,967	[INFO]	0-37    SUCCESS               121244424560 (99.99%) [1 edit(s)] 
+2023-08-19 05:26:07,990	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 19) | ParamSetting(('minisat.params', 'cp-increase'), 5578) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'grow'), -1644)
+2023-08-19 05:26:07,991	[INFO]	0-38    SUCCESS               120900109081 (99.7%) [5 edit(s)] 
+2023-08-19 05:27:27,117	[DEBUG]	ParamSetting(('minisat.params', 'core-tolerance'), 0.9727922406535782) | ParamSetting(('minisat.params', 'var-decay'), 0.8642225384424157) | ParamSetting(('minisat.params', 'elim'), 'False')
+2023-08-19 05:27:27,118	[INFO]	0-39    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 05:28:22,258	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.9476007569135887) | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 05:28:22,258	[INFO]	0-40    SUCCESS               98182726720 (80.97%) [2 edit(s)] 
+2023-08-19 05:28:22,270	[DEBUG]	ParamSetting(('minisat.params', 'ccmin-mode'), '1')
+2023-08-19 05:28:22,271	[INFO]	0-41    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:29:37,836	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 4) | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-08-19 05:29:37,837	[INFO]	0-42    SUCCESS               132932938970 (109.63%) [3 edit(s)] 
+2023-08-19 05:29:37,846	[DEBUG]	
+2023-08-19 05:29:37,846	[INFO]	0-43    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 05:30:56,902	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.30694971384655323)
+2023-08-19 05:30:56,903	[INFO]	0-44    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:30:56,915	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.5334184586287799)
+2023-08-19 05:30:56,915	[INFO]	0-45    SUCCESS               121258932067 (100.0%) [1 edit(s)] 
+2023-08-19 05:30:56,925	[DEBUG]	ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-08-19 05:30:56,925	[INFO]	0-46    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:32:16,078	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.728575958717047) | ParamSetting(('minisat.params', 'rfirst'), 1.1121882007147674) | ParamSetting(('minisat.params', 'pre'), 'False')
+2023-08-19 05:32:16,078	[INFO]	0-47    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 05:33:35,220	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.7494203292125173) | ParamSetting(('minisat.params', 'phase-saving'), '0') | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'rfirst'), 1.352896025941793) | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'grow'), -286)
+2023-08-19 05:33:35,221	[INFO]	0-48    RUN_TIMEOUT           None  [6 edit(s)]       
+2023-08-19 05:34:54,359	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5295) | ParamSetting(('minisat.params', 'var-decay'), 0.6679304896488991) | ParamSetting(('minisat.params', 'elim'), 'False')
+2023-08-19 05:34:54,360	[INFO]	0-49    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 05:36:13,458	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 3) | ParamSetting(('minisat.params', 'K-val'), 0.7543840250601133) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'verb'), '0')
+2023-08-19 05:36:13,459	[INFO]	0-50    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 05:37:32,591	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.3869981786974732) | ParamSetting(('minisat.params', 'rnd-freq'), 0.26667375065134447) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'grow'), 1661)
+2023-08-19 05:37:32,591	[INFO]	0-51    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 05:38:40,342	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.2091835263306203) | ParamSetting(('minisat.params', 'cl-lim'), 685) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6939809623374792)
+2023-08-19 05:38:40,343	[INFO]	0-52    SUCCESS               121222947549 (99.97%) [3 edit(s)] 
+2023-08-19 05:38:40,351	[DEBUG]	
+2023-08-19 05:38:40,351	[INFO]	0-53    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 05:38:40,358	[DEBUG]	
+2023-08-19 05:38:40,358	[INFO]	0-54    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 05:39:59,509	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.643145096597694) | ParamSetting(('minisat.params', 'rfirst'), 2.0148517338023115) | ParamSetting(('minisat.params', 'rinc'), 2.298238565621078)
+2023-08-19 05:39:59,509	[INFO]	0-55    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 05:41:18,707	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 6) | ParamSetting(('minisat.params', 'rnd-freq'), 0.7971731710545876) | ParamSetting(('minisat.params', 'rfirst'), 1.1695394696542702) | ParamSetting(('minisat.params', 'grow'), -1164)
+2023-08-19 05:41:18,707	[INFO]	0-56    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 05:41:18,717	[DEBUG]	ParamSetting(('minisat.params', 'rfirst'), 1.161026164966618)
+2023-08-19 05:41:18,717	[INFO]	0-57    SUCCESS               121258932067 (100.0%) [1 edit(s)] 
+2023-08-19 05:42:28,027	[DEBUG]	ParamSetting(('minisat.params', 'sub-lim'), 58)
+2023-08-19 05:42:28,027	[INFO]	0-58    SUCCESS               121219953830 (99.97%) [1 edit(s)] 
+2023-08-19 05:43:47,168	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.6536649797055849) | ParamSetting(('minisat.params', 'grow'), 152)
+2023-08-19 05:43:47,169	[INFO]	0-59    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:45:06,212	[DEBUG]	ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'rfirst'), 3.90687415103595) | ParamSetting(('minisat.params', 'gc-frac'), 0.6304389806719255) | ParamSetting(('minisat.params', 'rcheck'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'grow'), 353)
+2023-08-19 05:45:06,212	[INFO]	0-60    RUN_TIMEOUT           None  [6 edit(s)]       
+2023-08-19 05:46:25,315	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5199) | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.19899133772785332)
+2023-08-19 05:46:25,316	[INFO]	0-61    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 05:47:31,284	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7260602215629333) | ParamSetting(('minisat.params', 'sub-lim'), 238)
+2023-08-19 05:47:31,285	[INFO]	0-62    SUCCESS               121227064623 (99.97%) [2 edit(s)] 
+2023-08-19 05:48:39,912	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 18) | ParamSetting(('minisat.params', 'gc-frac'), 0.26620554340943686)
+2023-08-19 05:48:39,913	[INFO]	0-63    SUCCESS               121259977211 (100.0%) [2 edit(s)] 
+2023-08-19 05:49:59,074	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), '1')
+2023-08-19 05:49:59,075	[INFO]	0-64    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:51:18,157	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.6654491728422035) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'sub-lim'), 0)
+2023-08-19 05:51:18,158	[INFO]	0-65    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 05:52:37,266	[DEBUG]	ParamSetting(('minisat.params', 'grow'), 47)
+2023-08-19 05:52:37,266	[INFO]	0-66    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 05:53:56,481	[DEBUG]	ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'sub-lim'), 578)
+2023-08-19 05:53:56,481	[INFO]	0-67    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:55:02,771	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.4145111993461802) | ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 05:55:02,772	[INFO]	0-68    SUCCESS               119838161306 (98.83%) [2 edit(s)] 
+2023-08-19 05:55:02,781	[DEBUG]	
+2023-08-19 05:55:02,781	[INFO]	0-69    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 05:55:02,789	[DEBUG]	
+2023-08-19 05:55:02,789	[INFO]	0-70    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 05:55:02,797	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.393212758402427)
+2023-08-19 05:55:02,797	[INFO]	0-71    SUCCESS               121258932067 (100.0%) [1 edit(s)] 
+2023-08-19 05:56:21,829	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.9268426521149612) | ParamSetting(('minisat.params', 'cla-decay'), 0.7907690996673877)
+2023-08-19 05:56:21,830	[INFO]	0-72    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 05:57:40,960	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.9723469683204233) | ParamSetting(('minisat.params', 'cla-decay'), 0.7016461915885783) | ParamSetting(('minisat.params', 'rinc'), 2.466614525966846) | ParamSetting(('minisat.params', 'gc-frac'), 0.45868059030742225) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 05:57:40,961	[INFO]	0-73    RUN_TIMEOUT           None  [5 edit(s)]       
+2023-08-19 05:59:00,054	[DEBUG]	ParamSetting(('minisat.params', 'ccmin-mode'), '0') | ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-08-19 05:59:00,055	[INFO]	0-74    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:00:19,212	[DEBUG]	ParamSetting(('minisat.params', 'rnd-freq'), 0.20305968102407124) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-08-19 06:00:19,213	[INFO]	0-75    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 06:01:22,249	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 7) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'rfirst'), 4.014049611957951)
+2023-08-19 06:01:22,250	[INFO]	0-76    SUCCESS               110749577262 (91.33%) [3 edit(s)] 
+2023-08-19 06:02:30,889	[DEBUG]	ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 06:02:30,890	[INFO]	0-77    SUCCESS               121217539789 (99.97%) [1 edit(s)] 
+2023-08-19 06:02:30,898	[DEBUG]	ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-08-19 06:02:30,899	[INFO]	0-78    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 06:03:49,980	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.49461185264379137) | ParamSetting(('minisat.params', 'ccmin-mode'), '0')
+2023-08-19 06:03:49,981	[INFO]	0-79    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:05:09,159	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 6) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False')
+2023-08-19 06:05:09,160	[INFO]	0-80    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 06:06:28,342	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.3944879177557572) | ParamSetting(('minisat.params', 'rnd-freq'), 0.39314926912120285)
+2023-08-19 06:06:28,343	[INFO]	0-81    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:07:47,037	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 30) | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6317549627779241)
+2023-08-19 06:07:47,038	[INFO]	0-82    SUCCESS               139507071259 (115.05%) [3 edit(s)] 
+2023-08-19 06:08:55,150	[DEBUG]	ParamSetting(('minisat.params', 'rfirst'), 1.5368809199265294) | ParamSetting(('minisat.params', 'rinc'), 3.983535253194093) | ParamSetting(('minisat.params', 'sub-lim'), 385)
+2023-08-19 06:08:55,151	[INFO]	0-83    SUCCESS               121265339949 (100.01%) [3 edit(s)] 
+2023-08-19 06:08:55,163	[DEBUG]	ParamSetting(('minisat.params', 'ccmin-mode'), '1') | ParamSetting(('minisat.params', 'rfirst'), 2.0208367461420096)
+2023-08-19 06:08:55,163	[INFO]	0-84    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:10:14,368	[DEBUG]	ParamSetting(('minisat.params', 'luby'), 1)
+2023-08-19 06:10:14,369	[INFO]	0-85    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 06:11:25,145	[DEBUG]	ParamSetting(('minisat.params', 'core-tolerance'), 0.0749578724435942) | ParamSetting(('minisat.params', 'R-val'), 1.8304783459716343) | ParamSetting(('minisat.params', 'gc-frac'), 0.7901976831904486) | ParamSetting(('minisat.params', 'verb'), '0') | ParamSetting(('minisat.params', 'rcheck'), 'True') | ParamSetting(('minisat.params', 'sub-lim'), 0)
+2023-08-19 06:11:25,146	[INFO]	0-86    SUCCESS               123393337174 (101.76%) [6 edit(s)] 
+2023-08-19 06:12:44,395	[DEBUG]	ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 06:12:44,396	[INFO]	0-87    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 06:14:03,588	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 6) | ParamSetting(('minisat.params', 'cp-increase'), 5030) | ParamSetting(('minisat.params', 'rnd-freq'), 0.7617954074826927) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'luby'), 1) | ParamSetting(('minisat.params', 'rinc'), 2.256927795482579)
+2023-08-19 06:14:03,589	[INFO]	0-88    RUN_TIMEOUT           None  [6 edit(s)]       
+2023-08-19 06:15:22,739	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.15575624952805558) | ParamSetting(('minisat.params', 'rnd-freq'), 0.6998813844534532) | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'sub-lim'), 0)
+2023-08-19 06:15:22,740	[INFO]	0-89    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 06:16:26,782	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5006) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 06:16:26,783	[INFO]	0-90    SUCCESS               111570790034 (92.01%) [2 edit(s)] 
+2023-08-19 06:17:45,843	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 7) | ParamSetting(('minisat.params', 'ccmin-mode'), '1')
+2023-08-19 06:17:45,844	[INFO]	0-91    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:19:05,015	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.511432748704757) | ParamSetting(('minisat.params', 'sub-lim'), 0)
+2023-08-19 06:19:05,015	[INFO]	0-92    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:19:05,028	[DEBUG]	
+2023-08-19 06:19:05,028	[INFO]	0-93    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 06:19:05,038	[DEBUG]	
+2023-08-19 06:19:05,038	[INFO]	0-94    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 06:20:24,227	[DEBUG]	ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'grow'), -503) | ParamSetting(('minisat.params', 'sub-lim'), 0)
+2023-08-19 06:20:24,228	[INFO]	0-95    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 06:21:43,387	[DEBUG]	ParamSetting(('minisat.params', 'rnd-freq'), 0.4863793022359104) | ParamSetting(('minisat.params', 'rcheck'), 'True')
+2023-08-19 06:21:43,387	[INFO]	0-96    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:23:02,409	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5992) | ParamSetting(('minisat.params', 'gc-frac'), 0.22799976001110267) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'sub-lim'), 0)
+2023-08-19 06:23:02,410	[INFO]	0-97    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 06:24:21,609	[DEBUG]	ParamSetting(('minisat.params', 'pre'), 'False')
+2023-08-19 06:24:21,610	[INFO]	0-98    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 06:25:40,796	[DEBUG]	ParamSetting(('minisat.params', 'rnd-init'), 'True')
+2023-08-19 06:25:40,797	[INFO]	0-99    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 06:25:40,810	[DEBUG]	
+2023-08-19 06:25:40,810	[INFO]	0-100   SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 06:26:33,334	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5025
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+@@ -19,4 +19,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.6803979261826945
+
+2023-08-19 06:26:33,335	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5025) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 06:26:33,335	[INFO]	1-1     SUCCESS              +90009027285 (74.23%) [2 edit(s)] 
+2023-08-19 06:26:33,342	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5025
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+@@ -19,4 +19,4 @@
+ grow := 0
+ cl-lim := 20
+ sub-lim := 1000
+-simp-gc-frac := 0.5
++simp-gc-frac := 0.6803979261826945
+
+2023-08-19 06:27:28,023	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 06:27:28,023	[INFO]	1-2     SUCCESS               94640371340 (78.05%) [2 edit(s)] 
+2023-08-19 06:28:22,403	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.5682268660855541) | ParamSetting(('minisat.params', 'R-val'), 1.298686520163319) | ParamSetting(('minisat.params', 'cl-lim'), 244)
+2023-08-19 06:28:22,403	[INFO]	1-3     SUCCESS               96080343050 (79.24%) [3 edit(s)] 
+2023-08-19 06:29:18,210	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.9476007569135887) | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 06:29:18,211	[INFO]	1-4     SUCCESS               98219277140 (81.0%) [2 edit(s)] 
+2023-08-19 06:30:37,347	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 7) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'rfirst'), 4.014049611957951) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 06:30:37,348	[INFO]	1-5     RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 06:31:29,340	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5006
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+
+2023-08-19 06:31:29,340	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5006)
+2023-08-19 06:31:29,341	[INFO]	1-6     SUCCESS              *88108415132 (72.66%) [1 edit(s)] 
+2023-08-19 06:31:29,347	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5006
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+
+2023-08-19 06:32:47,536	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7291748750540653) | ParamSetting(('minisat.params', 'cla-decay'), 0.546913694640886) | ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'rnd-init'), 'True')
+2023-08-19 06:32:47,537	[INFO]	1-7     SUCCESS               137592903296 (113.47%) [4 edit(s)] 
+2023-08-19 06:34:06,692	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.6885945123895618) | ParamSetting(('minisat.params', 'cla-decay'), 0.9323598290823952) | ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 06:34:06,693	[INFO]	1-8     RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 06:35:21,678	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 15) | ParamSetting(('minisat.params', 'cp-increase'), 5578) | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'grow'), -1644)
+2023-08-19 06:35:21,678	[INFO]	1-9     SUCCESS               128345982507 (105.84%) [4 edit(s)] 
+2023-08-19 06:36:40,775	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 8) | ParamSetting(('minisat.params', 'lbd-cut-max'), 11) | ParamSetting(('minisat.params', 'luby'), 1) | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'grow'), 603)
+2023-08-19 06:36:40,776	[INFO]	1-10    RUN_TIMEOUT           None  [5 edit(s)]       
+2023-08-19 06:37:49,862	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7606459788647354) | ParamSetting(('minisat.params', 'rfirst'), 43.552828536202306) | ParamSetting(('minisat.params', 'sub-lim'), 380)
+2023-08-19 06:37:49,863	[INFO]	1-11    SUCCESS               121218656965 (99.97%) [3 edit(s)] 
+2023-08-19 06:38:56,869	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7413808917794601) | ParamSetting(('minisat.params', 'rfirst'), 27.474000249061437) | ParamSetting(('minisat.params', 'rinc'), 3.983535253194093) | ParamSetting(('minisat.params', 'sub-lim'), 272)
+2023-08-19 06:38:56,870	[INFO]	1-12    SUCCESS               121263868701 (100.0%) [4 edit(s)] 
+2023-08-19 06:40:16,056	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.6671839159388626) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'luby'), 1)
+2023-08-19 06:40:16,057	[INFO]	1-13    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 06:41:35,245	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.6374581991294728) | ParamSetting(('minisat.params', 'rnd-freq'), 0.725810509046636) | ParamSetting(('minisat.params', 'phase-saving'), '0') | ParamSetting(('minisat.params', 'luby'), 1) | ParamSetting(('minisat.params', 'rinc'), 2.2091835263306203) | ParamSetting(('minisat.params', 'cl-lim'), 361) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6939809623374792)
+2023-08-19 06:41:35,246	[INFO]	1-14    RUN_TIMEOUT           None  [7 edit(s)]       
+2023-08-19 06:42:54,461	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.812382663181005)
+2023-08-19 06:42:54,462	[INFO]	1-15    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 06:44:13,648	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.807030685014834) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 06:44:13,649	[INFO]	1-16    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:45:31,864	[DEBUG]	ParamSetting(('minisat.params', 'grow'), 17)
+2023-08-19 06:45:31,864	[INFO]	1-17    SUCCESS               138947078714 (114.59%) [1 edit(s)] 
+2023-08-19 06:46:40,778	[DEBUG]	ParamSetting(('minisat.params', 'gc-frac'), 0.3380113942224699) | ParamSetting(('minisat.params', 'grow'), 2)
+2023-08-19 06:46:40,779	[INFO]	1-18    SUCCESS               119804625091 (98.8%) [2 edit(s)] 
+2023-08-19 06:47:59,883	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7962103398757971) | ParamSetting(('minisat.params', 'phase-saving'), '1')
+2023-08-19 06:47:59,884	[INFO]	1-19    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 06:49:18,989	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.6883585289565416) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 06:49:18,990	[INFO]	1-20    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 06:50:26,851	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7260602215629333) | ParamSetting(('minisat.params', 'sub-lim'), 238)
+2023-08-19 06:50:26,851	[INFO]	1-21    SUCCESS               121244345174 (99.99%) [2 edit(s)] 
+2023-08-19 06:51:34,618	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.2091835263306203) | ParamSetting(('minisat.params', 'cl-lim'), 685) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6939809623374792)
+2023-08-19 06:51:34,619	[INFO]	1-22    SUCCESS               121206419587 (99.96%) [3 edit(s)] 
+2023-08-19 06:52:53,754	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 20) | ParamSetting(('minisat.params', 'rinc'), 2.778963837174108) | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 06:52:53,754	[INFO]	1-23    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 06:54:12,814	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5199) | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.19899133772785332)
+2023-08-19 06:54:12,815	[INFO]	1-24    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 06:55:30,456	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.7560631393563128) | ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'cl-lim'), 8)
+2023-08-19 06:55:30,457	[INFO]	1-25    SUCCESS               138873271011 (114.53%) [3 edit(s)] 
+2023-08-19 06:56:43,317	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.7926683767593828) | ParamSetting(('minisat.params', 'gc-frac'), 0.7245595460172929) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'cl-lim'), 15)
+2023-08-19 06:56:43,317	[INFO]	1-26    SUCCESS               128712108143 (106.15%) [6 edit(s)] 
+2023-08-19 06:56:43,326	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), '1')
+2023-08-19 06:56:43,326	[INFO]	1-27    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 06:58:02,352	[DEBUG]	ParamSetting(('minisat.params', 'grow'), -289)
+2023-08-19 06:58:02,352	[INFO]	1-28    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 06:58:02,364	[DEBUG]	ParamSetting(('minisat.params', 'rfirst'), 73.07127296220914)
+2023-08-19 06:58:02,364	[INFO]	1-29    SUCCESS               121258932067 (100.0%) [1 edit(s)] 
+2023-08-19 06:59:21,575	[DEBUG]	ParamSetting(('minisat.params', 'core-tolerance'), 0.41131227689978567) | ParamSetting(('minisat.params', 'rfirst'), 22.98937080375693) | ParamSetting(('minisat.params', 'rinc'), 3.983535253194093) | ParamSetting(('minisat.params', 'sub-lim'), 385)
+2023-08-19 06:59:21,576	[INFO]	1-30    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 07:00:40,808	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7269043532975324) | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'rcheck'), 'True') | ParamSetting(('minisat.params', 'sub-lim'), 238)
+2023-08-19 07:00:40,808	[INFO]	1-31    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 07:01:53,271	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 4) | ParamSetting(('minisat.params', 'K-val'), 0.7370202869773337)
+2023-08-19 07:01:53,272	[INFO]	1-32    SUCCESS               129442342938 (106.75%) [2 edit(s)] 
+2023-08-19 07:03:00,787	[DEBUG]	ParamSetting(('minisat.params', 'rfirst'), 1.161026164966618) | ParamSetting(('minisat.params', 'cl-lim'), 663)
+2023-08-19 07:03:00,787	[INFO]	1-33    SUCCESS               121235633132 (99.98%) [2 edit(s)] 
+2023-08-19 07:03:00,799	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:03:00,800	[INFO]	1-34    SUCCESS               94640371340 (78.05%) [2 edit(s)] 
+2023-08-19 07:03:56,111	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.5682268660855541) | ParamSetting(('minisat.params', 'R-val'), 1.298686520163319) | ParamSetting(('minisat.params', 'cl-lim'), 181)
+2023-08-19 07:03:56,111	[INFO]	1-35    SUCCESS               96084876855 (79.24%) [3 edit(s)] 
+2023-08-19 07:05:03,557	[DEBUG]	ParamSetting(('minisat.params', 'cl-lim'), 112)
+2023-08-19 07:05:03,558	[INFO]	1-36    SUCCESS               121221464939 (99.97%) [1 edit(s)] 
+2023-08-19 07:06:12,269	[DEBUG]	ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 07:06:12,270	[INFO]	1-37    SUCCESS               121272179213 (100.01%) [1 edit(s)] 
+2023-08-19 07:07:19,607	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.4145111993461802)
+2023-08-19 07:07:19,607	[INFO]	1-38    SUCCESS               119820858793 (98.81%) [1 edit(s)] 
+2023-08-19 07:07:19,616	[DEBUG]	
+2023-08-19 07:07:19,616	[INFO]	1-39    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 07:08:38,682	[DEBUG]	ParamSetting(('minisat.params', 'R-val'), 1.067006274759181) | ParamSetting(('minisat.params', 'cla-decay'), 0.8390381630268834) | ParamSetting(('minisat.params', 'rfirst'), 2.269926216059575) | ParamSetting(('minisat.params', 'rinc'), 2.466614525966846) | ParamSetting(('minisat.params', 'gc-frac'), 0.45868059030742225) | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'grow'), 1)
+2023-08-19 07:08:38,683	[INFO]	1-40    RUN_TIMEOUT           None  [8 edit(s)]       
+2023-08-19 07:08:38,695	[DEBUG]	ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 07:08:38,695	[INFO]	1-41    SUCCESS               121272179213 (100.01%) [1 edit(s)] 
+2023-08-19 07:08:38,706	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:08:38,706	[INFO]	1-42    SUCCESS               94640371340 (78.05%) [2 edit(s)] 
+2023-08-19 07:09:57,784	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:09:57,785	[INFO]	1-43    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 07:11:16,937	[DEBUG]	ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'grow'), -503) | ParamSetting(('minisat.params', 'sub-lim'), 0)
+2023-08-19 07:11:16,938	[INFO]	1-44    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 07:11:16,947	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:11:16,947	[INFO]	1-45    SUCCESS               94640371340 (78.05%) [2 edit(s)] 
+2023-08-19 07:11:16,954	[DEBUG]	ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 07:11:16,954	[INFO]	1-46    SUCCESS               121272179213 (100.01%) [1 edit(s)] 
+2023-08-19 07:11:16,961	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:11:16,961	[INFO]	1-47    SUCCESS               94640371340 (78.05%) [2 edit(s)] 
+2023-08-19 07:12:24,355	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7260602215629333) | ParamSetting(('minisat.params', 'sub-lim'), 238)
+2023-08-19 07:12:24,356	[INFO]	1-48    SUCCESS               121245984093 (99.99%) [2 edit(s)] 
+2023-08-19 07:12:24,369	[DEBUG]	
+2023-08-19 07:12:24,369	[INFO]	1-49    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 07:12:24,379	[DEBUG]	
+2023-08-19 07:12:24,379	[INFO]	1-50    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 07:13:43,397	[DEBUG]	ParamSetting(('minisat.params', 'rfirst'), 1.161026164966618) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:13:43,398	[INFO]	1-51    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:15:02,516	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553)
+2023-08-19 07:15:02,517	[INFO]	1-52    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 07:16:21,698	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 19) | ParamSetting(('minisat.params', 'cp-increase'), 5578) | ParamSetting(('minisat.params', 'var-decay'), 0.16910176047532297) | ParamSetting(('minisat.params', 'cla-decay'), 0.7946119504519142) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'grow'), -1644) | ParamSetting(('minisat.params', 'sub-lim'), 725)
+2023-08-19 07:16:21,699	[INFO]	1-53    RUN_TIMEOUT           None  [8 edit(s)]       
+2023-08-19 07:16:21,709	[DEBUG]	
+2023-08-19 07:16:21,709	[INFO]	1-54    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 07:17:40,861	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 9) | ParamSetting(('minisat.params', 'R-val'), 1.4716226682937585) | ParamSetting(('minisat.params', 'cla-decay'), 0.6263664520090327) | ParamSetting(('minisat.params', 'rinc'), 2.1487200091069534) | ParamSetting(('minisat.params', 'sub-lim'), 139)
+2023-08-19 07:17:40,862	[INFO]	1-55    RUN_TIMEOUT           None  [5 edit(s)]       
+2023-08-19 07:18:48,919	[DEBUG]	ParamSetting(('minisat.params', 'sub-lim'), 483)
+2023-08-19 07:18:48,920	[INFO]	1-56    SUCCESS               121269832996 (100.01%) [1 edit(s)] 
+2023-08-19 07:19:57,918	[DEBUG]	ParamSetting(('minisat.params', 'sub-lim'), 197)
+2023-08-19 07:19:57,919	[INFO]	1-57    SUCCESS               121239356621 (99.98%) [1 edit(s)] 
+2023-08-19 07:21:06,278	[DEBUG]	ParamSetting(('minisat.params', 'sub-lim'), 884)
+2023-08-19 07:21:06,279	[INFO]	1-58    SUCCESS               121215475156 (99.96%) [1 edit(s)] 
+2023-08-19 07:22:25,425	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.809140147938931) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:22:25,426	[INFO]	1-59    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:23:44,498	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8127502454823072)
+2023-08-19 07:23:44,498	[INFO]	1-60    RUN_TIMEOUT           None  [1 edit(s)]       
+2023-08-19 07:24:37,473	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5025) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 07:24:37,474	[INFO]	1-61    SUCCESS               90055331801 (74.27%) [2 edit(s)] 
+2023-08-19 07:24:37,483	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5025) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 07:24:37,483	[INFO]	1-62    SUCCESS               90055331801 (74.27%) [2 edit(s)] 
+2023-08-19 07:25:56,636	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.6536649797055849) | ParamSetting(('minisat.params', 'grow'), 152)
+2023-08-19 07:25:56,637	[INFO]	1-63    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:27:15,775	[DEBUG]	ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'sub-lim'), 578)
+2023-08-19 07:27:15,775	[INFO]	1-64    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:27:15,787	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:27:15,787	[INFO]	1-65    SUCCESS               94640371340 (78.05%) [2 edit(s)] 
+2023-08-19 07:28:27,101	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 19) | ParamSetting(('minisat.params', 'cp-increase'), 5578) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'grow'), -1644)
+2023-08-19 07:28:27,102	[INFO]	1-66    SUCCESS               120914326396 (99.72%) [5 edit(s)] 
+2023-08-19 07:29:46,227	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7260602215629333) | ParamSetting(('minisat.params', 'ccmin-mode'), '0') | ParamSetting(('minisat.params', 'sub-lim'), 238)
+2023-08-19 07:29:46,227	[INFO]	1-67    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 07:29:46,238	[DEBUG]	ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 07:29:46,239	[INFO]	1-68    SUCCESS               121272179213 (100.01%) [1 edit(s)] 
+2023-08-19 07:30:53,917	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.4145111993461802) | ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 07:30:53,918	[INFO]	1-69    SUCCESS               119857340348 (98.84%) [2 edit(s)] 
+2023-08-19 07:30:53,928	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5025) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 07:30:53,928	[INFO]	1-70    SUCCESS               90055331801 (74.27%) [2 edit(s)] 
+2023-08-19 07:32:13,077	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.9795239004098862)
+2023-08-19 07:32:13,078	[INFO]	1-71    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:32:13,087	[DEBUG]	
+2023-08-19 07:32:13,087	[INFO]	1-72    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 07:33:32,210	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.6801377668334886) | ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'grow'), 12)
+2023-08-19 07:33:32,211	[INFO]	1-73    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 07:34:42,330	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.7087917155256077) | ParamSetting(('minisat.params', 'grow'), 5)
+2023-08-19 07:34:42,331	[INFO]	1-74    SUCCESS               125470725969 (103.47%) [2 edit(s)] 
+2023-08-19 07:35:49,058	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.6671758237893601) | ParamSetting(('minisat.params', 'R-val'), 1.367064879345608) | ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'cl-lim'), 28)
+2023-08-19 07:35:49,059	[INFO]	1-75    SUCCESS               121577785915 (100.26%) [5 edit(s)] 
+2023-08-19 07:37:08,198	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut'), 8) | ParamSetting(('minisat.params', 'K-val'), 0.5829674850495784) | ParamSetting(('minisat.params', 'R-val'), 1.1709406586345512) | ParamSetting(('minisat.params', 'var-decay'), 0.6604225653764123) | ParamSetting(('minisat.params', 'verb'), '0') | ParamSetting(('minisat.params', 'cl-lim'), 50)
+2023-08-19 07:37:08,199	[INFO]	1-76    RUN_TIMEOUT           None  [6 edit(s)]       
+2023-08-19 07:38:16,323	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.2091835263306203) | ParamSetting(('minisat.params', 'cl-lim'), 685) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6939809623374792)
+2023-08-19 07:38:16,324	[INFO]	1-77    SUCCESS               121238812725 (99.98%) [3 edit(s)] 
+2023-08-19 07:38:16,333	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'asymm'), 'True')
+2023-08-19 07:38:16,333	[INFO]	1-78    SUCCESS               94640371340 (78.05%) [2 edit(s)] 
+2023-08-19 07:39:35,470	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.695416371771788) | ParamSetting(('minisat.params', 'var-decay'), 0.4084791214967842)
+2023-08-19 07:39:35,470	[INFO]	1-79    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:40:31,188	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.5971947747595423) | ParamSetting(('minisat.params', 'R-val'), 1.298686520163319) | ParamSetting(('minisat.params', 'cl-lim'), 244)
+2023-08-19 07:40:31,189	[INFO]	1-80    SUCCESS               96070208180 (79.23%) [3 edit(s)] 
+2023-08-19 07:41:39,886	[DEBUG]	ParamSetting(('minisat.params', 'rinc'), 2.2091835263306203) | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'cl-lim'), 307) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.5295566074037551)
+2023-08-19 07:41:39,886	[INFO]	1-81    SUCCESS               121252212642 (99.99%) [4 edit(s)] 
+2023-08-19 07:42:59,044	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.4145111993461802) | ParamSetting(('minisat.params', 'rnd-freq'), 0.24582763283247244) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'rcheck'), 'True') | ParamSetting(('minisat.params', 'grow'), -1993) | ParamSetting(('minisat.params', 'cl-lim'), 667) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6162570601316706)
+2023-08-19 07:42:59,045	[INFO]	1-82    RUN_TIMEOUT           None  [7 edit(s)]       
+2023-08-19 07:44:09,423	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 14) | ParamSetting(('minisat.params', 'cp-increase'), 5578) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'grow'), -784)
+2023-08-19 07:44:09,424	[INFO]	1-83    SUCCESS               120850231831 (99.66%) [4 edit(s)] 
+2023-08-19 07:45:28,576	[DEBUG]	ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'grow'), -927) | ParamSetting(('minisat.params', 'sub-lim'), 578)
+2023-08-19 07:45:28,577	[INFO]	1-84    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 07:46:35,405	[DEBUG]	ParamSetting(('minisat.params', 'cla-decay'), 0.4145111993461802) | ParamSetting(('minisat.params', 'verb'), '2')
+2023-08-19 07:46:35,406	[INFO]	1-85    SUCCESS               119827149123 (98.82%) [2 edit(s)] 
+2023-08-19 07:46:35,413	[DEBUG]	
+2023-08-19 07:46:35,413	[INFO]	1-86    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 07:47:54,470	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.3869981786974732) | ParamSetting(('minisat.params', 'rnd-freq'), 0.26667375065134447) | ParamSetting(('minisat.params', 'grow'), 328)
+2023-08-19 07:47:54,471	[INFO]	1-87    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 07:49:13,709	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.8180747321980553) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'grow'), 932)
+2023-08-19 07:49:13,710	[INFO]	1-88    RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 07:50:32,797	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.605702179497256) | ParamSetting(('minisat.params', 'cla-decay'), 0.29049521408324785) | ParamSetting(('minisat.params', 'sub-lim'), 588)
+2023-08-19 07:50:32,798	[INFO]	1-89    RUN_TIMEOUT           None  [3 edit(s)]       
+2023-08-19 07:50:32,806	[DEBUG]	
+2023-08-19 07:50:32,806	[INFO]	1-90    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 07:51:27,459	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.9476007569135887) | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 07:51:27,460	[INFO]	1-91    SUCCESS               98202827505 (80.99%) [2 edit(s)] 
+2023-08-19 07:52:46,542	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 12) | ParamSetting(('minisat.params', 'pre'), 'False')
+2023-08-19 07:52:46,543	[INFO]	1-92    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:52:46,551	[DEBUG]	
+2023-08-19 07:52:46,551	[INFO]	1-93    SUCCESS               121258932067 (100.0%) [0 edit(s)] 
+2023-08-19 07:53:53,586	[DEBUG]	ParamSetting(('minisat.params', 'gc-frac'), 0.3380113942224699)
+2023-08-19 07:53:53,586	[INFO]	1-94    SUCCESS               121212674761 (99.96%) [1 edit(s)] 
+2023-08-19 07:55:12,670	[DEBUG]	ParamSetting(('minisat.params', 'rnd-freq'), 0.9241924684145024) | ParamSetting(('minisat.params', 'rfirst'), 1.161026164966618)
+2023-08-19 07:55:12,671	[INFO]	1-95    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:56:31,773	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 07:56:31,774	[INFO]	1-96    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:57:41,570	[DEBUG]	ParamSetting(('minisat.params', 'lbd-cut-max'), 19) | ParamSetting(('minisat.params', 'cp-increase'), 5578) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'elim'), 'False') | ParamSetting(('minisat.params', 'grow'), -1644)
+2023-08-19 07:57:41,571	[INFO]	1-97    SUCCESS               119747405548 (98.75%) [7 edit(s)] 
+2023-08-19 07:57:41,580	[DEBUG]	ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'cl-lim'), 0)
+2023-08-19 07:57:41,580	[INFO]	1-98    RUN_TIMEOUT           None  [2 edit(s)]       
+2023-08-19 07:58:52,784	[DEBUG]	ParamSetting(('minisat.params', 'var-decay'), 0.911993107641057) | ParamSetting(('minisat.params', 'cl-lim'), 18)
+2023-08-19 07:58:52,785	[INFO]	1-99    SUCCESS               125128910823 (103.19%) [2 edit(s)] 
+2023-08-19 08:00:11,964	[DEBUG]	ParamSetting(('minisat.params', 'K-val'), 0.9268426521149612) | ParamSetting(('minisat.params', 'var-decay'), 0.9222248737097213) | ParamSetting(('minisat.params', 'cla-decay'), 0.7907690996673877) | ParamSetting(('minisat.params', 'cl-lim'), 14)
+2023-08-19 08:00:11,965	[INFO]	1-100   RUN_TIMEOUT           None  [4 edit(s)]       
+2023-08-19 08:01:03,402	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5006
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+
+2023-08-19 08:01:03,403	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5006)
+2023-08-19 08:01:03,403	[INFO]	2-1     SUCCESS              *88105178124 (72.66%) [1 edit(s)] 
+2023-08-19 08:01:03,413	[DEBUG]	--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5006
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+
+2023-08-19 08:01:03,420	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5025) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 08:01:03,420	[INFO]	2-2     SUCCESS               90055331801 (74.27%) [2 edit(s)] 
+2023-08-19 08:01:03,426	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5025) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 08:01:03,427	[INFO]	2-3     SUCCESS               90055331801 (74.27%) [2 edit(s)] 
+2023-08-19 08:01:03,434	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 5025) | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 08:01:03,434	[INFO]	2-4     SUCCESS               90055331801 (74.27%) [2 edit(s)] 
+2023-08-19 08:02:06,547	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 6485) | ParamSetting(('minisat.params', 'var-decay'), 0.8147204010112179) | ParamSetting(('minisat.params', 'asymm'), 'True') | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.6803979261826945)
+2023-08-19 08:02:06,548	[INFO]	2-5     SUCCESS               107563327008 (88.71%) [4 edit(s)] 
+2023-08-19 08:02:06,556	[INFO]	==== END ====
+2023-08-19 08:02:06,556	[INFO]	Reason: time budget
+2023-08-19 08:02:06,559	[INFO]	
+2023-08-19 08:02:06,559	[INFO]	==== REPORT ====
+2023-08-19 08:02:06,559	[INFO]	Termination: time budget
+2023-08-19 08:02:06,559	[INFO]	Log file: /cs/research/crest/home0/jpetke/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1692417149.log
+2023-08-19 08:02:06,574	[INFO]	Patch file: _magpie_logs/minisat-hack_1692417149.patch
+2023-08-19 08:02:06,574	[INFO]	Diff file: _magpie_logs/minisat-hack_1692417149.diff
+2023-08-19 08:02:06,574	[INFO]	Best fitness: 88105178124
+2023-08-19 08:02:06,574	[INFO]	Best patch: ParamSetting(('minisat.params', 'cp-increase'), 5006)
+2023-08-19 08:02:06,574	[INFO]	Diff:
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 5006
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+

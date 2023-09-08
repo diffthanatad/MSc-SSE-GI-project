@@ -1,0 +1,49 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -565,7 +565,7 @@
+         this.voc.setReason(p, from);
+         this.trail.push(p);
+         if (from != null && from.learnt()) {
+-            this.learnedConstraintsDeletionStrategy.onPropagation(from);
++            
+         }
+         return true;
+     }
+@@ -683,9 +683,7 @@
+         }
+ 
+         assert outLearnt.size() == 0;
+-        for (int i = 0; i < seen.length; i++) {
+-            seen[i] = false;
+-        }
++        
+ 
+         if (confl == null) {
+             seen[conflictingLiteral >> 1] = true;
+@@ -761,7 +759,7 @@
+         private static final long serialVersionUID = 1L;
+ 
+         public void simplify(IVecInt conflictToReduce) {
+-            simpleSimplification(conflictToReduce);
++            
+         }
+ 
+         @Override
+@@ -1170,7 +1168,7 @@
+         this.learnedLiterals.clear();
+         // assert trail.size() == qhead || !undertimeout;
+         while (this.trail.size() > learnedLiteralsLimit) {
+-            this.learnedLiterals.push(this.trail.last());
++            
+             undoOne();
+         }
+         // qhead = 0;
+@@ -1867,7 +1865,7 @@
+             total += entry.getValue().getValue();
+         }
+         out.print(prefix);
+-        out.print(total);
++        
+         out.println(" constraints processed.");
+     }
+ 

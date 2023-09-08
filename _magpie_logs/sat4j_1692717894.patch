@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'VARDECAY'), 0.5048630082744091) | ParamSetting(('sat4j.params', 'RESTARTS'), 'MiniSATRestarts') | ParamSetting(('sat4j.params', 'CONFLICTBOUNDINCFACTOR'), 3.1769766166392808) | ParamSetting(('sat4j.params', 'PHASE'), 'RSATLastLearnedClausesPhaseSelectionStrategy') | ParamSetting(('sat4j.params', 'CLADECAY'), 0.6526138745374825)

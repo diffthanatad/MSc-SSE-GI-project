@@ -1,0 +1,213 @@
+2023-08-03 12:17:46,044	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_10.sh
+run_timeout = 1518
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-03 12:17:46,045	[INFO]	==== WARMUP ====
+2023-08-03 12:35:03,590	[INFO]	WARM    SUCCESS               1729005304660           
+2023-08-03 12:35:03,591	[INFO]	INITIAL SUCCESS               1729005304660           
+2023-08-03 12:35:03,591	[INFO]	==== START: ValidTest ====
+2023-08-03 12:35:03,656	[DEBUG]	CLEAN_PATCH: StmtReplacement(('core/Solver.cc.xml', 'stmt', 268), ('core/Solver.cc.xml', 'stmt', 357)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 221)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 273), ('core/Solver.cc.xml', 'stmt', 311)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 343), ('core/Solver.cc.xml', 'stmt', 22))
+2023-08-03 12:35:03,656	[DEBUG]	CLEAN_SIZE: 4 (was 4)
+2023-08-03 12:55:51,002	[DEBUG]	StmtReplacement(('core/Solver.cc.xml', 'stmt', 268), ('core/Solver.cc.xml', 'stmt', 357)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 221)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 273), ('core/Solver.cc.xml', 'stmt', 311)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 343), ('core/Solver.cc.xml', 'stmt', 22))
+2023-08-03 12:55:51,003	[INFO]	1       SUCCESS              *2017542045165 (116.69%) [4 edit(s)] 
+2023-08-03 12:55:51,017	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -556,7 +556,7 @@
+         Lit            p   = trail[qhead++];     // 'p' is enqueued fact to propagate.
+         vec<Watcher>&  ws  = watches[p];
+         Watcher        *i, *j, *end;
+-        num_props++;
++        
+ 
+         for (i = j = (Watcher*)ws, end = i + ws.size();  i != end;){
+             // Try to avoid inspecting the clause:
+@@ -646,7 +646,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    return l_Undef;
+ }
+ 
+ 
+@@ -656,7 +656,8 @@
+     for (i = j = 0; i < cs.size(); i++){
+         Clause& c = ca[cs[i]];
+         if (satisfied(c))/*auto*/{
+-            removeClause(cs[i]);
++            if (decisionLevel() == 0)/*auto*/{ return l_False;
++}/*auto*/
+ }/*auto*/
+         else/*auto*/{
+             cs[j++] = cs[i];
+@@ -824,9 +825,7 @@
+                 return l_Undef; }
+ 
+             // Simplify the set of problem clauses:
+-            if (decisionLevel() == 0 && !simplify())/*auto*/{
+-                return l_False;
+-}/*auto*/
++            K = (double)opt_K;
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
+
+2023-08-03 12:55:51,029	[INFO]	==== END ====
+2023-08-03 12:55:51,030	[INFO]	Reason: validation end
+2023-08-03 12:55:51,030	[INFO]	
+2023-08-03 12:55:51,030	[INFO]	==== REPORT ====
+2023-08-03 12:55:51,030	[INFO]	Termination: validation end
+2023-08-03 12:55:51,030	[INFO]	Log file: /cs/student/projects1/sse/2022/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1691061462.log
+2023-08-03 12:55:51,045	[INFO]	Patch file: _magpie_logs/minisat-hack_1691061462.patch
+2023-08-03 12:55:51,046	[INFO]	Diff file: _magpie_logs/minisat-hack_1691061462.diff
+2023-08-03 12:55:51,046	[INFO]	Best fitness: 2017542045165
+2023-08-03 12:55:51,046	[INFO]	Best patch: StmtReplacement(('core/Solver.cc.xml', 'stmt', 268), ('core/Solver.cc.xml', 'stmt', 357)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 221)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 273), ('core/Solver.cc.xml', 'stmt', 311)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 343), ('core/Solver.cc.xml', 'stmt', 22))
+2023-08-03 12:55:51,046	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -556,7 +556,7 @@
+         Lit            p   = trail[qhead++];     // 'p' is enqueued fact to propagate.
+         vec<Watcher>&  ws  = watches[p];
+         Watcher        *i, *j, *end;
+-        num_props++;
++        
+ 
+         for (i = j = (Watcher*)ws, end = i + ws.size();  i != end;){
+             // Try to avoid inspecting the clause:
+@@ -646,7 +646,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    return l_Undef;
+ }
+ 
+ 
+@@ -656,7 +656,8 @@
+     for (i = j = 0; i < cs.size(); i++){
+         Clause& c = ca[cs[i]];
+         if (satisfied(c))/*auto*/{
+-            removeClause(cs[i]);
++            if (decisionLevel() == 0)/*auto*/{ return l_False;
++}/*auto*/
+ }/*auto*/
+         else/*auto*/{
+             cs[j++] = cs[i];
+@@ -824,9 +825,7 @@
+                 return l_Undef; }
+ 
+             // Simplify the set of problem clauses:
+-            if (decisionLevel() == 0 && !simplify())/*auto*/{
+-                return l_False;
+-}/*auto*/
++            K = (double)opt_K;
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+                 cp = conflicts + (int32_t)opt_cp_increase;
+

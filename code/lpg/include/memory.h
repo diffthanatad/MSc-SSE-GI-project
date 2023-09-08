@@ -69,9 +69,8 @@ PlanHashEntry *new_PlanHashEntry( void );
 BfsNode *new_BfsNode( void );
 BfsHashEntry *new_BfsHashEntry( void );
 
-
-
-
+VarList *new_VarList(Token name, int num);
+VarList *copy_VarList(VarList *v);
 
 
 
@@ -88,9 +87,17 @@ void free_single_NormEffect( NormEffect *e );
 void free_single_EasyTemplate( EasyTemplate *t );
 void free_TypedList( TypedList *t );
 void free_TypedListList( TypedListList *t );
+void free_Facts(Facts *f);
 
+IntList *free_intlist (IntList *ilist);
 
+State *new_State(int max_facts);
 
+PlNode *copy_PlNode(PlNode *p);
+FactList *copy_FactList(FactList *source);
 
+IntList *new_IntList (void);
+IntList *get_IntList( void );
+void trash_IntList(IntList *t);
 
 #endif /* _MEMORY_H */

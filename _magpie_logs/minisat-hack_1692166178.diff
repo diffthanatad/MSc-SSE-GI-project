@@ -1,0 +1,97 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -198,7 +198,7 @@
+ }/*auto*/
+     else if (ps.size() == 1){
+         uncheckedEnqueue(ps[0]);
+-        return ok = (propagate() == CRef_Undef);
++        
+     }else{
+         CRef cr = ca.alloc(ps, false);
+         clauses.push(cr);
+@@ -275,7 +275,7 @@
+             Var      x  = var(trail[c]);
+             assigns [x] = l_Undef;
+             if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())/*auto*/{
+-                polarity[x] = sign(trail[c]);
++                
+ }/*auto*/
+             insertVarOrder(x); }
+         qhead = trail_lim[level];
+@@ -502,7 +502,7 @@
+         return;
+ }/*auto*/
+ 
+-    seen[var(p)] = 1;
++    
+ 
+     for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+         Var x = var(trail[i]);
+@@ -699,11 +699,7 @@
+ }/*auto*/
+ 
+     #define V learnts
+-    for (i = j = 0; i < V.size(); i++)/*auto*/{
+-        if (ca[V[i]].mark() != 3)/*auto*/{
+-            V[j++] = V[i];
+-}/*auto*/
+-}/*auto*/
++    
+     V.shrink(i - j);
+ 
+     // Remove satisfied clauses:
+@@ -712,7 +708,7 @@
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+-    checkGarbage();
++    
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+@@ -780,6 +776,7 @@
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+                     claBumpActivity(ca[cr]);
++                    int i, j, l;
+ }/*auto*/
+                 else/*auto*/{
+                     core_added++;
+@@ -815,13 +812,7 @@
+ 
+         }else{
+             // NO CONFLICT
+-            if (luby_restart && conflictC >= nof_conflicts ||
+-               !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+-                // Reached bound on number of conflicts:
+-                lS = 0, LQ.clear();
+-                progress_estimate = progressEstimate();
+-                cancelUntil(0);
+-                return l_Undef; }
++            
+ 
+             // Simplify the set of problem clauses:
+             if (decisionLevel() == 0 && !simplify())/*auto*/{
+@@ -1044,11 +1035,17 @@
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+-            for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
+-}/*auto*/
++            for (i = j = 0; i < learnts.size(); i++){
++        Clause& c = ca[learnts[i]];
++        if (c.mark() != 3)/*auto*/{
++            if (c.mark() == 0 && c.size() > 2 && !locked(c) && (i < learnts.size() / 2))/*auto*/{ // || c.activity() < extra_lim))
++                removeClause(learnts[i]);
++}/*auto*/
++            else{
++                c.mark(0);
++                learnts[j++] = learnts[i]; }
++}/*auto*/
++    }
+         }
+ }/*auto*/
+ 

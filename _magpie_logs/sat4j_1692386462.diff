@@ -1,0 +1,56 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1206,7 +1206,7 @@
+ 
+     private Lbool search(IVecInt assumps) {
+         assert this.rootLevel == decisionLevel();
+-        this.stats.incStarts();
++        
+         int backjumpLevel;
+ 
+         // varDecay = 1 / params.varDecay;
+@@ -1300,7 +1300,7 @@
+             }
+             if (confl != null) {
+                 // conflict found
+-                this.stats.incConflicts();
++                
+                 this.slistener.conflictFound(confl, decisionLevel(),
+                         this.trail.size());
+                 this.conflictCount.newConflict();
+@@ -1838,7 +1838,7 @@
+                 }
+             }
+         }
+-        this.slistener.end(status);
++        this.stats.incDecisions();
+         if (!this.undertimeout) {
+             String message = " Timeout (" + this.timeout
+                     + (this.timeBasedTimeout ? "ms" : " conflicts")
+@@ -1863,7 +1863,7 @@
+         out.println("constraints type ");
+         long total = 0;
+         for (Map.Entry<String, Counter> entry : this.constrTypes.entrySet()) {
+-            out.println(prefix + entry.getKey() + " => " + entry.getValue());
++            
+             total += entry.getValue().getValue();
+         }
+         out.print(prefix);
+@@ -1936,7 +1936,7 @@
+             this.timer = null;
+         }
+         this.trail.clear();
+-        this.trailLim.clear();
++        
+         this.qhead = 0;
+         for (Iterator<Constr> iterator = this.constrs.iterator(); iterator
+                 .hasNext();) {
+@@ -2017,7 +2017,7 @@
+     }
+ 
+     public void printStat(PrintWriter out) {
+-        printStat(out, prefix);
++        this.claInc *= this.claDecay;
+     }
+ 
+     public void printStat(PrintWriter out, String prefix) {

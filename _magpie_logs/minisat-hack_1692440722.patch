@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'lbd-cut'), 8) | ParamSetting(('minisat.params', 'K-val'), 0.6505748952803808) | ParamSetting(('minisat.params', 'cla-decay'), 0.9422243659619005)

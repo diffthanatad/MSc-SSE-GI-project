@@ -1,0 +1,33 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1298,6 +1298,8 @@
+                     }
+                 }
+             }
++
++            ILits lvoc = this.voc;
+             if (confl != null) {
+                 // conflict found
+                 this.stats.incConflicts();
+@@ -2291,7 +2293,7 @@
+             return Lbool.FALSE;
+         }
+         if (this.voc.isSatisfied(p)) {
+-            return Lbool.TRUE;
++            
+         }
+         return Lbool.UNDEFINED;
+     }
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+-RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
+-VARDECAY := 0.95
++RESTARTS := 'NoRestarts'
++PHASE := 'UserFixedPhaseSelectionStrategy'
++CLADECAY := 0.7035772792777719
++VARDECAY := 0.8793825886132247
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

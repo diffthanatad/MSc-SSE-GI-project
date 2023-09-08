@@ -1,0 +1,37 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -571,7 +571,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,16 +1,16 @@
+-lbd-cut := 5
+-lbd-cut-max := 10
+-cp-increase := 15000
++lbd-cut := 7
++lbd-cut-max := 11
++cp-increase := 5272
+ core-tolerance := 0.02
+-R-val := 1.4
+-var-decay := 0.8
++R-val := 1.904701964255457
++var-decay := 0.9336000247788406
+ cla-decay := 0.999
+ rnd-freq := 0.0
+-ccmin-mode := '2'
++ccmin-mode := '1'
+ phase-saving := '2'
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
++gc-frac := 0.7926765368396308
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'

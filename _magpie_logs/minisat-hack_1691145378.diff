@@ -1,0 +1,67 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -222,7 +222,7 @@
+ 
+ void Solver::detachClause(CRef cr, bool strict) {
+     const Clause& c = ca[cr];
+-    assert(c.size() > 1);
++    
+     
+     if (strict){
+         remove(watches[~c[0]], Watcher(cr, c[1]));
+@@ -254,7 +254,7 @@
+     if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
+ }/*auto*/
+     c.mark(1); 
+-    ca.free(cr);
++    
+ }
+ 
+ 
+@@ -342,7 +342,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -528,7 +528,7 @@
+ 
+ void Solver::uncheckedEnqueue(Lit p, CRef from)
+ {
+-    assert(value(p) == l_Undef);
++    
+     assigns[var(p)] = lbool(!sign(p));
+     vardata[var(p)] = mkVarData(from, decisionLevel());
+     trail.push_(p);
+@@ -631,7 +631,9 @@
+     int     i, j;
+     //double  extra_lim = cla_inc / learnts.size();    // Remove any clause below this activity
+ 
+-    sort(learnts, reduceDB_lt(ca));
++    if (decisionLevel() == 0)/*auto*/{
++        return;
++}/*auto*/
+     // Don't delete binary or locked clauses. From the rest, delete clauses from the first half
+     // and clauses with activity smaller than 'extra_lim':
+     for (i = j = 0; i < learnts.size(); i++){
+@@ -710,7 +712,7 @@
+     removeSatisfied(learnts);
+     removeSatisfied(lF);
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+-        removeSatisfied(clauses);
++        
+ }/*auto*/
+     checkGarbage();
+     rebuildOrderHeap();
+@@ -898,7 +900,7 @@
+     for (int i = 0; i <= decisionLevel(); i++){
+         int beg = i == 0 ? 0 : trail_lim[i - 1];
+         int end = i == decisionLevel() ? trail.size() : trail_lim[i];
+-        progress += pow(F, i) * (end - beg);
++        
+     }
+ 
+     return progress / nVars();

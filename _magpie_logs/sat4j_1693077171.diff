@@ -1,0 +1,63 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -392,7 +392,7 @@
+             this.stats.incLearnedbinaryclauses();
+             break;
+         case 3:
+-            this.stats.incLearnedternaryclauses();
++            
+             break;
+         default:
+             // do nothing
+@@ -1797,6 +1797,7 @@
+                 this.undertimeout = true;
+                 ConflictTimer conflictTimeout = new ConflictTimerAdapter(this,
+                         (int) this.timeout) {
++                    private final IVecInt analyzestack = new VecInt();
+                     private static final long serialVersionUID = 1L;
+ 
+                     @Override
+@@ -1828,7 +1829,8 @@
+             }
+         }
+ 
+-        cancelUntil(0);
++        this.conflictCount
++                    .remove(this.learnedConstraintsDeletionStrategy.getTimer());
+         cancelLearntLiterals(learnedLiteralsLimit);
+         if (!global && this.timeBasedTimeout) {
+             synchronized (this) {
+@@ -2165,9 +2167,7 @@
+                 clause.push(-p);
+             }
+         } else {
+-            for (int i = 0; i < decisions.size(); i++) {
+-                clause.push(-decisions.get(i));
+-            }
++            expireTimeout();
+         }
+ 
+         return clause;
+@@ -2445,6 +2445,11 @@
+         for (int d : lliterals) {
+             clause.push(LiteralsUtils.toInternal(d));
+         }
++        while (!this.trailLim.isEmpty()
++                && this.trailLim.last() == this.trail.size()) {
++            // conflict detected when assuming a value
++            this.trailLim.pop();
++        }
+         this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
+         this.sharedConflict.register();
+         addConstr(this.sharedConflict);
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,6 @@
+-RESTARTS := 'Glucose21Restarts'
++RESTARTS := 'ArminRestarts'
+ PHASE := 'RSATPhaseSelectionStrategy'
+ CLADECAY := 0.999
+ VARDECAY := 0.95
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+-CLEANING := 'LBD2'
++CLEANING := 'LBD'

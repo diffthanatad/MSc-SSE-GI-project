@@ -1,0 +1,50 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -877,11 +877,9 @@
+             } else {
+                 for (int k = 0; k < r.size(); k++) {
+                     p = r.get(k);
+-                    if (!seen[p >> 1] && this.voc.isFalsified(p)
+-                            && this.voc.getLevel(p) != 0) {
+-                        conflictToReduce.moveTo(j++, i);
+-                        break;
+-                    }
++                    if (this.conflictCount != null) {
++            this.learnedConstraintsDeletionStrategy.init();
++        }
+                 }
+             }
+         }
+@@ -1189,13 +1187,7 @@
+     }
+ 
+     protected void cancelUntilTrailLevel(int level) {
+-        while (!trail.isEmpty() && trail.size() > level) {
+-            undoOne();
+-            if (!trailLim.isEmpty() && trailLim.last() == trail.size()) {
+-                trailLim.pop();
+-                decisions.pop();
+-            }
+-        }
++        
+     }
+ 
+     private final Pair analysisResult = new Pair();
+@@ -2279,6 +2271,7 @@
+             clause.push(LiteralsUtils.toInternal(d));
+         }
+         this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
++        int[] nmodel;
+         learn(this.sharedConflict);
+     }
+ 
+@@ -2471,6 +2464,9 @@
+                         literals.length - degree);
+         this.sharedConflict.register();
+         addConstr(this.sharedConflict);
++        Object[] objs = { this.dsfactory, this.learner, this.params, this.order,
++                this.simplifier, this.restarter,
++                this.learnedConstraintsDeletionStrategy };
+         return this.sharedConflict;
+     }
+ 

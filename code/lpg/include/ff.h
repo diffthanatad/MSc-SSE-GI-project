@@ -83,10 +83,11 @@
 
 
 
+
 #ifndef __FF_H
+
+
 #define __FF_H
-
-
 
 
 
@@ -146,10 +147,10 @@
  ****************/
 
 
-
-
-
-
+/**
+#define __RUNTIME_YYMAXDEPTH
+#define YYINCREMENT 10000
+**/
 
 
 
@@ -162,7 +163,7 @@
 #define VARIABLE_STR "variable\0"
 #define STANDARD_TYPE "OBJECT\0"
 #define EITHER_STR "EITHER"
-
+#define STR_NOT_MINUS "NOT-"
 
 
 
@@ -183,7 +184,7 @@
 
 /* maximal string length
  */
-#define MAX_LENGTH 256 
+#define MAX_LENGTH 256
 
 
 /* marks border between connected items 
@@ -234,21 +235,10 @@
 
 
 
-/*
- * DEA - University of Brescia
- */
-
-#define YYMAXDEPTH 10000  
-
-/*
- * End of DEA
- */
-
-
 #define MAX_CONSTANTS 2000
-#define MAX_PREDICATES 50
+#define MAX_PREDICATES 20000
 #define MAX_TYPES 50
-#define MAX_ARITY 5
+#define MAX_ARITY 16
 #define MAX_VARS 15
 
 
@@ -258,11 +248,13 @@
 #define MAX_INITIAL 10000
 
 
-#define MAX_OPERATORS 50
+#define MAX_OPERATORS 60000
+
+#define MAX_TIL 100000
 
 
 /* in DNF: AND with OR - sons - collect 'hitting set':
- * one son of each OR node. 
+ * one son of each OR node.
  *
  * this here is initial max number of such son s that can be collected
  * (grows dynamically, if required)
@@ -275,9 +267,11 @@
 
 #define MAX_RELEVANT_FACTS 15000
 
+/* derived predicates
+ */
 
-
-
+#define MAX_DERIVED_PREDICATES 20000
+ 
 
 
 /******************************************
@@ -289,18 +283,23 @@
 
 
 
-#define MAX_STATE 800
+#define MAX_STATE 10000
 
 
 /*
  * DEA - University of Brescia
  */
+#ifdef __LOW_MEM__
 
-#define MAX_NUM_VALUE 25000
+   #define MAX_PLAN_LENGTH 200
+#else
 
-#define MAX_PLAN_LENGTH 3000
+   #define MAX_PLAN_LENGTH 10000
+#endif
 
-#define MAX_R_VALS 20
+#define MAX_R_VALS 100
+
+#define MAX_NUM_INITIAL 1000
 
 /*
  * End of DEA
@@ -340,11 +339,12 @@
  */
 #ifndef Bool
 typedef unsigned char Bool;
-#ifndef TRUE /* we assume that FALSE is also not defined */
-#define TRUE 1
-#define FALSE 0
-#endif /* TRUE */
 #endif /* Bool */
+
+#ifndef TRUE /* we assume that FALSE is also not defined */
+  #define TRUE 1
+  #define FALSE 0
+#endif /* TRUE */
 
 
 /* code a param number into a negative number and vice versa
@@ -362,12 +362,19 @@ typedef unsigned char Bool;
   exit(1);}
 
 
+#ifndef __WINLPG__
+
 /* add elapsed time from main local time vars to specified val
  */
 #define TIME( val ) val += ( float ) ( ( end.tms_utime - start.tms_utime + \
 					 end.tms_stime - start.tms_stime  ) / 100.0 )
 
+#else
 
+#define times(x) (wintime(x))
+#define TIME( val ) val += DeltaTime(start, end)
+
+#endif
 
 
 
@@ -417,8 +424,13 @@ struct _command_line {
    */
   int max_plan_ops;
   float max_cpu_time;
+  float max_optimization_cpu_time;
+  
   char out_file_name[MAX_LENGTH];
   char sol_file_name[MAX_LENGTH];
+  char index_case[MAX_LENGTH];
+  char case_element[MAX_LENGTH];
+  Bool storing;
   /*
    * End of DEA
    */
@@ -444,12 +456,12 @@ typedef char *Token;
  ***********/
 
 
-
-
-
-
-
-
+typedef struct _IntList
+{
+  int item;
+  struct _IntList *next;
+}
+IntList;
 
 
 /* A list of strings
@@ -460,8 +472,6 @@ typedef struct _TokenList {
   struct _TokenList *next;
 
 } TokenList;
-
-
 
 /* list of string lists
  */
@@ -511,6 +521,12 @@ typedef struct _TypedListList {
 } TypedListList;
 
 
+typedef struct _VarList {
+  Token name;
+  int n;
+  struct _VarList *next;
+} VarList;
+
 
 /* This type indicates whether a node in the pddl tree stands for
  * an atomic expression, a junctor or a quantor. 
@@ -518,7 +534,7 @@ typedef struct _TypedListList {
 typedef enum _Connective{TRU,
 			   FAL,
 			   ATOM, 
-			   NOT, 
+			   NOT,
 			   AND, 
 			   OR, 
 			   ALL, 
@@ -561,7 +577,9 @@ typedef enum _Connective{TRU,
 /**
  * End of DEA
  **/
-			   WHEN} Connective;
+			 WHEN,
+			 /* aggiunta per i Timed Initial Facts PDDL2.2*/
+			 TIMED_FACT} Connective;
 
 
 
@@ -601,6 +619,8 @@ typedef struct _PlNode {
 
   float value;
 
+  short is_start_end_ovr;
+
   /**
    * End of DEA
    **/
@@ -631,6 +651,8 @@ typedef struct _PlOperator {
   PlNode *preconds;
   PlNode *effects;
 
+  Bool to_delete;
+
   struct _PlOperator *next;
 
   /**
@@ -638,7 +660,6 @@ typedef struct _PlOperator {
    **/
 
   Bool is_odd;
-  int num_numeric_preconds_start;
   int num_preconds_overall;
   int num_preconds_end;
   int num_effects_start;
@@ -646,6 +667,8 @@ typedef struct _PlOperator {
   int num_numeric_effects_end;
 
   PlNode *duration;
+
+  int ops_type;
 
   /**
    * End of DEA
@@ -694,7 +717,11 @@ typedef int *int_pointer;
 
 typedef struct _Fact {
 
+  Bool added_implicit;
+ 
   int predicate, args[MAX_ARITY];
+  
+  short is_start_end_ovr;
 
 } Fact;
 
@@ -769,6 +796,13 @@ typedef struct _WffNode {
 
   NumVar *numvar;
 
+  short is_start_end_ovr;
+
+  PlNode *numeric;
+  VarList *instantiated_vars;
+
+  float value;
+
   /**
    * End of DEA
    **/
@@ -786,6 +820,8 @@ typedef struct _Literal {
 
   struct _Literal *next;
   struct _Literal *prev;
+
+  short is_start_end_ovr;
 
 } Literal;
 
@@ -814,12 +850,13 @@ typedef struct _Operator {
 
   int num_vars, var_types[MAX_VARS];
   Bool removed[MAX_VARS];
- 
+
   WffNode *preconds;
 
   Effect *effects;
 
   Bool hard;
+  int ops_type;
 
 } Operator, *Operator_pointer;
 
@@ -855,11 +892,16 @@ typedef struct _NormEffect {
 
 typedef struct _NormOperator {
   
-  Operator *operator;
+  Operator *l_operator;
 
   int num_vars, var_types[MAX_VARS];
   int inst_table[MAX_VARS];
   int removed_vars[MAX_VARS], num_removed_vars, type_removed_vars[MAX_VARS];
+
+  /****/
+  Fact *or_precs;
+  int num_or_precs;
+  /****/
 
   Fact *preconds;
   int num_preconds;
@@ -872,8 +914,12 @@ typedef struct _NormOperator {
    * DEA - University of Brescia
    **/
 
-  int num_numeric_preconds;
-  int num_numeric_effects;
+  Facts *inequals_constr;
+
+  PlNode *numeric;
+  VarList *instantiated_vars;
+
+  Bool suspected;
 
   /**
    * End of DEA
@@ -893,6 +939,8 @@ typedef struct _EasyTemplate {
 
   struct _EasyTemplate *prev;
   struct _EasyTemplate *next;
+
+  Bool suspected;
 
 } EasyTemplate;
 
@@ -914,14 +962,22 @@ typedef struct _EasyTemplate {
  */
 typedef struct _MixedOperator {
   
-  Operator *operator;
+  Operator *l_operator;
 
   int inst_table[MAX_VARS];
+
+  /*****/
+  Fact *or_precs;
+  int num_or_precs;
+  /*****/
 
   Fact *preconds;
   int num_preconds;
 
   Effect *effects;
+
+  PlNode *numeric;
+  VarList *instantiated_vars;
 
   struct _MixedOperator *next;
 
@@ -953,15 +1009,21 @@ typedef struct _PseudoActionEffect {
 
 typedef struct _PseudoAction {
 
-  Operator *operator;
+  Operator *l_operator;
 
   int inst_table[MAX_VARS];
 
   Fact *preconds;
   int num_preconds;
 
+  Fact *or_precs;
+  int num_or_precs;
+
   PseudoActionEffect *effects;
   int num_effects;
+
+  PlNode *numeric;
+  VarList *instantiated_vars;
 
 } PseudoAction, *PseudoAction_pointer;
 
@@ -985,6 +1047,7 @@ typedef struct _ActionEffect {
   int num_dels;
 
   int ef_conn_pos;
+  int condef_conn_pos;
 
 } ActionEffect;
 
@@ -1001,6 +1064,9 @@ typedef struct _Action {
 
   int inst_table[MAX_VARS];
 
+  int *or_precs;
+  int num_or_precs;
+
   int *preconds;
   int num_preconds;
 
@@ -1008,6 +1074,8 @@ typedef struct _Action {
   int num_effects;
 
   struct _Action *next;
+
+  Bool suspected;
 
 } Action;
 
@@ -1034,6 +1102,18 @@ typedef struct _Action {
 
 
 
+typedef struct MIN_ARRAY
+{
+  short int uid_block;
+  int uid_mask;
+}
+min_array, *min_array_list;
+
+typedef struct {
+  int	num_cef;
+  int	*cef;
+  int	fact;
+} reverse_bit_array;
 
 typedef struct _OpConn {
 
@@ -1046,6 +1126,11 @@ typedef struct _OpConn {
   int *E;
   int num_E;
 
+  /* implied effects
+   */
+  int *I;
+  int num_I;
+
   /* member for applicable actions extraction
    */
   Bool is_in_A;
@@ -1054,6 +1139,11 @@ typedef struct _OpConn {
    */
   int is_used;
   Bool is_in_H;
+
+  min_array *bit_condition;
+  int num_condition;
+  reverse_bit_array *reverse_bit_condition;
+
 
 } OpConn;
 
@@ -1086,6 +1176,23 @@ typedef struct _SpecialFacts
 SpecialFacts;
 
 
+
+
+typedef struct _TimedPrecs {
+
+  int *PC_start;
+  int num_PC_start;
+
+  int *PC_overall;
+  int num_PC_overall;
+  
+  int *PC_end;
+  int num_PC_end;
+
+} 
+TimedPrecs;
+
+
 typedef struct _DescNumEff
 {
   int index;
@@ -1096,13 +1203,6 @@ typedef struct _DescNumEff
 }
 DescNumEff;
 
-
-typedef struct MIN_ARRAY
-{
-  short int uid_block;
-  int uid_mask;
-}
-min_array, *min_array_list;
 
 /**
  * End of DEA
@@ -1117,6 +1217,9 @@ typedef struct _EfConn {
    */
   int *PC;
   int num_PC;
+
+  int *or_PC;
+  int num_or_PC;
 
   int *A;
   int num_A;
@@ -1156,6 +1259,7 @@ typedef struct _EfConn {
   SpecialFacts *sf;
 
   Bool is_numeric;
+  Bool has_numeric_precs;
 
 #ifdef __TEST__
   char *name;
@@ -1169,8 +1273,8 @@ typedef struct _EfConn {
   min_array *bit_precond, *bit_add_effect;
 
   int *ft_exclusive_vect;	/* Exclusive bit vector between this action and facts (noop) */
-  int *ef_exclusive_vect;	/* Exclusive bit vector between  actions */
 
+  int *ef_exclusive_vect;	/* Exclusive bit vector between  actions */
 
   int num_numeric_effects;
   DescNumEff *numeric_effects;
@@ -1183,8 +1287,22 @@ typedef struct _EfConn {
 
   int dur_var_index;
 
+  IntList *metric_vars;
+
   //bit array che indica quali variabili influenzano la durata in un'azione a durata variabile
   int *duration_rvals;
+  int num_duration_rvals;
+
+  // Per distingure un'azione vera da una fittizia
+  int act_type;
+
+  TimedPrecs *timed_PC;
+
+  int start_ef, end_ef;
+
+  Bool suspected;
+
+  Bool isdurative;
 
   /**
    * End of DEA
@@ -1193,8 +1311,36 @@ typedef struct _EfConn {
 } EfConn;
 
 
+typedef struct _CondEfConn {	// gestione degli effetti condizionali
+
+  int op;	// riferimento all'operatore
+  int ef;	// riferimento all'effetto di base dell'operatore
+
+  int *PC;	// precondizioni dell'effetto condizionale
+  int num_PC;
+
+  int *A;	// effetti additivi
+  int num_A;
+
+  int *D;	// effetti cancellanti
+  int num_D;
+
+
+  PlOperator *plop;	// puntatore all'operatore che lo descrive
+  float cost;		// costo e durata dell'azione
+
+  //Precondizioni at end, over all, ed effetti at start
+  SpecialFacts *sf;
+
+} CondEfConn;
+
+
+
 
 typedef struct _FtConn {
+
+  int step;
+  int numR;
 
   /* effects it is union conds, pres element of
    */
@@ -1249,13 +1395,55 @@ typedef struct _FtConn {
   float lamda_prec, lamda_me;	// parameters for the lagrange multipliers
   int last_lm_prec, last_lm_me;	// Index of the last  local minima update
 
+  /* Predicati derivati di cui il fatto è precondizione */
+  int num_dp_PC;
+  int *dp_PC;
+  /* Predicati derivati di cui il fatto è effetto positivo */
+  int num_dp_A;
+  int *dp_A;
+  /* Predicati derivati di cui il fatto è effetto negativo */
+  int num_dp_D;
+  int *dp_D;
+
+  int fact_type;
+
   /**
    * End of DEA
    **/
 
+  int *tmd_facts_array;
+  int num_tmd_facts_array;
 
 } FtConn;
 
+typedef struct _CondFtConn {
+
+  // effects it is union conds, pres element of
+  int *PC;
+  int num_PC;
+
+  // efs that add or del it
+  int *A;
+  int num_A;
+
+  int *D;
+  int num_D;
+
+} CondFtConn;
+
+
+typedef struct _TimedFtConn 
+{
+  
+  float time;
+
+  int *A;
+  int num_A;
+  
+  int *D;
+  int num_D;
+  
+} TimedFtConn;
 
 
 
@@ -1281,14 +1469,14 @@ typedef struct _FtConn {
 
 typedef struct _State {
   
-  int F[MAX_STATE];
+  int *F;
   int num_F;
 
   /**
    * DEA - University of Brescia
    **/
 
-  float V[MAX_NUM_VALUE];
+  float *V;
 
   /**
    * End of DEA
@@ -1376,6 +1564,24 @@ typedef struct _BfsHashEntry {
   struct _BfsHashEntry *next;
 
 } BfsHashEntry, *BfsHashEntry_pointer;
+
+/* PREDICATI DERIVATI */
+
+
+
+
+typedef struct _DpConn {
+
+  int op;
+
+  Action *act;
+
+  int *PC;
+  int num_PC;
+
+  int add, del;
+  
+} DpConn;
 
 
 
@@ -1504,6 +1710,13 @@ extern char *gdomain_name;
  */
 extern PlOperator *gloaded_ops;
 
+/*--PDDL2.2*/
+/* loaded, uninstantiated derived predicates
+ */
+extern PlOperator *gderived_predicates;
+extern PlOperator *gderived_pl2predicates;
+/*PDDL2.2--*/
+
 /* stores initials as fact_list 
  */
 extern PlNode *gorig_initial_facts;
@@ -1594,17 +1807,26 @@ extern int garity[MAX_PREDICATES];
 extern int gpredicates_args_type[MAX_PREDICATES][MAX_ARITY];
 extern int gnum_predicates;
 
+/*--PDDL2.2*/
+extern int gnum_derived_predicates;
+extern int gpredicates_type[MAX_PREDICATES];
+/*PDDL2.2--*/
+
 
 
 
 /* the domain in first step integer representation
  */
 extern Operator_pointer goperators[MAX_OPERATORS];
+
+/* derived predicates
+ */
+extern Operator_pointer gderivedpred[MAX_DERIVED_PREDICATES];
+
 extern int gnum_operators;
 extern Fact gfull_initial[MAX_INITIAL];
 extern int gnum_full_initial;
 extern WffNode *ggoal;
-
 
 
 /* stores inertia - information: is any occurence of the predicate
@@ -1625,6 +1847,10 @@ extern int gnum_initial;
 extern Fact **ginitial_predicate;
 extern int *gnum_initial_predicate;
 
+extern PlNode *timed_nodes;
+extern WffNode *timed_wff;
+extern TimedFtConn *ginitial_timed;
+extern int gnum_timed_initial;
 
 
 /* the type numbers corresponding to any unary inertia
@@ -1646,6 +1872,12 @@ extern int gnum_hard_operators;
 extern NormOperator_pointer *geasy_operators;
 extern int gnum_easy_operators;
 
+/* derived predicates
+ */
+extern Operator_pointer *ghard_derivedpred;
+extern int gnum_hard_derivedpred;
+extern NormOperator_pointer *geasy_derivedpred;
+extern int gnum_easy_derivedpred;
 
 
 /* so called Templates for easy ops: possible inertia constrained
@@ -1654,6 +1886,14 @@ extern int gnum_easy_operators;
 extern EasyTemplate *geasy_templates;
 extern int gnum_easy_templates;
 
+extern EasyTemplate *gsuspected_easy_templates;
+extern int gnum_suspected_easy_templates;
+
+
+/* Templates per i Predicati derivati
+ */
+extern EasyTemplate *geasy_dp_templates;
+extern int gnum_easy_dp_templates;
 
 
 /* first step for hard ops: create mixed operators, with conjunctive
@@ -1669,6 +1909,10 @@ extern int gnum_hard_mixed_operators;
 extern PseudoAction_pointer *ghard_templates;
 extern int gnum_hard_templates;
 
+/* hard templates per i Predicati derivati
+ */
+extern PseudoAction_pointer *ghard_dp_templates;
+extern int gnum_hard_dp_templates;
 
 
 /* store the final "relevant facts"
@@ -1690,10 +1934,16 @@ extern State ggoal_state;
 
 
 
+/* Predicati derivati
+ */
+extern Action *gdpactions;
+extern int gnum_dp_actions;
 
 
 
-/**********************
+
+
+/*********************
  * CONNECTIVITY GRAPH *
  **********************/
 
@@ -1713,6 +1963,17 @@ extern int gnum_op_conn;
 extern EfConn *gef_conn;
 extern int gnum_ef_conn;
 
+extern int gfirst_suspected_ef_conn;
+
+/* one conditional effects array ...
+ */
+extern CondEfConn *gcondef_conn;
+extern int gnum_condef_conn;
+
+/* Array di Predicati derivati
+ */
+extern DpConn *gdp_conn;
+extern int gnum_dp_conn;
 
 
 /* one facts array.
@@ -1720,10 +1981,25 @@ extern int gnum_ef_conn;
 extern FtConn *gft_conn;
 extern int gnum_ft_conn;
 
+/* one facts array in conditional action.
+ */
+
+/*
+#ifdef __cplusplus
+extern "C" {
+#endif
+*/
+
+extern   CondFtConn *gcondft_conn;
+extern   int gnum_condft_conn;
 
 
+/*
+#ifdef  __cplusplus
+}
+#endif
 
-
+*/
 
 
 
@@ -1784,8 +2060,14 @@ extern State gplan_states[MAX_PLAN_LENGTH + 1];
  * DEA - University of Brescia
  */
 
+#ifndef __WINLPG__
 extern struct tms glob_start_time;
 extern struct tms glob_end_time;
+#else
+extern clock_t glob_start_time;
+extern clock_t glob_end_time;
+#endif
+
 extern struct _command_line gcmdline;
 
 extern float gtempl_time;
@@ -1800,15 +2082,17 @@ extern float gmutex_num_time;
 extern float gsearch_time;
 
 extern float gtotal_time;
-extern char gcomm_line[MAX_LENGTH * 2];
+/*extern char gcomm_line[MAX_LENGTH * 2]; //modifica*/
+extern char gcomm_line[1000];
 
-extern char gops_file[MAX_LENGTH];
-extern char gfct_file[MAX_LENGTH];
+extern char gops_file_name[MAX_LENGTH];
+extern char gfct_file_name[MAX_LENGTH];
+extern char gpath_sol_file_name[MAX_LENGTH];
 
+extern int max_state_facts;
 /*
  * End of DEA
  */
 
+#endif /* __FF_H */
 
-
-#endif // __FF_H

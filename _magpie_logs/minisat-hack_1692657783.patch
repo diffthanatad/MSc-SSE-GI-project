@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 6004) | ParamSetting(('minisat.params', 'var-decay'), 0.9542865980994171) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'gc-frac'), 0.830740984397074) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 350))

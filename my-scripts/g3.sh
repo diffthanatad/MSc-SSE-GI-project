@@ -1,6 +1,9 @@
-/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch _magpie_logs/minisat-hack_1689435082.patch
-/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch _magpie_logs/minisat-hack_1689337313.patch
-/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/GI/test.txt --patch _magpie_logs/minisat-hack_1689376850.patch
-/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC_GI/test.txt --patch _magpie_logs/minisat-hack_1689387799.patch
-/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC_GI/test.txt --patch _magpie_logs/minisat-hack_1689409645.patch
-/usr/local/bin/python3.10 -m bin.revalidate_patch --scenario scenario/AC_GI/test.txt --patch _magpie_logs/minisat-hack_1689418001.patch
+#!/bin/csh
+source /opt/Python/Python-3.10.1_Setup.csh
+
+python3 -m bin.revalidate_patch --scenario scenario/minisat/AC_GI/test_6.txt --patch _magpie_logs/minisat-hack_1692617226.patch
+python3 -m bin.revalidate_patch --scenario scenario/minisat/AC_GI/test_9.txt --patch _magpie_logs/minisat-hack_1692623780.patch
+python3 -m bin.revalidate_patch --scenario scenario/minisat/AC_GI/test_10.txt --patch _magpie_logs/minisat-hack_1692625555.patch
+python3 -m bin.revalidate_patch --scenario scenario/minisat/GI/test_3.txt --patch _magpie_logs/minisat-hack_1692611498.patch
+python3 -m bin.revalidate_patch --scenario scenario/minisat/GI/test_4.txt --patch _magpie_logs/minisat-hack_1692613457.patch
+python3 -m bin.revalidate_patch --scenario scenario/minisat/GI/test_6.txt --patch _magpie_logs/minisat-hack_1692617955.patch

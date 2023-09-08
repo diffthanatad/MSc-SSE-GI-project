@@ -1,0 +1,329 @@
+2023-08-03 12:52:03,235	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_2.sh
+run_timeout = 1565
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-03 12:52:03,236	[INFO]	==== WARMUP ====
+2023-08-03 13:10:11,078	[INFO]	WARM    SUCCESS               1818679782244           
+2023-08-03 13:10:11,079	[INFO]	INITIAL SUCCESS               1818679782244           
+2023-08-03 13:10:11,079	[INFO]	==== START: ValidTest ====
+2023-08-03 13:10:11,315	[DEBUG]	CLEAN_PATCH: StmtDeletion(('core/Solver.cc.xml', 'stmt', 112)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 70)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 92), ('core/Solver.cc.xml', 'stmt', 27)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 268)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 178)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 12), ('core/Solver.cc.xml', 'stmt', 8)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 296)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 444)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 294)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 387), ('core/Solver.cc.xml', 'stmt', 32)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 391)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 291))
+2023-08-03 13:10:11,316	[DEBUG]	CLEAN_SIZE: 12 (was 12)
+2023-08-03 13:30:27,495	[DEBUG]	StmtDeletion(('core/Solver.cc.xml', 'stmt', 112)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 70)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 92), ('core/Solver.cc.xml', 'stmt', 27)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 268)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 178)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 12), ('core/Solver.cc.xml', 'stmt', 8)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 296)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 444)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 294)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 387), ('core/Solver.cc.xml', 'stmt', 32)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 391)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 291))
+2023-08-03 13:30:27,497	[INFO]	1       SUCCESS              *1963524832810 (107.96%) [12 edit(s)] 
+2023-08-03 13:30:27,518	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -143,6 +143,7 @@
+     vardata  .push(mkVarData(CRef_Undef, 0));
+     //activity .push(0);
+     activity .push(rnd_init_act ? drand(random_seed) * 0.00001 : 0);
++    static DoubleOption opt_R                  (_cat, "R-val", "R", 1.4, DoubleRange(1.0, true, 2.5, true));
+     seen     .push(0);
+     m        .push(0);
+     polarity .push(sign);
+@@ -229,7 +230,7 @@
+         remove(watches[~c[1]], Watcher(cr, c[0]));
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
+-        watches.smudge(~c[0]);
++        
+         watches.smudge(~c[1]);
+     }
+ 
+@@ -262,6 +263,7 @@
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+         if (value(c[i]) == l_True)/*auto*/{
+             return true;
++            assigns  .push(l_Undef);
+ }/*auto*/
+ }/*auto*/
+     return false; }
+@@ -342,7 +344,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -459,7 +461,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -646,7 +648,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    
+ }
+ 
+ 
+@@ -708,14 +710,14 @@
+ 
+     // Remove satisfied clauses:
+     removeSatisfied(learnts);
+-    removeSatisfied(lF);
++    
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+-    checkGarbage();
++    
+     rebuildOrderHeap();
+ 
+-    simpDB_assigns = nAssigns();
++    
+     simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+@@ -938,13 +940,12 @@
+ {
+     model.clear();
+     conflict.clear();
+-    if (!ok)/*auto*/{ return l_False;
+-}/*auto*/
++    polarity .push(sign);
+ 
+     solves++;
+ 
+     max_learnts               = nClauses() * learntsize_factor;
+-    learntsize_adjust_confl   = learntsize_adjust_start_confl;
++    
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;
+ 
+@@ -1045,9 +1046,7 @@
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+             for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
++                
+ }/*auto*/
+         }
+ }/*auto*/
+
+2023-08-03 13:30:27,537	[INFO]	==== END ====
+2023-08-03 13:30:27,537	[INFO]	Reason: validation end
+2023-08-03 13:30:27,537	[INFO]	
+2023-08-03 13:30:27,537	[INFO]	==== REPORT ====
+2023-08-03 13:30:27,538	[INFO]	Termination: validation end
+2023-08-03 13:30:27,538	[INFO]	Log file: /cs/student/projects1/sse/2022/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1691063519.log
+2023-08-03 13:30:27,556	[INFO]	Patch file: _magpie_logs/minisat-hack_1691063519.patch
+2023-08-03 13:30:27,556	[INFO]	Diff file: _magpie_logs/minisat-hack_1691063519.diff
+2023-08-03 13:30:27,556	[INFO]	Best fitness: 1963524832810
+2023-08-03 13:30:27,556	[INFO]	Best patch: StmtDeletion(('core/Solver.cc.xml', 'stmt', 112)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 70)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 92), ('core/Solver.cc.xml', 'stmt', 27)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 268)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 178)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 12), ('core/Solver.cc.xml', 'stmt', 8)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 296)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 444)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 294)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 387), ('core/Solver.cc.xml', 'stmt', 32)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 391)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 291))
+2023-08-03 13:30:27,556	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -143,6 +143,7 @@
+     vardata  .push(mkVarData(CRef_Undef, 0));
+     //activity .push(0);
+     activity .push(rnd_init_act ? drand(random_seed) * 0.00001 : 0);
++    static DoubleOption opt_R                  (_cat, "R-val", "R", 1.4, DoubleRange(1.0, true, 2.5, true));
+     seen     .push(0);
+     m        .push(0);
+     polarity .push(sign);
+@@ -229,7 +230,7 @@
+         remove(watches[~c[1]], Watcher(cr, c[0]));
+     }else{
+         // Lazy detaching: (NOTE! Must clean all watcher lists before garbage collecting this clause)
+-        watches.smudge(~c[0]);
++        
+         watches.smudge(~c[1]);
+     }
+ 
+@@ -262,6 +263,7 @@
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+         if (value(c[i]) == l_True)/*auto*/{
+             return true;
++            assigns  .push(l_Undef);
+ }/*auto*/
+ }/*auto*/
+     return false; }
+@@ -342,7 +344,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -459,7 +461,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -646,7 +648,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    
+ }
+ 
+ 
+@@ -708,14 +710,14 @@
+ 
+     // Remove satisfied clauses:
+     removeSatisfied(learnts);
+-    removeSatisfied(lF);
++    
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+-    checkGarbage();
++    
+     rebuildOrderHeap();
+ 
+-    simpDB_assigns = nAssigns();
++    
+     simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
+ 
+     return true;
+@@ -938,13 +940,12 @@
+ {
+     model.clear();
+     conflict.clear();
+-    if (!ok)/*auto*/{ return l_False;
+-}/*auto*/
++    polarity .push(sign);
+ 
+     solves++;
+ 
+     max_learnts               = nClauses() * learntsize_factor;
+-    learntsize_adjust_confl   = learntsize_adjust_start_confl;
++    
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;
+ 
+@@ -1045,9 +1046,7 @@
+         if (!satisfied(ca[clauses[i]])){
+             Clause& c = ca[clauses[i]];
+             for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
++                
+ }/*auto*/
+         }
+ }/*auto*/
+

@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'var-decay'), 0.8263098387811814) | ParamSetting(('minisat.params', 'cla-decay'), 0.9447960566760623) | ParamSetting(('minisat.params', 'phase-saving'), '1') | ParamSetting(('minisat.params', 'rinc'), 2.0580014679286682) | ParamSetting(('minisat.params', 'verb'), '2')

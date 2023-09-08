@@ -7,7 +7,7 @@
         <property name="testreport.dir" value="tests"/>
 	<property name="build" value="bin" />
 	<property name="doc" value="api" />
-	<property name="target" value="1.8"/>
+	<property name="target" value="12"/>
         <property name="dist" value="dist"/>
         <property name="release" value="CUSTOM"/>
         <property name="tag" value="HEAD"/>
@@ -353,8 +353,8 @@
 		<javac
 		srcdir="${src}"
 		destdir="${build}"
-		source="1.8"
-		target="${target}"
+		source="12"
+                target="${target}"
 		debug="true"
 	        includeantruntime="false">
 			<classpath refid="somePath"/>

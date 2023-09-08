@@ -1,0 +1,26 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -454,7 +454,7 @@
+         }
+         Constr c = (Constr) co;
+         c.remove(this);
+-        this.constrs.pop();
++        
+         String type = c.getClass().getName();
+         this.constrTypes.get(type).dec();
+         return true;
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,7 @@
+-RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
++RESTARTS := 'FixedPeriodRestarts'
++FIXEDPERIOD := 100
++PHASE := 'RSATLastLearnedClausesPhaseSelectionStrategy'
++CLADECAY := 0.8571290030348709
+ VARDECAY := 0.95
+-SIMP := 'EXPENSIVE_SIMPLIFICATION'
+-CLEANING := 'LBD2'
++SIMP := 'SIMPLE_SIMPLIFICATION'
++CLEANING := 'LBD'

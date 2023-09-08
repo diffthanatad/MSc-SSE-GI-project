@@ -1,0 +1,264 @@
+2023-08-03 13:40:50,000	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_2.sh
+run_timeout = 1565
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+	ParamSetting
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-03 13:40:50,001	[INFO]	==== WARMUP ====
+2023-08-03 13:58:58,870	[INFO]	WARM    SUCCESS               1818804858849           
+2023-08-03 13:58:58,870	[INFO]	INITIAL SUCCESS               1818804858849           
+2023-08-03 13:58:58,871	[INFO]	==== START: ValidTest ====
+2023-08-03 13:58:58,949	[DEBUG]	CLEAN_PATCH: ParamSetting(('minisat.params', 'cp-increase'), 6072) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 159)) | ParamSetting(('minisat.params', 'gc-frac'), 0.9536868859094615) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 112)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 335)) | ParamSetting(('minisat.params', 'var-decay'), 0.8914726271302276) | ParamSetting(('minisat.params', 'lbd-cut'), 10)
+2023-08-03 13:58:58,949	[DEBUG]	CLEAN_SIZE: 7 (was 7)
+2023-08-03 14:21:25,206	[DEBUG]	ParamSetting(('minisat.params', 'cp-increase'), 6072) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 159)) | ParamSetting(('minisat.params', 'gc-frac'), 0.9536868859094615) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 112)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 335)) | ParamSetting(('minisat.params', 'var-decay'), 0.8914726271302276) | ParamSetting(('minisat.params', 'lbd-cut'), 10)
+2023-08-03 14:21:25,207	[INFO]	1       SUCCESS              *2288143767072 (125.8%) [7 edit(s)] 
+2023-08-03 14:21:25,224	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -342,7 +342,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -422,7 +422,7 @@
+ }/*auto*/
+ 
+     max_literals += out_learnt.size();
+-    out_learnt.shrink(i - j);
++    
+     tot_literals += out_learnt.size();
+ 
+     LBD(out_learnt);
+@@ -797,21 +797,7 @@
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+-            if (conflicts % 5000 == 0){
+-                //learntsize_adjust_confl *= learntsize_adjust_inc;
+-                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+-                //max_learnts             *= learntsize_inc;
+-
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
+-            }
++            
+ 
+         }else{
+             // NO CONFLICT
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,16 +1,16 @@
+-lbd-cut := 5
++lbd-cut := 10
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 6072
+ core-tolerance := 0.02
+ R-val := 1.4
+-var-decay := 0.8
++var-decay := 0.8914726271302276
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
++gc-frac := 0.9536868859094615
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
+
+2023-08-03 14:21:25,233	[INFO]	==== END ====
+2023-08-03 14:21:25,233	[INFO]	Reason: validation end
+2023-08-03 14:21:25,233	[INFO]	
+2023-08-03 14:21:25,234	[INFO]	==== REPORT ====
+2023-08-03 14:21:25,234	[INFO]	Termination: validation end
+2023-08-03 14:21:25,234	[INFO]	Log file: /cs/student/projects1/sse/2022/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1691066447.log
+2023-08-03 14:21:25,243	[INFO]	Patch file: _magpie_logs/minisat-hack_1691066447.patch
+2023-08-03 14:21:25,243	[INFO]	Diff file: _magpie_logs/minisat-hack_1691066447.diff
+2023-08-03 14:21:25,243	[INFO]	Best fitness: 2288143767072
+2023-08-03 14:21:25,243	[INFO]	Best patch: ParamSetting(('minisat.params', 'cp-increase'), 6072) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 159)) | ParamSetting(('minisat.params', 'gc-frac'), 0.9536868859094615) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 112)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 335)) | ParamSetting(('minisat.params', 'var-decay'), 0.8914726271302276) | ParamSetting(('minisat.params', 'lbd-cut'), 10)
+2023-08-03 14:21:25,243	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -342,7 +342,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -422,7 +422,7 @@
+ }/*auto*/
+ 
+     max_literals += out_learnt.size();
+-    out_learnt.shrink(i - j);
++    
+     tot_literals += out_learnt.size();
+ 
+     LBD(out_learnt);
+@@ -797,21 +797,7 @@
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+-            if (conflicts % 5000 == 0){
+-                //learntsize_adjust_confl *= learntsize_adjust_inc;
+-                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+-                //max_learnts             *= learntsize_inc;
+-
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
+-            }
++            
+ 
+         }else{
+             // NO CONFLICT
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,16 +1,16 @@
+-lbd-cut := 5
++lbd-cut := 10
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 6072
+ core-tolerance := 0.02
+ R-val := 1.4
+-var-decay := 0.8
++var-decay := 0.8914726271302276
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
++gc-frac := 0.9536868859094615
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
+

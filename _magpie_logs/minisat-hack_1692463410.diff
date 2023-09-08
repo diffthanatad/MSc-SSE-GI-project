@@ -1,0 +1,36 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -835,9 +835,7 @@
+ 
+                 static int adjust = 0;
+                 if (core_added < (int32_t)opt_cp_increase * (double)opt_core_tolerance){
+-                    if (LBD_cut < (int32_t)opt_lbd_cut_max)/*auto*/{
+-                        LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+-}/*auto*/
++                    
+ 
+                     if (!luby_restart){
+                         core_added = 0;
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,16 +1,16 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 6004
+ core-tolerance := 0.02
+ R-val := 1.4
+-var-decay := 0.8
++var-decay := 0.9542865980994171
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+-rnd-init := 'False'
++rnd-init := 'True'
+ luby := 0
+-gc-frac := 0.2
++gc-frac := 0.830740984397074
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'

@@ -248,7 +248,7 @@ class AbstractProgram():
                             elif value == 'FixedPeriodRestarts':
                                 sstring = '{}/factor:{}'.format(pstring, params['FIXEDPERIOD'])
                             sstring = '{},'.format(sstring)
-                        cli = "{}{}".format(sstring, pstring)
+                        cli = "-s Default -S {}{}".format(sstring, pstring)
         return cli
 
     def evaluate_local(self):

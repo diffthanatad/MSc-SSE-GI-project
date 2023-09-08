@@ -1,0 +1,101 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -216,7 +216,7 @@
+     watches[~c[1]].push(Watcher(cr, c[0]));
+     if (c.learnt())/*auto*/{ learnts_literals += c.size();
+ }/*auto*/
+-    else/*auto*/{            clauses_literals += c.size();
++    else/*auto*/{            clauses_literals += c.size();claDecayActivity();
+ }/*auto*/ }
+ 
+ 
+@@ -498,9 +498,7 @@
+     out_conflict.clear();
+     out_conflict.push(p);
+ 
+-    if (decisionLevel() == 0)/*auto*/{
+-        return;
+-}/*auto*/
++    
+ 
+     seen[var(p)] = 1;
+ 
+@@ -748,7 +746,7 @@
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+-            conflicts++; conflictC++;
++             conflictC++;
+             if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+                 var_decay += 0.01;
+ }/*auto*/
+@@ -797,21 +795,7 @@
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+-            if (conflicts % 5000 == 0){
+-                //learntsize_adjust_confl *= learntsize_adjust_inc;
+-                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+-                //max_learnts             *= learntsize_inc;
+-
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
+-            }
++            
+ 
+         }else{
+             // NO CONFLICT
+@@ -1035,11 +1019,7 @@
+     // Cannot use removeClauses here because it is not safe
+     // to deallocate them at this point. Could be improved.
+     int cnt = 0;
+-    for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        if (!satisfied(ca[clauses[i]]))/*auto*/{
+-            cnt++;
+-}/*auto*/
+-}/*auto*/
++    
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         if (!satisfied(ca[clauses[i]])){
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,22 +1,24 @@
+-lbd-cut := 5
++lbd-cut := 4
+ lbd-cut-max := 10
+ cp-increase := 15000
+-core-tolerance := 0.02
+-R-val := 1.4
+-var-decay := 0.8
++core-tolerance := 0.8228606477948711
++K-val := 0.8
++var-decay := 0.8705907540568583
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+ rnd-init := 'False'
+-luby := 0
++luby := 1
++rfirst := 1.4205927584725098
++rinc := 4.418293467358548
+ gc-frac := 0.2
+-verb := '1'
++verb := '0'
+ pre := 'True'
+ asymm := 'False'
+ rcheck := 'False'
+ elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 418
+ simp-gc-frac := 0.5

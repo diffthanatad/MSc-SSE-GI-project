@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 5826) | ParamSetting(('minisat.params', 'R-val'), 1.3702290169854343) | ParamSetting(('minisat.params', 'rinc'), 2.980659862916825) | ParamSetting(('minisat.params', 'rcheck'), 'True')

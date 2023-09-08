@@ -1,0 +1,38 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -670,6 +670,7 @@
+         while (!this.trailLim.isEmpty()
+                 && this.trailLim.last() == this.trail.size()) {
+             // conflict detected when assuming a value
++            this.learnedConstraintsDeletionStrategy.init();
+             this.trailLim.pop();
+         }
+         final boolean[] seen = this.mseen;
+@@ -710,7 +711,7 @@
+         do {
+ 
+             preason.clear();
+-            confl.calcReason(p, preason);
++            
+             // Trace reason for p
+             for (int j = 0; j < preason.size(); j++) {
+                 int q = preason.get(j);
+@@ -2348,8 +2349,7 @@
+             LearnedConstraintsEvaluationType evaluation) {
+         if (this.conflictCount != null) {
+             this.conflictCount.add(timer);
+-            this.conflictCount
+-                    .remove(this.learnedConstraintsDeletionStrategy.getTimer());
++            
+         }
+         switch (evaluation) {
+         case ACTIVITY:
+@@ -2425,7 +2425,7 @@
+                 Integer trail1 = trailLevel.get(Math.abs(i1));
+                 Integer trail2 = trailLevel.get(Math.abs(i2));
+                 if (trail1 == null) {
+-                    return -1;
++                    
+                 }
+                 if (trail2 == null) {
+                     return -1;

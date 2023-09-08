@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 13871) | ParamSetting(('minisat.params', 'K-val'), 0.7419407554850359) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'rinc'), 4.709722253379825) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 210), ('core/Solver.cc.xml', 'stmt', 215))

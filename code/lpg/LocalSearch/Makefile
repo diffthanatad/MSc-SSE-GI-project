@@ -7,15 +7,15 @@
 
 CFLAGS = -g -DNDEBUG
 
+CC = gcc 
 
-TARGET = lpg
-CFLAGS = -O3  -DNDEBUG  -Wall
-LIBS=  -lm 
+
+####### INCLUDE CONFIGURATION FILE
+
+include ../configure.make
 
 
 ####### COMPILE
-
-CC = gcc 
 
 PATH_HEADERS = -I$(SRC_HEADER)
 
@@ -53,6 +53,6 @@ LocalSearch.a: 	$(OBJECTS)
 $(OBJECTS): $(HEADERS)
 
 clean:
-	rm -f *.o *.a *~
+	rm -f *.o *.a *~ .#*
 
 #######

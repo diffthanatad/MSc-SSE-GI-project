@@ -92,5 +92,8 @@ void source_to_dest( State *dest, State *source );
 void print_state( State S );
 
 
+void initialize_lgoals(void);
+
+extern State *lcurrent_goals;
 
 #endif /* _SEARCH_H */

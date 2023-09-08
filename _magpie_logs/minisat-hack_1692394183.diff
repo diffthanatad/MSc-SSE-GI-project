@@ -1,0 +1,13 @@
+--- before: minisat.params
++++ after: minisat.params
+@@ -2,8 +2,8 @@
+ lbd-cut-max := 10
+ cp-increase := 15000
+ core-tolerance := 0.02
+-R-val := 1.4
+-var-decay := 0.8
++R-val := 2.428504472048543
++var-decay := 0.9741924126109148
+ cla-decay := 0.999
+ rnd-freq := 0.0
+ ccmin-mode := '2'

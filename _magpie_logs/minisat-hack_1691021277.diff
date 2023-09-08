@@ -1,0 +1,95 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -172,14 +172,7 @@
+           flag = 1;
+     }*/
+ 
+-    for (i = j = 0, p = lit_Undef; i < ps.size(); i++)/*auto*/{
+-        if (value(ps[i]) == l_True || ps[i] == ~p)/*auto*/{
+-            return true;
+-}/*auto*/
+-        else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+-            ps[j++] = p = ps[i];
+-}/*auto*/
+-}/*auto*/
++    
+     ps.shrink(i - j);
+ 
+     /*if (flag && (output != NULL)) {
+@@ -254,7 +247,7 @@
+     if (locked(c))/*auto*/{ vardata[var(c[0])].reason = CRef_Undef;
+ }/*auto*/
+     c.mark(1); 
+-    ca.free(cr);
++    
+ }
+ 
+ 
+@@ -342,7 +335,7 @@
+     int index   = trail.size() - 1;
+ 
+     do{
+-        assert(confl != CRef_Undef); // (otherwise should be UIP)
++         // (otherwise should be UIP)
+         Clause& c = ca[confl];
+ 
+         if (c.learnt() && c.mark() != 3){
+@@ -507,10 +500,9 @@
+     for (int i = trail.size()-1; i >= trail_lim[0]; i--){
+         Var x = var(trail[i]);
+         if (seen[x]){
+-            if (reason(x) == CRef_Undef){
+-                assert(level(x) > 0);
+-                out_conflict.push(~trail[i]);
+-            }else{
++            if (decisionLevel() == 0)/*auto*/{
++        return;
++}/*auto*/else{
+                 Clause& c = ca[reason(x)];
+                 for (int j = 1; j < c.size(); j++)/*auto*/{
+                     if (level(var(c[j])) > 0)/*auto*/{
+@@ -646,7 +638,7 @@
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+-    checkGarbage();
++    
+ }
+ 
+ 
+@@ -963,6 +955,7 @@
+         if (!withinBudget())/*auto*/{ break;
+ }/*auto*/
+         curr_restarts++;
++        V[j++] = V[i];
+     }
+ 
+     if (verbosity >= 1)/*auto*/{
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+-lbd-cut := 5
+-lbd-cut-max := 10
+-cp-increase := 15000
++lbd-cut := 7
++lbd-cut-max := 29
++cp-increase := 5088
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+@@ -10,7 +10,7 @@
+ phase-saving := '2'
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
++gc-frac := 0.7430910466759784
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
+@@ -18,5 +18,5 @@
+ elim := 'True'
+ grow := 0
+ cl-lim := 20
+-sub-lim := 1000
++sub-lim := 168
+ simp-gc-frac := 0.5

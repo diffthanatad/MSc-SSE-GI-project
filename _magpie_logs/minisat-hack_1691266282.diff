@@ -1,0 +1,13 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -365,9 +365,7 @@
+                 if (level(var(q)) >= decisionLevel()){
+                     pathC++;
+                     CRef r = reason(var(q));
+-                    if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
+-}/*auto*/
++                    
+                 }else/*auto*/{
+                     out_learnt.push(q);
+ }/*auto*/

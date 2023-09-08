@@ -1,0 +1,47 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -832,7 +832,7 @@
+      * .ISimplifier)
+      */
+     public void setSimplifier(ISimplifier simp) {
+-        this.simplifier = simp;
++        
+     }
+ 
+     /*
+@@ -1061,7 +1061,7 @@
+ 
+     private void claRescalActivity() {
+         for (int i = 0; i < this.learnts.size(); i++) {
+-            this.learnts.get(i).rescaleBy(CLAUSE_RESCALE_FACTOR);
++            
+         }
+         this.claInc *= CLAUSE_RESCALE_FACTOR;
+     }
+@@ -1271,7 +1271,7 @@
+                             boolean allsat = true;
+                             for (int i = 0; i < this.constrs.size(); i++) {
+                                 if (!this.constrs.get(i).isSatisfied()) {
+-                                    allsat = false;
++                                    
+                                     break;
+                                 }
+                             }
+@@ -1728,7 +1728,7 @@
+         Constr confl = propagate();
+         if (confl != null) {
+             analyzeAtRootLevel(confl);
+-            this.slistener.conflictFound(confl, 0, 0);
++            
+             this.slistener.end(Lbool.FALSE);
+             cancelUntil(0);
+             cancelLearntLiterals(learnedLiteralsLimit);
+@@ -2445,7 +2445,7 @@
+         for (int d : lliterals) {
+             clause.push(LiteralsUtils.toInternal(d));
+         }
+-        this.sharedConflict = this.dsfactory.createUnregisteredClause(clause);
++        
+         this.sharedConflict.register();
+         addConstr(this.sharedConflict);
+         return this.sharedConflict;

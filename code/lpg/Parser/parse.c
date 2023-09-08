@@ -13,7 +13,7 @@
 /**
    The following parts of this file have been modified by the 
    LPG developers (DEA - University of Brescia):
-  
+
    Included libraries:
    - lpg.h
    - inst_utils.h
@@ -78,9 +78,7 @@
 
 
 
-
-
-
+Bool numeric_nodes = FALSE;
 
 
 
@@ -126,6 +124,28 @@ TokenList *copy_TokenList( TokenList *source )
 
   return temp;
 
+}
+
+
+TypedList *copy_TypedList(TypedList *source)
+{
+  TypedList *temp;
+  
+  if ( !source ) 
+    {
+      temp = NULL;
+    } 
+  else 
+    {
+      temp = new_TypedList();
+      temp->name = (char *)calloc(strlen(source->name) + 1, sizeof(char));
+      strcpy(temp->name, source->name);
+      temp->n = source->n;
+      temp->type = copy_TokenList( source->type );
+      temp->next = copy_TypedList( source->next );
+    }
+  
+  return temp;
 }
 
 
@@ -227,7 +247,7 @@ void build_orig_constant_list( void )
     free( tmp );
     tmp = NULL;
   }
-     
+
   for ( tyl = gparse_constants; tyl; tyl = tyl->next ) {
     if ( tyl->type->next ) {
       tmp = new_Token( MAX_LENGTH );
@@ -248,7 +268,7 @@ void build_orig_constant_list( void )
     free( tmp );
     tmp = NULL;
   }
-  
+
   for ( tyl = gparse_objects; tyl; tyl = tyl->next ) {
     if ( tyl->type->next ) {
       tmp = new_Token( MAX_LENGTH );
@@ -294,7 +314,7 @@ void build_orig_constant_list( void )
   }
 
 
-  /* 
+  /*
    * DEA - University of Brescia
    */
 
@@ -334,7 +354,7 @@ void build_orig_constant_list( void )
   /*
    * End of DEA
    */
-    
+
   collect_type_names_in_pl( gorig_goal_facts );
 
   for ( po = gloaded_ops; po; po = po->next ) {
@@ -361,6 +381,32 @@ void build_orig_constant_list( void )
       tmp = NULL;
     }
   }
+
+  if (GpG.derived_predicates)
+    for ( po = gderived_predicates; po; po = po->next ) {
+      collect_type_names_in_pl( po->preconds );
+      collect_type_names_in_pl( po->effects );
+      for ( tyl = po->parse_params; tyl; tyl = tyl->next ) {
+	if ( tyl->type->next ) {
+	  tmp = new_Token( MAX_LENGTH );
+	  strcpy( tmp, EITHER_STR );
+	  for ( tl = tyl->type; tl; tl = tl->next ) {
+	    strcat( tmp, CONNECTOR );
+	    strcat( tmp, tl->item );
+	  }
+	} else {
+	  tmp = copy_Token( tyl->type->item );
+	}
+	if ( (n = get_type( tmp )) == -1 ) {
+	  tyl->n = lnum_types;
+	  ltype_names[lnum_types++] = copy_Token( tmp );
+	} else {
+	  tyl->n = n;
+	}
+	free( tmp );
+	tmp = NULL;
+      }
+    }
 
 
   /* now get the numbers of all composed either types
@@ -406,6 +452,15 @@ void build_orig_constant_list( void )
       make_either_ty( tyl );
     }
   }
+
+  if (GpG.derived_predicates)
+    for ( po = gloaded_ops; po; po = po->next ) {
+      make_either_ty_in_pl( po->preconds );
+      make_either_ty_in_pl( po->effects );
+      for ( tyl = po->parse_params; tyl; tyl = tyl->next ) {
+	make_either_ty( tyl );
+      }
+    }
 
 
   /* now, compute the transitive closure of all type inclusions.
@@ -612,6 +667,69 @@ void build_orig_constant_list( void )
   }
 
 
+  /*
+   * DEA - University of Brescia
+   */ 
+
+  /**
+   * Analisi degli operatori che rappresentano predicati derivati
+   **
+   * Derived predicates operators analisys
+   **/
+  if (GpG.derived_predicates)
+    for ( po = gderived_predicates; po; po = po->next ) {
+      normalize_tyl_in_pl( &po->preconds );
+      normalize_tyl_in_pl( &po->effects );
+      /* be careful to maintain parameter ordering !
+       */
+      if ( !po->parse_params ) {
+	continue;/* no params at all */
+      }
+      fl = new_FactList();
+      fl->item = new_TokenList();
+      fl->item->next = new_TokenList();
+      fl->item->item = copy_Token( po->parse_params->name );
+      if ( po->parse_params->type->next ) {
+	fl->item->next->item = new_Token( MAX_LENGTH );
+	strcpy( fl->item->next->item, EITHER_STR );
+	for ( tl = po->parse_params->type; tl; tl = tl->next ) {
+	  strcat( fl->item->next->item, CONNECTOR );
+	  strcat( fl->item->next->item, tl->item );
+	}
+      } else {
+	fl->item->next->item = copy_Token( po->parse_params->type->item );
+      }
+      po->params = fl;
+      p_fl = fl;
+      for ( tyl = po->parse_params->next; tyl; tyl = tyl->next ) {
+	fl = new_FactList();
+	fl->item = new_TokenList();
+	fl->item->next = new_TokenList();
+	fl->item->item = copy_Token( tyl->name );
+	if ( tyl->type->next ) {
+	  fl->item->next->item = new_Token( MAX_LENGTH );
+	  strcpy( fl->item->next->item, EITHER_STR );
+	  for ( tl = tyl->type; tl; tl = tl->next ) {
+	    strcat( fl->item->next->item, CONNECTOR );
+	    strcat( fl->item->next->item, tl->item );
+	  }
+	} else {
+	  fl->item->next->item = copy_Token( tyl->type->item );
+	}
+	p_fl->next = fl;
+	p_fl = fl;
+      }
+      free_TypedList( po->parse_params );
+      po->parse_params = NULL;
+    }
+ 
+
+  /*
+   * End of DEA
+   */
+
+
+  
   /* finally, build  gpredicates_and_types  by chaining predicate names 
    * together with the names of their args' types.
    */
@@ -658,7 +776,7 @@ void build_orig_constant_list( void )
    * DEA - University of Brescia
    */
 
-  /* finally, build  gpredicates_and_types  by chaining predicate names 
+  /* finally, build  gpredicates_and_types  by chaining predicate names
    * together with the names of their args' types.
    */
   for (tyll = gparse_functions; tyll; tyll = tyll->next)
@@ -1052,7 +1170,7 @@ Bool make_adl_domain( void )
     if ( !i->preconds ) {
       i->preconds = new_PlNode( TRU );
     }
-    if ( !is_wff( i->preconds ) ) {
+    if (!is_wff( i->preconds ) ) {
       printf("\nop %s has illegal precondition", i->name);
       return FALSE;
     }
@@ -1061,6 +1179,24 @@ Bool make_adl_domain( void )
       return FALSE;
     }
   }
+
+  /* PREDICATI DERIVATI*/
+  if (GpG.derived_predicates) {
+    for ( i = gderived_predicates; i; i = i->next ) {
+      if ( !i->preconds ) {
+	i->preconds = new_PlNode( TRU );
+      }
+      if ( !is_wff( i->preconds ) ) {
+	printf("\nop %s has illegal precondition", i->name);
+	return FALSE;
+      }
+      if ( !make_effects( &(i->effects) ) ) {
+	printf("\nop %s has illegal effects", i->name);
+	return FALSE;
+      }
+    }
+  }
+  /****/
 
   if ( gcmd_line.display_info == 102 ) {
     printf("\nfinal ADL representation is:\n");
@@ -1077,7 +1213,7 @@ Bool make_adl_domain( void )
   }
 
   return TRUE;
-      
+
 }
 
 
@@ -1141,7 +1277,7 @@ Bool is_wff( PlNode *n )
   case EX:
     if ( !(n->atom) ||
 	 !(n->atom->next ) ||
-	 n->atom->next->next != NULL ) {
+	 (n->atom->next->next != NULL)) {
       return FALSE;
     }
     return is_wff( n->sons );
@@ -1164,8 +1300,11 @@ Bool is_wff( PlNode *n )
   case TRU:
   case FAL:
     if ( n->sons != NULL ) {
+	printf("vero o false\n");
       return FALSE;
     }
+    return TRUE;
+  case BIN_COMP:
     return TRUE;
   default:
     return FALSE;
@@ -1261,6 +1400,11 @@ Bool make_effects( PlNode **n )
       i->sons = new_PlNode( TRU );
     }
     if ( !is_wff( i->sons ) ) {
+	  if (i->connective == WHEN && i->sons->connective == TRU) {
+	    print_PlNode(i, 2);
+	    print_PlNode(i->sons, 2);
+	    return TRUE;
+	  }
       return FALSE;
     }
     if ( !make_conjunction_of_literals( &(i->sons->next) ) ) {
@@ -1403,18 +1547,18 @@ Bool make_conjunction_of_literals( PlNode **n )
 
 
 void
-reduce_PlGoals (PlNode * pln)
+reduce_PlGoals (PlNode ** pln)
 {
   PlNode *nodetoremove;
-  if (!pln)
+  if (!(*pln))
     return;
 
 /* Makes TRU the nodes to be removed */
-  switch (pln->connective)
+  switch ((*pln)->connective)
     {
     case WHEN:
-      printf
-	("\n\nConditional effects not supported by this exp version.\n\n");
+      fprintf
+	(stderr, "\n\nConditional effects not supported by this exp version.\n\n");
       exit (1);
       break;
     case ALL:
@@ -1429,6 +1573,9 @@ reduce_PlGoals (PlNode * pln)
     case AT_START_CONN:
     case AT_END_CONN:
     case OVER_ALL_CONN:
+      nodetoremove = (*pln);
+      (*pln) = nodetoremove -> sons;
+      (*pln) -> next = nodetoremove -> next;
       GpG.non_strips_domain = TRUE;
       break;
 
@@ -1437,13 +1584,13 @@ reduce_PlGoals (PlNode * pln)
     case LESS_THAN_OR_EQUAL_CONN:
     case EQUAL_CONN:
     case GREATER_THAN_CONN:
-    case GREATER_OR_EQUAL_CONN: 
+    case GREATER_OR_EQUAL_CONN:
       GpG.non_strips_domain = TRUE;
-      cp_PlNode2list(pln, &GpG.numeric_goal_PlNode);
-      pln->connective = TRU;
+      cp_PlNode2list((*pln), &GpG.numeric_goal_PlNode);
+      (*pln)->connective = TRU;
       break;
 
-   case BIN_COMP:
+    case BIN_COMP:
     case NUM_EXP:
     case MUL_CONN:
     case DIV_CONN:
@@ -1468,32 +1615,35 @@ reduce_PlGoals (PlNode * pln)
     case DURATION_VAR_ATOM:
     case DURATION_CONSTRAINT_CONN:
       GpG.non_strips_domain = TRUE;
-      pln->connective = TRU;
+      (*pln)->connective = TRU;
+      break;
+    case TIMED_FACT:
+      GpG.timed_facts_present = TRUE;  
       break;
     }
 
-  if (pln->next)
-    if ((pln->next->connective == AT_START_CONN) ||
-	(pln->next->connective == AT_END_CONN) ||
-	(pln->next->connective == OVER_ALL_CONN))
+  if ((*pln)->next)
+    if (((*pln)->next->connective == AT_START_CONN) ||
+	((*pln)->next->connective == AT_END_CONN) ||
+	((*pln)->next->connective == OVER_ALL_CONN))
       {
 	GpG.non_strips_domain = TRUE;
-	nodetoremove = pln->next;
-	pln->next = nodetoremove->sons;
+	nodetoremove = (*pln)->next;
+	(*pln)->next = nodetoremove->sons;
 	nodetoremove->sons->next = nodetoremove->next;
       }
-  if (pln->sons)
-    if ((pln->sons->connective == AT_START_CONN) ||
-	(pln->sons->connective == AT_END_CONN) ||
-	(pln->sons->connective == OVER_ALL_CONN))
+  if ((*pln)->sons)
+    if (((*pln)->sons->connective == AT_START_CONN) ||
+	((*pln)->sons->connective == AT_END_CONN) ||
+	((*pln)->sons->connective == OVER_ALL_CONN))
       {
 	GpG.non_strips_domain = TRUE;
-	nodetoremove = pln->sons;
-	pln->sons = nodetoremove->sons;
+	nodetoremove = (*pln)->sons;
+	(*pln)->sons = nodetoremove->sons;
 	nodetoremove->sons->next = nodetoremove->next;
       }
-  reduce_PlGoals (pln->sons);
-  reduce_PlGoals (pln->next);
+  reduce_PlGoals (&(*pln)->sons);
+  reduce_PlGoals (&(*pln)->next);
 }
 
 
@@ -1525,9 +1675,22 @@ reduce_pddl2_to_pddl1 (void)
     }
 
 
+  reduce_PlInitial(&gorig_initial_facts);
 
   reduce_PlOperator (gloaded_ops);
-  reduce_PlGoals (gorig_goal_facts);
+
+  if (GpG.derived_predicates)
+    {
+      numeric_nodes = FALSE;
+      reduce_PlOperator(gderived_predicates);
+      if (numeric_nodes)
+	{
+          printf("\nNumeric conditions in derived predicates not handled yet.\n");
+	  exit(1);
+	}
+    }
+
+  reduce_PlGoals (&gorig_goal_facts);
   if (!remove_true_nodes (gorig_goal_facts))
     {
       free_PlNode (gorig_goal_facts->sons);
@@ -1540,40 +1703,99 @@ void
 reduce_PlOperator (PlOperator * plop)
 {
   PlOperator *tmpop;
+ 
   for (tmpop = plop; tmpop; tmpop = tmpop->next)
     {
-      reduce_PlNode (tmpop->preconds);
+      reduce_PlNode (&tmpop->preconds);
       if (!remove_true_nodes (tmpop->preconds))
 	{
 	  free_PlNode (tmpop->preconds->sons);
 	  free (tmpop->preconds);
 	  tmpop->preconds = NULL;
 	}
-      reduce_PlNode (tmpop->effects);
+      reduce_PlNode (&tmpop->effects);
       if (!remove_true_nodes (tmpop->effects))
 	{
 	  free_PlNode (tmpop->effects->sons);
 	  free (tmpop->effects);
 	  tmpop->effects = NULL;
 	}
-
+      remove_null_and(tmpop->effects);
     }
 }
 
+
+void reduce_PlInitial(PlNode ** pln)
+{
+  PlNode *tmp, *aux;
+
+  if (!(*pln))
+    return;
+
+  if ((*pln)->connective != AND)
+    {
+      printf("\n\nError in initial state definition");
+      exit(1);
+    }
+
+  while ((*pln)->sons->connective == NOT)
+    {
+      tmp = (*pln)->sons;
+      (*pln)->sons = tmp->next;
+      tmp->next = NULL;
+      free_PlNode(tmp);
+    }
+
+  if (!(*pln)->sons)
+    return;
+
+  tmp = (*pln)->sons;
+  while (tmp->next)
+    {
+      if (tmp->next->connective == NOT)
+	{
+	  aux = tmp->next;
+	  tmp->next = tmp->next->next;
+	  aux->next = NULL;
+	  free_PlNode(aux);
+	}
+      else
+	tmp = tmp->next;
+    }
+}
+
+
+
+void set_start_end_ovr_sons(PlNode *pln, short type)
+{
+  PlNode *tmp;
+
+  for (tmp = pln->sons; tmp; tmp = tmp->next)
+    {
+      tmp->is_start_end_ovr = type;
+      set_start_end_ovr_sons(tmp, type);
+    }
+}
+
+
 void
-reduce_PlNode (PlNode * pln)
+reduce_PlNode (PlNode ** pln)
 {
   PlNode *nodetoremove;
-  if (!pln)
+  Bool numeric_prec = FALSE;
+
+  if (!(*pln))
     return;
 
 /* Makes TRU the nodes to be removed */
-  switch (pln->connective)
+  switch ((*pln)->connective)
     {
     case WHEN:
-      printf
-	("\n\nConditional effects not supported by this exp version.\n\n");
-      exit (1);
+      if (!GpG.conditional_effects_enabled)
+	{
+          fprintf(stderr, "\n\nConditional effects not supported by this exp version.\n\n");
+          exit (1);
+	}
       break;
     case ALL:
     case EX:
@@ -1587,11 +1809,39 @@ reduce_PlNode (PlNode * pln)
     case AT_START_CONN:
     case AT_END_CONN:
     case OVER_ALL_CONN:
+      nodetoremove = (*pln);
+      (*pln) = nodetoremove -> sons;
+
+      if ((*pln)->connective == BIN_COMP)
+	numeric_prec = TRUE;
+
+      (*pln) -> next = nodetoremove -> next;
       GpG.non_strips_domain = TRUE;
       break;
 
-    case NUM_EXP:
+      /*
+       * DEA - University of Brescia
+       */
+
+      /**
+       * Non rimuovo le precondizioni numeriche. Vengono lasciate come
+       * sono e saranno gestite in seguito.
+       ** 
+       * Don't remove numeric preconditions. They will be translated 
+       * later
+       **/
+
     case BIN_COMP:
+      numeric_prec = TRUE;
+      GpG.non_strips_domain = TRUE;
+      numeric_nodes = TRUE;
+      break;
+
+      /*
+       * End of DEA
+       */
+      
+    case NUM_EXP:
     case LESS_THAN_CONN:
     case LESS_THAN_OR_EQUAL_CONN:
     case EQUAL_CONN:
@@ -1607,6 +1857,7 @@ reduce_PlNode (PlNode * pln)
     case DECREASE_CONN:
     case SCALE_UP_CONN:
     case SCALE_DOWN_CONN:
+      numeric_nodes = TRUE;
     case MINIMIZE_CONN:
     case MAXIMIZE_CONN:
     case METRIC_CONN:
@@ -1620,86 +1871,180 @@ reduce_PlNode (PlNode * pln)
     case DURATION_VAR_ATOM:
     case DURATION_CONSTRAINT_CONN:
       GpG.non_strips_domain = TRUE;
-      pln->connective = TRU;
+      (*pln)->connective = TRU;
+      break;
+    case TIMED_FACT:
+      GpG.timed_facts_present = TRUE;
       break;
     }
 
-  if (pln->next)
-    if ((pln->next->connective == AT_START_CONN) ||
-	(pln->next->connective == AT_END_CONN) ||
-	(pln->next->connective == OVER_ALL_CONN))
+  if ((*pln)->next)
+    if (((*pln)->next->connective == AT_START_CONN) ||
+	((*pln)->next->connective == AT_END_CONN) ||
+	((*pln)->next->connective == OVER_ALL_CONN))
       {
 	GpG.non_strips_domain = TRUE;
-	nodetoremove = pln->next;
-	pln->next = nodetoremove->sons;
+	nodetoremove = (*pln)->next;
+
+	switch (nodetoremove->connective) {
+	case AT_START_CONN: 
+	  set_start_end_ovr_sons(nodetoremove, IS_AT_START);
+	  break;
+	case AT_END_CONN: 
+	  set_start_end_ovr_sons(nodetoremove, IS_AT_END);
+	  break;
+	case OVER_ALL_CONN: 
+	  set_start_end_ovr_sons(nodetoremove, IS_OVERALL);
+	default:
+	  break;
+	}
+
+	(*pln)->next = nodetoremove->sons;
 	nodetoremove->sons->next = nodetoremove->next;
       }
-  if (pln->sons)
-    if ((pln->sons->connective == AT_START_CONN) ||
-	(pln->sons->connective == AT_END_CONN) ||
-	(pln->sons->connective == OVER_ALL_CONN))
+  if ((*pln)->sons)
+    if (((*pln)->sons->connective == AT_START_CONN) ||
+	((*pln)->sons->connective == AT_END_CONN) ||
+	((*pln)->sons->connective == OVER_ALL_CONN))
       {
 	GpG.non_strips_domain = TRUE;
-	nodetoremove = pln->sons;
-	pln->sons = nodetoremove->sons;
+	nodetoremove = (*pln)->sons;
+
+	switch (nodetoremove->connective) {
+	case AT_START_CONN:
+	  set_start_end_ovr_sons(nodetoremove, IS_AT_START);
+	  break;
+	case AT_END_CONN:
+	  set_start_end_ovr_sons(nodetoremove, IS_AT_END);
+	  break;
+	case OVER_ALL_CONN: 
+	  set_start_end_ovr_sons(nodetoremove, IS_OVERALL);
+	default:
+	  break;
+	}
+	
+	(*pln)->sons = nodetoremove->sons;
 	nodetoremove->sons->next = nodetoremove->next;
       }
-  reduce_PlNode (pln->sons);
-  reduce_PlNode (pln->next);
+  
+  if (!numeric_prec)
+    reduce_PlNode (&(*pln)->sons);
+  
+  reduce_PlNode (&(*pln)->next);
 }
 
 
 
 
 
-
-
-
-
-int
-remove_true_nodes (PlNode * pln)
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Aggiunge ad un fatto condizionale la
+			  condizione (not (dummypred)) e l'effetto
+			  (dummypred)
+	PARAMETER	: node	effetto condizionale
+	RETURN		:
+-----------------------------------------------------------------
+*/
+void add_dummy_cond(PlNode *node)
 {
-  PlNode *tmpnode;
-  PlNode *nextnode;
+	PlNode	*tmpnode;
 
-  if (pln->connective == TRU)
-    return 0;
-  nextnode = NULL;
-  tmpnode = pln;
-  if (tmpnode->connective == AND && tmpnode->sons != NULL)
-    {
-      if (tmpnode->sons->connective != TRU)
-	nextnode = tmpnode->sons;
-      while (tmpnode->sons->connective == TRU)
-	{
-	  nextnode = tmpnode->sons->next;
-	  free_PlNode (tmpnode->sons->sons);
-	  free (tmpnode->sons);
-	  tmpnode->sons = nextnode;
-	  if (!nextnode)
-	    break;
-	}
-      tmpnode = nextnode;
-    }
+	tmpnode = node->sons->next;
+	node->sons->next = NULL;
+	free_PlNode(node->sons);
+	node->sons = new_PlNode (NOT);
+	node->sons->sons = new_PlNode (ATOM);
+	node->sons->sons->atom = new_TokenList ();
+	node->sons->sons->atom->item = new_Token (strlen (DUMMY_PRED_STRING) + 1);
+	strcpy (node->sons->sons->atom->item, DUMMY_PRED_STRING);
+	node->sons->sons->atom->next = NULL;
+	node->sons->next = tmpnode;
 
-  while (tmpnode)
-    {
-      nextnode = tmpnode->next;
-      if (tmpnode->next)
-	{
-	  while (tmpnode->next->connective == TRU)
-	    {
-	      nextnode = tmpnode->next->next;
-	      free_PlNode (tmpnode->next->sons);
-	      free (tmpnode->next);
-	      tmpnode->next = nextnode;
-	      if (!nextnode)
-		break;
-	    }
+	if (tmpnode->connective != AND) {
+		tmpnode = new_PlNode (AND);
+		tmpnode->sons = node->sons->next;
+		node->sons->next = tmpnode;
 	}
-      tmpnode = nextnode;
-    }
-  return 1;
+
+	tmpnode = node->sons->next->sons;
+	node->sons->next->sons = new_PlNode (ATOM);
+	node->sons->next->sons->atom = new_TokenList ();
+	node->sons->next->sons->atom->item = new_Token (strlen (DUMMY_PRED_STRING) + 1);
+	strcpy (node->sons->next->sons->atom->item, DUMMY_PRED_STRING);
+	node->sons->next->sons->atom->next = NULL;
+	node->sons->next->sons->next = tmpnode;
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Se non ci sono condizioni all'interno
+			  di un and condizionale, aggiunge
+			  dummy_cond
+			  condizione (not (dummypred)) e l'effetto
+			  (dummypred)
+	PARAMETER	: pln	effetti
+	RETURN		:
+-----------------------------------------------------------------
+*/
+void remove_null_and (PlNode * pln)
+{
+	PlNode	*node;
+
+	if (pln == NULL)
+		return;
+
+	for (node = pln; node != NULL; node = node->next) {
+		if ((node->sons != NULL) && (node->sons->connective == AND) && (node->sons->sons == NULL))
+			add_dummy_cond(node);
+		remove_null_and(node->sons);
+	}
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Rimuove i fatti veri introdotti dalla
+			  semplificazione di at start ...
+	PARAMETER	: node	effetti
+	RETURN		:
+-----------------------------------------------------------------
+*/
+int remove_true_nodes (PlNode * pln)
+{
+	PlNode	*tmpnode;
+	PlNode	*node;
+
+	if (pln == NULL)
+		return(1);
+
+	for (node = pln; node != NULL;) {
+		if ((node->next != NULL) && (node->next->connective == TRU)) {
+			tmpnode = node->next->next;
+			node->next->next = NULL;
+			free_PlNode(node->next);
+			node->next = tmpnode;
+		} else {
+			node = node->next;
+		}
+	}
+
+	for (node = pln; node != NULL; node = node->next) {
+		if (node->sons != NULL && remove_true_nodes(node->sons) == 0) {
+			if (node->connective != WHEN) {
+				tmpnode = node->sons->next;
+				node->sons->next = NULL;
+				free_PlNode(node->sons);
+				node->sons = tmpnode;
+			} else {
+				add_dummy_cond(node);
+			}
+		}
+	}
+
+	if (pln->connective == TRU)
+		return(0);
+
+	return(1);
 }
 
 
@@ -1713,41 +2058,49 @@ count_num_preconds_and_effects ()
 
   for (op = gloaded_pl2ops; op; op = op->next)
     {
+      op -> is_odd = FALSE;
       /*conta le precondizioni */
       for (n = op->preconds; n; n = n->next)
 	{
 	  if (n->connective == AND)
 	    n = n->sons;
 	  pln = n;
-
+       
 	  switch (pln->connective)
 	    {
 	    case AT_START_CONN:
-	      /*preco AT_START: conta solo quelle numeriche */
-	      if ((pln->sons->connective == ATOM)
-		  || (pln->sons->connective == NOT))
-		break;
-	      op->num_numeric_preconds_start++;
 	      break;
 	    case OVER_ALL_CONN:
+	      /* 
+		 Salto le precs numeriche (vengono contate dopo per tenere conto dell'espansione
+		 di eventuali quantificatori)
+		 **
+		 Skip numeric preconditions. They will be counted after the expansion of
+		 quantified variables
+	      */
+	      if (pln->sons->connective == BIN_COMP)
+		break;
 	      /*conta tutte le preco di tipo OVERALL */
 	      op->num_preconds_overall++;
 	      /*serve il costrutto specialFacts: lo segnalo */
 	      op->is_odd = TRUE;
 	      break;
 	    case AT_END_CONN:
+	      /* 
+		 Salto le precs numeriche (vengono contate dopo per tenere conto dell'espansione
+		 di eventuali quantificatori)
+		 **
+		 Skip numeric preconditions. They will be counted after the expansion of
+		 quantified variables
+	      */
+	      if (pln->sons->connective == BIN_COMP)
+		break;
 	      /*conta tutte le preco di tipo AT END */
 	      op->num_preconds_end++;
 	      /*serve il costrutto specialFacts: lo segnalo */
 	      op->is_odd = TRUE;
 	      break;
 	    default:
-	      /*non si trattava di un'azione durativa->non c'e' la marca temporale
-	         conta comunque le precondizioni numeriche
-	       */
-	      if ((pln->connective == ATOM) || (pln->connective == NOT))
-		break;
-	      op->num_numeric_preconds_start++;
 	      break;
 	    }
 	}
@@ -1758,7 +2111,7 @@ count_num_preconds_and_effects ()
 	  if (n->connective == AND)
 	    n = n->sons;
 	  pln = n;
-
+	
 	  switch (pln->connective)
 	    {
 	    case AT_END_CONN:
@@ -1793,6 +2146,99 @@ count_num_preconds_and_effects ()
 	    }
 	}
     }
+  
+  if (GpG.derived_predicates)
+    for (op = gderived_pl2predicates; op; op = op->next)
+      {
+	op -> is_odd = FALSE;
+	/*conta le precondizioni */
+	for (n = op->preconds; n; n = n->next)
+	  {
+	    if (n->connective == AND)
+	      n = n->sons;
+	    pln = n;
+	    
+	    switch (pln->connective)
+	      {
+	      case AT_START_CONN:
+		break;
+	      case OVER_ALL_CONN:
+		/* 
+		   Salto le precs numeriche (vengono contate dopo per tenere conto dell'espansione
+		   di eventuali quantificatori) 
+		   **
+		   Skip numeric preconditions. They will be counted after the expansion of
+		   quantified variables
+		*/
+		if (pln->sons->connective == BIN_COMP)
+		  break;
+		/*conta tutte le preco di tipo OVERALL */
+		op->num_preconds_overall++;
+		/*serve il costrutto specialFacts: lo segnalo */
+		op->is_odd = TRUE;
+		break;
+	      case AT_END_CONN:
+		/* 
+		   Salto le precs numeriche (vengono contate dopo per tenere conto dell'espansione
+		   di eventuali quantificatori) 
+		   **
+		   Skip numeric preconditions. They will be counted after the expansion of
+		   quantified variables
+		*/
+		if (pln->sons->connective == BIN_COMP)
+		  break;
+		/*conta tutte le preco di tipo AT END */
+		op->num_preconds_end++;
+		/*serve il costrutto specialFacts: lo segnalo */
+		op->is_odd = TRUE;
+		break;
+	      default:
+		break;
+	      }
+	  }
+	
+	/*conta gli effetti */
+	for (n = op->effects; n; n = n->next)
+	  {
+	    if (n->connective == AND)
+	      n = n->sons;
+	    pln = n;
+	    
+	    switch (pln->connective)
+	      {
+	      case AT_END_CONN:
+		/*eff AT_END: conta solo quelli numerici */
+		if ((pln->sons->connective == ATOM)
+		    || (pln->sons->connective == NOT))
+		  break;
+		op->num_numeric_effects_end++;
+		break;
+	      case AT_START_CONN:
+		/*conta gli effetti che hanno luogo all'inizio */
+		/*conta gli effetti numerici assieme a quelli additivi e i cancellanti a parte */
+		if (pln->sons->connective == NOT)
+		  op->num_deleffects_start++;
+		else
+		  op->num_effects_start++;
+		/*serve il costrutto specialFacts: lo segnalo */
+		op->is_odd = TRUE;
+		break;
+	      case OVER_ALL_CONN:
+		printf ("\n\nERR:OVER ALL effect\n\n");
+		exit (1);
+		break;
+	      default:
+		/*non si trattava di un'azione durativa->non c'e' la marca temporale
+		  conta comunque gli effetti numerici
+		*/
+		if ((pln->connective == ATOM) || (pln->connective == NOT))
+		  break;
+		op->num_numeric_effects_end++;
+		break;
+	      }
+	  }
+      }
+
 }
 
 

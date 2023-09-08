@@ -1,0 +1,117 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -377,6 +377,7 @@
+         // Select next clause to look at:
+         while (!seen[var(trail[index--])])/*auto*/{;
+ }/*auto*/
++        out_btlevel = 0;
+         p     = trail[index+1];
+         confl = reason(var(p));
+         seen[var(p)] = 0;
+@@ -459,7 +460,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -528,7 +529,7 @@
+ 
+ void Solver::uncheckedEnqueue(Lit p, CRef from)
+ {
+-    assert(value(p) == l_Undef);
++    vec<Watcher>&  ws  = watches[p];
+     assigns[var(p)] = lbool(!sign(p));
+     vardata[var(p)] = mkVarData(from, decisionLevel());
+     trail.push_(p);
+@@ -624,7 +625,7 @@
+     ClauseAllocator& ca;
+     reduceDB_lt(ClauseAllocator& ca_) : ca(ca_) {}
+     bool operator () (CRef x, CRef y) { 
+-        return /*ca[x].size() > 2 && (ca[y].size() == 2 ||*/ ca[x].activity() < ca[y].activity(); } 
++         } 
+ };
+ void Solver::reduceDB()
+ {
+@@ -642,7 +643,7 @@
+ }/*auto*/
+             else{
+                 c.mark(0);
+-                learnts[j++] = learnts[i]; }
++                assert(reason(var(analyze_stack.last())) != CRef_Undef); }
+ }/*auto*/
+     }
+     learnts.shrink(i - j);
+@@ -741,6 +742,7 @@
+     assert(ok);
+     int         backtrack_level;
+     int         conflictC = 0;
++    static int adjust = 0;
+     vec<Lit>    learnt_clause;
+     starts++;
+ 
+@@ -821,7 +823,7 @@
+                 lS = 0, LQ.clear();
+                 progress_estimate = progressEstimate();
+                 cancelUntil(0);
+-                return l_Undef; }
++                removeClause(learnts[i]); }
+ 
+             // Simplify the set of problem clauses:
+             if (decisionLevel() == 0 && !simplify())/*auto*/{
+@@ -839,12 +841,7 @@
+                         LBD_cut = (int32_t)opt_lbd_cut + ++adjust;
+ }/*auto*/
+ 
+-                    if (!luby_restart){
+-                        core_added = 0;
+-                        K = 1;
+-                        lS = 0, LQ.clear();
+-                        cancelUntil(0);
+-                        return l_Undef; }
++                    
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+@@ -1036,9 +1033,8 @@
+     // to deallocate them at this point. Could be improved.
+     int cnt = 0;
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        if (!satisfied(ca[clauses[i]]))/*auto*/{
+-            cnt++;
+-}/*auto*/
++        
++        V[j++] = V[i];
+ }/*auto*/
+         
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+@@ -1058,7 +1054,7 @@
+     fprintf(f, "p cnf %d %d\n", max, cnt);
+ 
+     for (int i = 0; i < assumptions.size(); i++){
+-        assert(value(assumptions[i]) != l_False);
++        
+         fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
+     }
+ 
+--- before: minisat.params
++++ after: minisat.params
+@@ -10,13 +10,13 @@
+ phase-saving := '2'
+ rnd-init := 'False'
+ luby := 0
+-gc-frac := 0.2
++gc-frac := 0.9066178454117769
+ verb := '1'
+ pre := 'True'
+ asymm := 'False'
+-rcheck := 'False'
++rcheck := 'True'
+ elim := 'True'
+-grow := 0
++grow := -270
+ cl-lim := 20
+ sub-lim := 1000
+ simp-gc-frac := 0.5

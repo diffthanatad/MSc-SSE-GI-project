@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'VARDECAY'), 0.9805169573460363) | ParamSetting(('sat4j.params', 'RESTARTS'), 'LubyRestarts') | ParamSetting(('sat4j.params', 'PHASE'), 'PhaseInLastLearnedClauseSelectionStrategy') | ParamSetting(('sat4j.params', 'CLADECAY'), 0.19616151701161788)

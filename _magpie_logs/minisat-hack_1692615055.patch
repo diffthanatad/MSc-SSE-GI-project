@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 10487) | ParamSetting(('minisat.params', 'rnd-init'), 'True') | ParamSetting(('minisat.params', 'gc-frac'), 0.6024223252784748) | ParamSetting(('minisat.params', 'sub-lim'), 983)

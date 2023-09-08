@@ -1,0 +1,231 @@
+2023-08-20 04:16:50,186	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/sat4j
+target_files = 
+	org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml
+	sat4j.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 150
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 150
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_3.sh
+run_timeout = 2316
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidRankingSimplify
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 100
+elitism_size = 10
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-20 04:16:50,187	[INFO]	==== WARMUP ====
+2023-08-20 04:43:27,431	[INFO]	WARM    SUCCESS               9408765676924           
+2023-08-20 04:43:27,432	[INFO]	INITIAL SUCCESS               9408765676924           
+2023-08-20 04:43:27,432	[INFO]	==== START: ValidTest ====
+2023-08-20 04:43:27,463	[DEBUG]	CLEAN_PATCH: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 743)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 95), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 285)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 675))
+2023-08-20 04:43:27,463	[DEBUG]	CLEAN_SIZE: 3 (was 3)
+2023-08-20 05:11:19,694	[DEBUG]	StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 743)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 95), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 285)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 675))
+2023-08-20 05:11:19,694	[INFO]	1       SUCCESS              *9397230213388 (99.88%) [3 edit(s)] 
+2023-08-20 05:11:19,703	[DEBUG]	--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -392,7 +392,7 @@
+             this.stats.incLearnedbinaryclauses();
+             break;
+         case 3:
+-            this.stats.incLearnedternaryclauses();
++            int i, j;
+             break;
+         default:
+             // do nothing
+@@ -1772,25 +1772,7 @@
+         }
+         boolean firstTimeGlobal = false;
+         if (this.timeBasedTimeout) {
+-            if (!global || this.timer == null) {
+-                firstTimeGlobal = true;
+-                this.undertimeout = true;
+-                TimerTask stopMe = new TimerTask() {
+-                    @Override
+-                    public void run() {
+-                        Solver.this.undertimeout = false;
+-                        synchronized (Solver.this) {
+-                            if (Solver.this.timer != null) {
+-                                Solver.this.timer.cancel();
+-                                Solver.this.timer = null;
+-                            }
+-                        }
+-                    }
+-                };
+-                this.timer = new Timer(true);
+-                this.timer.schedule(stopMe, this.timeout);
+-
+-            }
++            
+         } else {
+             if (!global || !alreadylaunched) {
+                 firstTimeGlobal = true;
+@@ -1931,10 +1913,7 @@
+     }
+ 
+     public void reset() {
+-        if (this.timer != null) {
+-            this.timer.cancel();
+-            this.timer = null;
+-        }
++        
+         this.trail.clear();
+         this.trailLim.clear();
+         this.qhead = 0;
+
+2023-08-20 05:11:19,711	[INFO]	==== END ====
+2023-08-20 05:11:19,712	[INFO]	Reason: validation end
+2023-08-20 05:11:19,712	[INFO]	
+2023-08-20 05:11:19,712	[INFO]	==== REPORT ====
+2023-08-20 05:11:19,712	[INFO]	Termination: validation end
+2023-08-20 05:11:19,712	[INFO]	Log file: /home/tsongpet/MSc-SSE-GI-project/_magpie_logs/sat4j_1692501404.log
+2023-08-20 05:11:19,720	[INFO]	Patch file: _magpie_logs/sat4j_1692501404.patch
+2023-08-20 05:11:19,720	[INFO]	Diff file: _magpie_logs/sat4j_1692501404.diff
+2023-08-20 05:11:19,720	[INFO]	Best fitness: 9397230213388
+2023-08-20 05:11:19,720	[INFO]	Best patch: StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 743)) | StmtReplacement(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 95), ('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 285)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 675))
+2023-08-20 05:11:19,720	[INFO]	Diff:
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -392,7 +392,7 @@
+             this.stats.incLearnedbinaryclauses();
+             break;
+         case 3:
+-            this.stats.incLearnedternaryclauses();
++            int i, j;
+             break;
+         default:
+             // do nothing
+@@ -1772,25 +1772,7 @@
+         }
+         boolean firstTimeGlobal = false;
+         if (this.timeBasedTimeout) {
+-            if (!global || this.timer == null) {
+-                firstTimeGlobal = true;
+-                this.undertimeout = true;
+-                TimerTask stopMe = new TimerTask() {
+-                    @Override
+-                    public void run() {
+-                        Solver.this.undertimeout = false;
+-                        synchronized (Solver.this) {
+-                            if (Solver.this.timer != null) {
+-                                Solver.this.timer.cancel();
+-                                Solver.this.timer = null;
+-                            }
+-                        }
+-                    }
+-                };
+-                this.timer = new Timer(true);
+-                this.timer.schedule(stopMe, this.timeout);
+-
+-            }
++            
+         } else {
+             if (!global || !alreadylaunched) {
+                 firstTimeGlobal = true;
+@@ -1931,10 +1913,7 @@
+     }
+ 
+     public void reset() {
+-        if (this.timer != null) {
+-            this.timer.cancel();
+-            this.timer = null;
+-        }
++        
+         this.trail.clear();
+         this.trailLim.clear();
+         this.qhead = 0;
+

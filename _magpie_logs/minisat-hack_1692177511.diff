@@ -1,0 +1,44 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -172,14 +172,7 @@
+           flag = 1;
+     }*/
+ 
+-    for (i = j = 0, p = lit_Undef; i < ps.size(); i++)/*auto*/{
+-        if (value(ps[i]) == l_True || ps[i] == ~p)/*auto*/{
+-            return true;
+-}/*auto*/
+-        else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+-            ps[j++] = p = ps[i];
+-}/*auto*/
+-}/*auto*/
++    
+     ps.shrink(i - j);
+ 
+     /*if (flag && (output != NULL)) {
+@@ -276,6 +269,7 @@
+             assigns [x] = l_Undef;
+             if (phase_saving > 1 || (phase_saving == 1) && c > trail_lim.last())/*auto*/{
+                 polarity[x] = sign(trail[c]);
++                Var      x  = var(trail[c]);
+ }/*auto*/
+             insertVarOrder(x); }
+         qhead = trail_lim[level];
+@@ -713,7 +707,7 @@
+         removeSatisfied(clauses);
+ }/*auto*/
+     checkGarbage();
+-    rebuildOrderHeap();
++    lS = 0, LQ.clear();
+ 
+     simpDB_assigns = nAssigns();
+     simpDB_props   = clauses_literals + learnts_literals;   // (shouldn't depend on stats really, but it will do for now)
+@@ -943,7 +937,7 @@
+ 
+     solves++;
+ 
+-    max_learnts               = nClauses() * learntsize_factor;
++    cancelUntil(0);
+     learntsize_adjust_confl   = learntsize_adjust_start_confl;
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;

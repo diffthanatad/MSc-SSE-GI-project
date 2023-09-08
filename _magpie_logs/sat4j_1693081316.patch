@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'PHASE'), 'UserFixedPhaseSelectionStrategy') | ParamSetting(('sat4j.params', 'CLADECAY'), 0.7928251985893093) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 650)) | StmtDeletion(('org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java.xml', 'stmt', 92))

@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cp-increase'), 5146) | ParamSetting(('minisat.params', 'gc-frac'), 0.6655879881293355) | ParamSetting(('minisat.params', 'verb'), '2') | ParamSetting(('minisat.params', 'simp-gc-frac'), 0.8932004792372763)

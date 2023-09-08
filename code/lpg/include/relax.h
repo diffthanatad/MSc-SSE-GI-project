@@ -73,7 +73,7 @@ void achieve_goals( int time );
 void collect_H_info( void );
 void reset_search_info( void );
 
-
+extern State *lgoals;
 
 #endif /* _RELAX_H */
 

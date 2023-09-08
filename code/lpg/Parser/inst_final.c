@@ -28,7 +28,7 @@
 
   New functions:
   - fact_adress1
-  
+
   Modified functions:
   - perform_reachability_analysis
   - create_final_goal_state
@@ -52,7 +52,7 @@
  *
  * Author: Joerg Hoffmann 2000
  *
- *********************************************************************/ 
+ *********************************************************************/
 
 
 
@@ -61,30 +61,31 @@
 
 
 
-
+#include <math.h>
 #include "ff.h"
 
 #include "output.h"
 #include "memory.h"
 
 #include "inst_pre.h"
+#include "inst_hard.h"
 #include "inst_final.h"
 
 /*
  * DEA - University of Brescia
  */
 
+#include <float.h>
 #include "lpg.h" 
 #include "inst_utils.h"
 #include "check.h"
 
+#include "LpgOutput.h"
+#include "utilities.h"
+
 /*
  * End of DEA
  */
-
-
-
-
 
 
 
@@ -95,21 +96,24 @@
 
 
 
-
-
-
-
 /* local globals for this part
  */
 
+#define FACTS_HASH_SIZE 10000
+
+indexed_int_list *facts_hash[FACTS_HASH_SIZE];
+
+bit_table lpos, nlneg, luse;
+
+/*
 int_pointer lpos[MAX_PREDICATES];
 int_pointer lneg[MAX_PREDICATES];
 int_pointer luse[MAX_PREDICATES];
-int_pointer lindex[MAX_PREDICATES];
+*/
+//int_pointer lindex[MAX_PREDICATES];
 
 int lp;
 int largs[MAX_VARS];
-
 /*
  * DEA - University of Brescia
  */
@@ -118,9 +122,310 @@ int lp1;
 int largs1[MAX_VARS];
 int these_args[MAX_VARS];
 
-/*
+Action *susp_a_idx = NULL;
+EasyTemplate *susp_t_idx = NULL;
+
+
+/**
+ * Inizializza le tabelle lpos, luse e nlneg usate per tenere traccia di quali
+ * fatti possono essere positivi, usati e negativi. 
+ * In nlneg vengono segnati i fatti che NON possono essere negativi.
+ **
+ * Initialize tables lpos, luse and lneg. They are used to remember wich
+ * facts can be positive, used and negative.
+ * lneg is a table of facts that CAN NOT be negative
+ **/
+void init_bit_hash_tables( void ) {
+
+  int i, max_arity = 0;
+  int n_bit, bit_row_size, base;
+  unsigned long int max_size;
+
+  /* Evaluate max predicates arity
+   */
+  for (i = 0; i < gnum_predicates; i++)
+    if (garity[i] > max_arity) 
+      max_arity = garity[i];
+  
+  /* Evaluate max predicates size
+   */
+
+  max_size = 1;
+  for (i = 0; i < max_arity; i++)
+    max_size *= gnum_constants;
+
+  max_size = max_arity * max_size;
+
+  init_bit_table_const(max_size, &n_bit, &base, &bit_row_size);
+
+  lpos.bits = (int_pointer **)calloc(gnum_predicates, sizeof(int_pointer *));
+  assert(lpos.bits);
+    
+  nlneg.bits = (int_pointer **)calloc(gnum_predicates, sizeof(int_pointer *));
+  assert(nlneg.bits);
+  
+  luse.bits = (int_pointer **)calloc(gnum_predicates, sizeof(int_pointer *));
+  assert(luse.bits);
+  
+  lpos.max_row_size = nlneg.max_row_size = luse.max_row_size = max_size;
+  lpos.bit_row_size = nlneg.bit_row_size = luse.bit_row_size = bit_row_size;
+  lpos.n_bit = nlneg.n_bit = luse.n_bit = n_bit;
+  lpos.base = nlneg.base = luse.base = base;
+  
+}
+
+
+/**
+ * Inizializza l'hash table per l'instanziazione dei fatti
+ **
+ * Init an hash table for instantiated facts
+ **/
+void init_facts_hash( void ) {
+  
+  memset(facts_hash, 0, FACTS_HASH_SIZE * sizeof(indexed_int_list *));
+ 
+}
+
+
+/**
+ * Inserisce un nuovo fatto nell'hash table
+ **
+ * Insert a new facts in the hash table of instantiated facts
+ **/
+void insert_fact_in_hash(int p, unsigned long int adr) {
+
+  int hadr;
+  indexed_int_list *tmp;
+
+  adr += p;
+  
+  /**
+   * Indice del fatto nella hash table
+   **
+   * Fact index into the hash table
+   **/
+  hadr = adr % FACTS_HASH_SIZE;
+
+  tmp = (indexed_int_list *)calloc(1, sizeof(indexed_int_list));
+  tmp->op = p;
+  tmp->adr = adr;
+  tmp->item = gnum_relevant_facts;  
+  tmp->next = facts_hash[hadr];
+  facts_hash[hadr] = tmp;
+}
+
+
+/**
+ * Recupera dall'hash table l'indice di un fatto instanziato 
+ * nel vettore dei relevant facts;
+ **
+ * Retrieve from the hash table the index of an instantiated fact
+ **/
+int retrieve_fact_index(int p, unsigned long int adr, indexed_int_list **where) {
+
+  int hadr;
+  indexed_int_list *tmp;
+
+  adr += p;
+  hadr = adr % FACTS_HASH_SIZE;
+
+  for (tmp =  facts_hash[hadr]; tmp; tmp = tmp -> next)
+    if ((tmp -> op == p) && (tmp -> adr == adr)) {
+      if (where)
+	*where = tmp;
+      return (tmp -> item);
+    }
+
+  if (where)
+    *where = NULL;
+  return -1;
+
+}
+
+
+
+
+
+/* 
  * End of DEA
  */
+
+
+
+void collect_facts(void)
+{
+  
+  Action *a;
+  NormOperator *no;
+  NormEffect *ne;
+  unsigned long int adr;
+  int i, j, count;
+  PseudoAction *pa;
+  PseudoActionEffect *pae;
+  Action **a_pointer;
+  
+  if (GpG.derived_predicates)
+    count = 0;
+  else
+    count = 1;
+  /* mark all deleted facts; such facts, that are also pos, are relevant.
+   */
+  for (a_pointer = &gactions; count < 2; a_pointer = &gdpactions, count++) {
+    for ( a = (*a_pointer); a && (a != susp_a_idx); a = a->next ) {
+      if ( a->norm_operator ) {
+	no = a->norm_operator;
+	
+	for ( ne = no->effects; ne; ne = ne->next ) {
+	  for ( i = 0; i < ne->num_dels; i++ ) {
+	    lp = ne->dels[i].predicate;
+	    for ( j = 0; j < garity[lp]; j++ ) {
+	      largs[j] = ( ne->dels[i].args[j] >= 0 ) ?
+		ne->dels[i].args[j] : a->inst_table[DECODE_VAR( ne->dels[i].args[j] )];
+	    }
+	    adr = fact_adress();
+	    
+	    /*
+	     lneg[lp][adr] = 1;
+	    */
+
+	    delete_bit_from_bit_table(nlneg, lp, adr);
+	    	    
+	    /*
+	    if ( lpos[lp][adr] &&
+		 !luse[lp][adr] ) 
+	    */
+
+	    if (check_bit_in_bit_table(lpos, lp, adr)
+		&& !check_bit_in_bit_table(luse, lp, adr)) {
+	      /*
+	      luse[lp][adr] = 1;
+	      */
+
+	      insert_bit_in_bit_table(luse, lp, adr);
+	      
+	      if ( gnum_relevant_facts == MAX_RELEVANT_FACTS ) {
+		printf("\nincrease MAX_RELEVANT_FACTS! (current value: %d)\n\n",
+		       MAX_RELEVANT_FACTS);
+		exit( 1 );
+	      }
+	      grelevant_facts[gnum_relevant_facts].predicate = lp;
+	      for ( j = 0; j < garity[lp]; j++ ) {
+		grelevant_facts[gnum_relevant_facts].args[j] = largs[j];
+	      }
+	      
+	      //lindex[lp][adr] = gnum_relevant_facts;
+	      insert_fact_in_hash(lp, adr); 	            
+	      gnum_relevant_facts++;
+	      	      
+	    }
+	  }
+	}
+      } else {
+	pa = a->pseudo_action;
+	
+	for ( pae = pa->effects; pae; pae = pae->next ) {
+	  for ( i = 0; i < pae->num_dels; i++ ) {
+	    lp = pae->dels[i].predicate;
+	    for ( j = 0; j < garity[lp]; j++ ) {
+	      largs[j] = pae->dels[i].args[j];
+	    }
+	    adr = fact_adress();
+	    
+	    /*
+	    lneg[lp][adr] = 1;
+	    */
+	    
+	    delete_bit_from_bit_table(nlneg, lp, adr);
+	    
+	    /*
+	    if ( lpos[lp][adr] &&
+		 !luse[lp][adr] )
+	    */
+
+	    if (check_bit_in_bit_table(lpos, lp, adr)
+		&& !check_bit_in_bit_table(luse, lp, adr)) {
+	   
+	      /*
+	      luse[lp][adr] = 1;
+	      */
+
+	      insert_bit_in_bit_table(luse, lp, adr);
+	      
+	      if ( gnum_relevant_facts == MAX_RELEVANT_FACTS ) {
+		printf("\nincrease MAX_RELEVANT_FACTS! (current value: %d)\n\n",
+		       MAX_RELEVANT_FACTS);
+		exit( 1 );
+	      }
+	      grelevant_facts[gnum_relevant_facts].predicate = lp;
+	      for ( j = 0; j < garity[lp]; j++ ) {
+		grelevant_facts[gnum_relevant_facts].args[j] = largs[j];
+	      }
+
+	      //lindex[lp][adr] = gnum_relevant_facts;
+	      insert_fact_in_hash(lp, adr);
+	      gnum_relevant_facts++;
+	      	      
+	    }
+	  }
+	}
+      }
+    }
+  }
+
+}
+
+
+
+
+Bool is_a_noise_action(Action *a)
+{
+  char *name;
+	
+  if (a->norm_operator)
+    name = a->norm_operator->l_operator->name;
+  else
+    name = a->pseudo_action->l_operator->name;
+
+  if (strncmp(name, "NOISE", 5) == SAME)
+    {
+      
+      printf("\n\nFound noise action: %s", name);
+      
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+
+void move_noise_operators(void)
+{
+  Action *tmp = NULL, *aux = NULL, *noise = NULL, *prev = NULL;
+
+  tmp = prev = gactions;
+  while (tmp)
+    {
+      if (is_a_noise_action(tmp))
+	{
+	  aux = tmp->next;
+
+	  tmp->next = noise;
+	  noise = tmp;
+	  
+	  if (tmp == gactions)
+	    tmp = prev = gactions = aux; 
+	  else
+	    prev->next = tmp = aux; 
+	}
+      else
+	{
+	  prev = tmp;
+	  tmp = tmp->next;
+	}
+    }
+}
+
+
 
 
 
@@ -128,28 +433,50 @@ void perform_reachability_analysis( void )
 
 {
 
-  int size, i, j, k, adr, num;
-  Bool fixpoint;
+  unsigned long int size, adr;
+  int i, j, k, num, act_dp;
+  Bool *fixpoint, fix_act, fix_dp;
   Facts *f;
-  NormOperator *no;
-  EasyTemplate *t1, *t2;
+  NormOperator *no = NULL;
+  EasyTemplate *t1 = NULL, *t2 = NULL;
   NormEffect *ne;
   Action *tmp, *a;
   Bool *had_hard_template;
   PseudoAction *pa;
   PseudoActionEffect *pae;
+  Action **outactions = NULL;
+  EasyTemplate **et = NULL;
+  int *num_act = NULL;
 
 /*
  * DEA - University of Brescia
  */
   int numero, kk, kkk;
   WffNode *precs, *n;
+  
+  Bool changed;
+
+  changed = TRUE;
+
+  num_act=NULL;
+
+  t1=NULL;
+
+  et=NULL;
+
+  outactions=NULL;
+
 /*
  * End of DEA
  */
 
   gactions = NULL;
   gnum_actions = 0;
+  gdpactions = NULL;
+  gnum_dp_actions = 0;
+
+  init_facts_hash();
+  init_bit_hash_tables();
 
   for ( i = 0; i < gnum_predicates; i++ ) {
     size =  1;
@@ -157,65 +484,178 @@ void perform_reachability_analysis( void )
       size *= gnum_constants;
     }
 
+    size = garity[i] * size;
+
+    /*
     lpos[i] = ( int_pointer ) calloc( size, sizeof( int ) );
     lneg[i] = ( int_pointer ) calloc( size, sizeof( int ) );
     luse[i] = ( int_pointer ) calloc( size, sizeof( int ) );
-    lindex[i] = ( int_pointer ) calloc( size, sizeof( int ) );
+    */
+    
+    init_bit_table_row(lpos, i, size);
+    init_bit_table_row(nlneg, i, size);
+    init_bit_table_row(luse, i, size);
 
+    //lindex[i] = ( int_pointer ) calloc( size, sizeof( int ) );
+    /*
     for ( j = 0; j < size; j++ ) {
+      
       lpos[i][j] = 0;
-      lneg[i][j] = 1;/* all facts but initials are poss. negative */
+      lneg[i][j] = 1;// all facts but initials are poss. negative 
       luse[i][j] = 0;
-      lindex[i][j] = -1;
-    }
+     
+      
+      //lindex[i][j] = -1;
+	}
+    */
   }
 
-  had_hard_template = ( Bool * ) calloc( gnum_hard_templates, sizeof( Bool ) );
-  for ( i = 0; i < gnum_hard_templates; i++ ) {
+  had_hard_template = ( Bool * ) calloc( gnum_hard_templates + gnum_hard_dp_templates, sizeof( Bool ) );
+  for ( i = 0; i < (gnum_hard_templates + gnum_hard_dp_templates); i++ ) {
     had_hard_template[i] = FALSE;
   }
 
   /* mark initial facts as possibly positive, not poss. negative
    */
   for ( i = 0; i < gnum_predicates; i++ ) {
+   
     lp = i;
     for ( j = 0; j < gnum_initial_predicate[i]; j++ ) {
       for ( k = 0; k < garity[i]; k++ ) {
 	largs[k] = ginitial_predicate[i][j].args[k];
       }
       adr = fact_adress();
+      
+      /*
       lpos[lp][adr] = 1;
       lneg[lp][adr] = 0;
+      */
+      insert_bit_in_bit_table(lpos, lp, adr);
+      insert_bit_in_bit_table(nlneg, lp, adr);
+
     }
   }
 
+  if (GpG.timed_facts_present)
+    {
+      for (n = timed_wff; n; n = n->next)
+	{
+	  WffNode *tmp, *aux;
+	  
+	  for (aux = n->sons; aux; aux = aux->next)
+	    {
+	      if (aux->connective == NOT)
+		tmp = aux->son;
+	      else 
+		tmp = aux;
+	      
+	      lp = tmp->fact->predicate;
+	      for (i = 0; i < garity[lp]; i++)
+		largs[i] = tmp->fact->args[i];
+	      
+	      adr = fact_adress();	  
+	      
+	      if (retrieve_fact_index(lp, adr, NULL) < 0)
+		{
+		  grelevant_facts[gnum_relevant_facts].predicate = lp;
+		  for ( i = 0; i < garity[lp]; i++ ) 
+		    grelevant_facts[gnum_relevant_facts].args[i] = largs[i];
+		  
+		  insert_fact_in_hash(lp, adr);
+		  gnum_relevant_facts++;
+		}
+	      
+	      insert_bit_in_bit_table(lpos, lp, adr);
+	      insert_bit_in_bit_table(luse, lp, adr);
+	      delete_bit_from_bit_table(nlneg, lp, adr);                            
+	    }
+	}
+    }
+  
+
   /* compute fixpoint
    */
-  fixpoint = FALSE;
-  while ( !fixpoint ) {
-    fixpoint = TRUE;
+  fix_act = FALSE;
 
+  if (!gnum_easy_dp_templates && !gnum_hard_dp_templates)
+    GpG.derived_predicates = FALSE;
 
-/*
- * DEA - University of Brescia
- */
+  fix_dp = !GpG.derived_predicates;
+  act_dp = 0;
  
-      /*geasy_templates: action list (instantious operator) 
-       */
-      numero = 0;
-      for (t1 = geasy_templates; t1; t1 = t1->next)
-	numero++;
-      if (gcmd_line.display_info == 121)
-	printf ("\nLe geasy_templates sono %d, le gnum_actions %d", numero, gnum_actions);
-/*
- * End of DEA
- */
+  while (!(fix_act && fix_dp)) {
+    /*
+     * DEA - University of Brescia
+     */
+    
+    
+    /*geasy_templates: action list (instantious operator) 
+     */
 
+    if (gcmd_line.display_info == 121)
+      {
+	numero = 0;
+	for (t1 = geasy_templates; t1; t1 = t1->next)
+	  numero++;
+	
+	printf ("\nLe geasy_templates sono %d, le gnum_actions %d", numero, gnum_actions);
+      }
+    /*
+     * End of DEA
+     */
 
     /* assign next layer of easy templates to possibly positive fixpoint
      */
-    t1 = geasy_templates;
+
+#ifdef __DEBUG_DP_SWITCH__
+    printf("\nSwitch to %s", (changed)?"Actions":"Derived");
+#endif
+
+    /*
+     * DEA - University of Brescia
+     */
+
+    /**
+     * Il flag "changed" � utilizzato per analizzare alternatamente i 
+     * template delle azioni e dei predicati derivati 
+     **
+     * The flag "changed" is use to switch from actions 
+     * templates to derived predicate templates
+     **/
+    if (changed) {
+      act_dp = 0;
+      outactions = &gactions;
+      num_act = &gnum_actions;
+      et = &geasy_templates;
+      fixpoint = &fix_act;
+      if (gnum_easy_dp_templates || gnum_hard_dp_templates) {
+	changed = !changed;
+
+#ifdef __DEBUG_DP_SWITCH__
+	printf("\nChange next %s", (changed)?"NO":"YES");
+#endif
+
+      }
+    }
+    else {
+      act_dp = 1;
+      outactions = &gdpactions;
+      num_act = &gnum_dp_actions;
+      et = &geasy_dp_templates;
+      fixpoint = &fix_dp;
+      changed = !changed;
+    }
+
+    (*fixpoint) = TRUE;
+    
+    /*
+     * End of DEA
+     */ 
+
+    t1 = *et;
+    
     while ( t1 ) {
+
       no = t1->op;
       for ( i = 0; i < no->num_preconds; i++ ) {
 	lp = no->preconds[i].predicate;
@@ -223,7 +663,7 @@ void perform_reachability_analysis( void )
 	  largs[j] = ( no->preconds[i].args[j] >= 0 ) ?
 	    no->preconds[i].args[j] : t1->inst_table[DECODE_VAR( no->preconds[i].args[j] )];
 	}
-
+	
 /*
  * DEA - University of Brescia
  */
@@ -246,7 +686,7 @@ void perform_reachability_analysis( void )
 #endif    
 		exit (1);
 	      }	
-	    for (kkk = 0; kkk < no->effects->num_adds; kkk++)
+	    for (kkk = 0; kkk < garity[this_pred]; kkk++)
 	      these_args[kkk] = (no->effects->adds[kk].args[kkk] >= 0) ?
 		no->effects->adds[kk].args[kkk] : t1->
 		inst_table[DECODE_VAR(no->effects->adds[kk].args[kkk])];
@@ -259,7 +699,8 @@ void perform_reachability_analysis( void )
 	      //se ce n'e' almeno uno diverso, non e' lo stesso fatto
 	      if (these_args[kkk] != largs[kkk])
 		break;
-	    //questo if e' vero se e' lo stesso fatto: l'ho trovato quindi esco
+	    // se tutti gli argomenti sono uguali controllo il numero di argomenti
+	    // questo if e' vero se e' lo stesso fatto: l'ho trovato quindi esco
 	    if (kkk == garity[this_pred])
 	      break;
 	  }
@@ -271,10 +712,14 @@ void perform_reachability_analysis( void )
 /*
  * End of DEA
  */
-
+	/*
 	if ( !lpos[lp][fact_adress()] ) {
 	  break;
-	}
+	*/
+
+	if (!check_bit_in_bit_table(lpos, lp, fact_adress()))
+	  break;
+	
       }
 
       if ( i < no->num_preconds ) {
@@ -289,13 +734,18 @@ void perform_reachability_analysis( void )
 
 	  //ulteriore check: verifico che un predicato inerziale sia effettivamente presente nei fatti iniziali, altrimenti l'azione non e' applicabile
 	  //problema rilevato con Rovers/SimpleTime
-	  precs = no->operator-> preconds;
+	  precs = no->l_operator-> preconds;
 	  if (precs->connective == AND)
 	    precs = precs->sons;
 	  for (n = precs; n; n = n->next)
 	    {
+	      if (n->connective == BIN_COMP)
+		continue;
 	      //mi e' capitato di trovare un nodo not, con son predicato -1. boh? (problema:Satellite/numeric)
 	      if (n->fact == NULL)
+		continue;
+	      // Skip equals preconds
+	      if (n->fact->predicate < 0)
 		continue;
 	      /*lp=numero di predicato della preco i-esima */
 	      lp = n->fact->predicate;
@@ -303,7 +753,14 @@ void perform_reachability_analysis( void )
 	      for (j = 0; j < garity[lp]; j++)
 		{
 		  /* CONTROLLARE */
-		  largs[j] =(n->fact->args[j] >= 0 ) ? n->fact->args[j]: t1->inst_table[DECODE_VAR (n->fact->args[j])];
+		  if (n->fact->args[j] >= 0)
+		    largs[j] = n->fact->args[j];
+		  else
+		    largs[j] = no->l_operator->removed[DECODE_VAR(n->fact->args[j])] ? 
+		      no->inst_table[DECODE_VAR(n->fact->args[j])] :
+		      t1->inst_table[DECODE_VAR (n->fact->args[j])];
+		      
+		  //largs[j] =(n->fact->args[j] >= 0 ) ? n->fact->args[j]: t1->inst_table[DECODE_VAR (n->fact->args[j])];
 		}
 	      adr = fact_adress ();
 	      //CHECK1 chiesto da Ivan: se il fatto e' non inerziale e non compare tra le preconds del normoperator, da errore!
@@ -340,8 +797,14 @@ void perform_reachability_analysis( void )
 	      if (gis_added[lp])
 		continue;
 	      //Se il fatto non e' stato raggiunto, non posso applicare l'azione: esco dal for
+	      /*
 	      if (!lpos[lp][fact_adress ()])
 		break;
+	      */
+	      
+	      if (!check_bit_in_bit_table(lpos, lp, fact_adress()))
+		break;
+	    
 	    }
 	  //se ho fatto un break prima di finire le preco, significa che un predicato inerziale non compare nei fatti iniziali   
 	  if (n != NULL)
@@ -354,7 +817,7 @@ void perform_reachability_analysis( void )
 /*
  * End of DEA
  */
-
+     
 
       num = 0;
       for ( ne = no->effects; ne; ne = ne->next ) {
@@ -369,12 +832,34 @@ void perform_reachability_analysis( void )
 	      ne->adds[i].args[j] : t1->inst_table[DECODE_VAR( ne->adds[i].args[j] )];
 	  }
 	  adr = fact_adress();
-	  if ( !lpos[lp][adr] ) {
+	  /*
+	  if ( !lpos[lp][adr] )
+	  */
+
+	  if (!check_bit_in_bit_table(lpos, lp,  fact_adress())) {
 	    /* new relevant fact! (added non initial)
 	     */
+
+	    /*
 	    lpos[lp][adr] = 1;
 	    lneg[lp][adr] = 1;
 	    luse[lp][adr] = 1;
+	    */
+	    
+	    insert_bit_in_bit_table(lpos, lp, adr);
+	    insert_bit_in_bit_table(luse, lp, adr);
+
+
+	    if (act_dp) 
+	      {
+		if (no->num_preconds)
+		  delete_bit_from_bit_table(nlneg, lp, adr);
+		else
+		  insert_bit_in_bit_table(nlneg, lp, adr);
+
+		
+	      }
+	    
 	    if ( gnum_relevant_facts == MAX_RELEVANT_FACTS ) {
 	      printf("\ntoo many relevant facts! increase MAX_RELEVANT_FACTS (currently %d)\n\n",
 		     MAX_RELEVANT_FACTS);
@@ -384,13 +869,44 @@ void perform_reachability_analysis( void )
 	    for ( j = 0; j < garity[lp]; j++ ) {
 	      grelevant_facts[gnum_relevant_facts].args[j] = largs[j];
 	    }
-	    lindex[lp][adr] = gnum_relevant_facts;
+
+	    //lindex[lp][adr] = gnum_relevant_facts;
+	    insert_fact_in_hash(lp, adr);
 	    gnum_relevant_facts++;
-	    fixpoint = FALSE;
+	   
+	    (*fixpoint) = FALSE;
 	  }
+	  else
+	    if (act_dp) 
+	      {
+		if (!no->num_preconds)
+		  insert_bit_in_bit_table(nlneg, lp, adr);
+	      }
 	}
       }
 
+      if ( gcmd_line.display_info == 1100 )
+	{
+
+	  if (act_dp)
+	    printf("\n\nAPPLICO IL PREDICATO DERIVATO %s", no->l_operator->name);
+	  else
+	    printf("\n\nAPPLICO L'AZIONE %s", no->l_operator->name);
+	  
+	  printf("\ninst: ");
+	  for ( j = 0; j < no->num_vars; j++ ) {
+	    if ( t1->inst_table[j] < 0 ) {
+	      printf("\nuninstantiated param in template! debug me, please\n\n");
+	      exit( 1 );
+	    }
+	    printf("x%d = %s", j, gconstants[t1->inst_table[j]]);
+	    if ( j < no->num_vars - 1 ) {
+	      printf(", ");
+	    }
+	  }
+	}
+      
+    
 /*
  * DEA - University of Brescia
  */
@@ -399,19 +915,35 @@ void perform_reachability_analysis( void )
 /*
  * End of DEA
  */
-
+  
       tmp = new_Action();
+      
+      /*
+       * DEA - University of Brescia
+       */
+
+      /**
+       * Marco le azioni potenzialmente contraddittorie
+       **
+       * Mark action that could have contraddicting effects
+       **/
+      tmp->suspected = t1->suspected;
+
+      /*
+       * End of DEA
+       */
+
       tmp->norm_operator = no;
       for ( i = 0; i < no->num_vars; i++ ) {
 	tmp->inst_table[i] = t1->inst_table[i];
       }
-      tmp->name = no->operator->name;
-      tmp->num_name_vars = no->operator->number_of_real_params;
+      tmp->name = no->l_operator->name;
+      tmp->num_name_vars = no->l_operator->number_of_real_params;
       make_name_inst_table_from_NormOperator( tmp, no, t1 );
-      tmp->next = gactions;
+      tmp->next = (*outactions);
       tmp->num_effects = num;
-      gactions = tmp;
-      gnum_actions++;
+      (*outactions) = tmp;
+      (*num_act)++;
 
       t2 = t1->next;
       if ( t1->next ) {
@@ -419,8 +951,9 @@ void perform_reachability_analysis( void )
       }
       if ( t1->prev ) {
 	t1->prev->next = t1->next;
-      } else {
-	geasy_templates = t1->next;
+      } 
+      else {
+	(*et) = t1->next;
       }
       free_single_EasyTemplate( t1 );
       t1 = t2;
@@ -429,20 +962,28 @@ void perform_reachability_analysis( void )
     /* now assign all hard templates that have not been transformed
      * to actions yet.
      */
-    for ( i = 0; i < gnum_hard_templates; i++ ) {
+    for ( i =  act_dp * gnum_hard_templates; i < gnum_hard_templates + (act_dp * gnum_hard_dp_templates); i++ ) {
       if ( had_hard_template[i] ) {
 	continue;
       }
-      pa = ghard_templates[i];
-
+      if (i < gnum_hard_templates)
+	pa = ghard_templates[i];
+      else
+	pa = ghard_dp_templates[i - gnum_hard_templates];
+ 
       for ( j = 0; j < pa->num_preconds; j++ ) {
 	lp = pa->preconds[j].predicate;
 	for ( k = 0; k < garity[lp]; k++ ) {
 	  largs[k] = pa->preconds[j].args[k];
 	}
+	/*
 	if ( !lpos[lp][fact_adress()] ) {
 	  break;
-	}
+	*/
+	
+	if (!check_bit_in_bit_table(lpos, lp, fact_adress()))
+	  break;
+	
       }
 
       if ( j < pa->num_preconds ) {
@@ -458,13 +999,34 @@ void perform_reachability_analysis( void )
 	  for ( k = 0; k < garity[lp]; k++ ) {
 	    largs[k] = pae->adds[j].args[k];
 	  }
+
 	  adr = fact_adress();
-	  if ( !lpos[lp][adr] ) {
+	  
+	  /*
+	    if ( !lpos[lp][adr] )
+	  */
+	  
+	  if (!check_bit_in_bit_table(lpos, lp, adr)) {
 	    /* new relevant fact! (added non initial)
 	     */
+
+	    /*
 	    lpos[lp][adr] = 1;
 	    lneg[lp][adr] = 1;
 	    luse[lp][adr] = 1;
+	    */
+
+	    insert_bit_in_bit_table(lpos, lp, adr);
+	    insert_bit_in_bit_table(luse, lp, adr);
+
+	    if (act_dp)
+	      {
+		if (pa->num_preconds)
+		  delete_bit_from_bit_table(nlneg, lp, adr);
+		else 
+		  insert_bit_in_bit_table(nlneg, lp, adr);
+	      }
+
 	    if ( gnum_relevant_facts == MAX_RELEVANT_FACTS ) {
 	      printf("\ntoo many relevant facts! increase MAX_RELEVANT_FACTS (currently %d)\n\n",
 		     MAX_RELEVANT_FACTS);
@@ -474,10 +1036,19 @@ void perform_reachability_analysis( void )
 	    for ( k = 0; k < garity[lp]; k++ ) {
 	      grelevant_facts[gnum_relevant_facts].args[k] = largs[k];
 	    }
-	    lindex[lp][adr] = gnum_relevant_facts;
+
+	    //lindex[lp][adr] = gnum_relevant_facts;
+	    insert_fact_in_hash(lp, adr);
 	    gnum_relevant_facts++;
-	    fixpoint = FALSE;
+	   	   
+	    (*fixpoint) = FALSE;
 	  }
+	  else
+	    if (act_dp) 
+	      {
+		if (!no->num_preconds)
+		  insert_bit_in_bit_table(nlneg, lp, adr);
+	      }
 	}
       }
 
@@ -490,42 +1061,120 @@ void perform_reachability_analysis( void )
  * End of DEA
  */
 
+  
       tmp = new_Action();
+
+      /* Hard suspected not implemented yet
+       */
+      tmp->suspected = FALSE;
+
       tmp->pseudo_action = pa;
-      for ( j = 0; j < pa->operator->num_vars; j++ ) {
+      for ( j = 0; j < pa->l_operator->num_vars; j++ ) {
 	tmp->inst_table[j] = pa->inst_table[j];
       }
-      tmp->name = pa->operator->name;
-      tmp->num_name_vars = pa->operator->number_of_real_params;
+      tmp->name = pa->l_operator->name;
+      tmp->num_name_vars = pa->l_operator->number_of_real_params;
       make_name_inst_table_from_PseudoAction( tmp, pa );
-      tmp->next = gactions;
+      tmp->next = (*outactions);
       tmp->num_effects = pa->num_effects;
-      gactions = tmp;
-      gnum_actions++;
+      (*outactions) = tmp;
+      (*num_act)++;
 
       had_hard_template[i] = TRUE;
     }
+
+    if (fix_act && fix_dp)
+      {
+
+	/*
+	 * DEA - University of Brescia
+	 */
+
+	/**
+	 * Colleziono i fatti che sono stati instanziati finora
+	 **
+	 * Collect facts that are been instantiated at this time
+	 **/
+
+	collect_facts();
+
+	/*
+	 * End of DEA
+	 */
+
+	if (GpG.try_suspected_actions && gsuspected_easy_templates)
+	  {
+	    
+	    for (susp_t_idx = gsuspected_easy_templates;
+		 susp_t_idx->next;
+		 susp_t_idx = susp_t_idx->next);
+	    
+	    /* Append suspected templates to easy_templates list...
+	     */
+	    susp_t_idx->next = geasy_templates;
+
+	    if (geasy_templates)
+	      geasy_templates->prev = susp_t_idx;
+
+	    geasy_templates = gsuspected_easy_templates;
+	    gsuspected_easy_templates = NULL;
+	   
+	    /* Save pointer to the last action inserted...
+	     */
+	    susp_a_idx = gactions;
+
+	    (*fixpoint) = FALSE;
+	    changed = TRUE;
+	  }
+      }
+
   }
+
+
 
 /*
  * DEA - University of Brescia
  */
 
-  numero = 0;
-  for (t1 = geasy_templates; t1; t1 = t1->next)
-    numero++;
-  if (gcmd_line.display_info == 121)
-    printf ("\nLe geasy_templates sono %d, le gnum_actions %d", numero, gnum_actions);
+  /**
+   * Se sono stati istanziati dei template sospetti, 
+   * sposto le azioni "sospette" in coda alla lista
+   * (servir� per poterle escludere in caso non siano
+   * necessarie)
+   **
+   * If suspected templates have been instantiating
+   * move suspected actions at the end of the list
+   **/
+  if (gactions && susp_t_idx && susp_a_idx)
+    {
+      for (tmp = gactions; tmp->next; tmp = tmp->next);
+      tmp->next = gactions;
+      for (tmp = gactions; tmp->next != susp_a_idx; tmp = tmp->next);
+      tmp->next = NULL;
+      gactions = susp_a_idx;
+    }
 
+
+
+ if (gcmd_line.display_info == 121)
+   {
+     numero = 0;
+     for (t1 = geasy_templates; t1; t1 = t1->next)
+       numero++;
+
+     printf ("\nLe geasy_templates sono %d, le gnum_actions %d", numero, gnum_actions);
+   }
 /*
  * End of DEA
  */
-
+ 
   free( had_hard_template );
+
+  //move_noise_operators();
 
   gnum_pp_facts = gnum_initial + gnum_relevant_facts;
 
-  if ( gcmd_line.display_info == 118 ) {
+  if (gcmd_line.display_info == 118 ) {
     printf("\nreachability analysys came up with:");
 
     printf("\n\npossibly positive facts:");
@@ -543,9 +1192,9 @@ void perform_reachability_analysis( void )
       printf("\n\noperator %s:", goperators[i]->name);
       for ( a = gactions; a; a = a->next ) {
 	if ( ( a->norm_operator && 
-	       a->norm_operator->operator !=  goperators[i] ) ||
+	       a->norm_operator->l_operator !=  goperators[i] ) ||
 	     ( a->pseudo_action &&
-	       a->pseudo_action->operator !=  goperators[i] ) ) {
+	       a->pseudo_action->l_operator !=  goperators[i] ) ) {
 	  continue;
 	}
 	printf("\ntemplate: ");
@@ -558,17 +1207,68 @@ void perform_reachability_analysis( void )
       }
     }
     printf("\n\n");
+
+
+    printf("\n\nthis yields these %d derived predicates templates:", gnum_dp_actions);
+    for ( i = 0; i < gnum_derived_predicates; i++ ) {
+      printf("\n\noperator %s:", gderivedpred[i]->name);
+      for ( a = gdpactions; a; a = a->next ) {
+	if ( ( a->norm_operator && 
+	       a->norm_operator->l_operator !=  gderivedpred[i] ) ||
+	     ( a->pseudo_action &&
+	       a->pseudo_action->l_operator !=  gderivedpred[i] ) ) {
+	  continue;
+	}
+
+	if (a->norm_operator) {
+	  printf("\n%s", a->norm_operator->l_operator->name);
+	  for (j = 0; j < a->norm_operator->num_vars; j++)
+	    printf(" %s", gconstants[a->inst_table[j]]);
+	  printf("\nPreconditions: ");
+	  for (j = 0; j < a->norm_operator->num_preconds; j++) {
+	    printf("\n\t%s", gpredicates[a->norm_operator->preconds[j].predicate]);
+	    for (k = 0; k < garity[a->norm_operator->preconds[j].predicate]; k++) {
+	      if (a->norm_operator->preconds[j].args[k] >= 0)
+		printf(" %s", gconstants[a->norm_operator->preconds[j].args[k]]);
+	      else
+		printf(" %s", gconstants[a->inst_table[DECODE_VAR(a->norm_operator->preconds[j].args[k])]]);
+	    }
+	  }
+	  if (a->norm_operator->effects && a->norm_operator->effects->num_adds > 0)
+	    printf("\nPredicate effect: %s", gpredicates[a->norm_operator->effects->adds[0].predicate]);
+	  else printf("\nERROR: no effect in norm operator");
+	}
+	else {
+	  printf("\n%s", a->pseudo_action->l_operator->name);
+	  for (j = 0; j < a->pseudo_action->l_operator->num_vars; j++)
+	    printf(" %s", gconstants[a->inst_table[j]]);
+	  printf("\nPreconditions: ");
+	  for (j = 0; j < a->pseudo_action->num_preconds; j++) {
+	    printf("\n\t%s", gpredicates[a->pseudo_action->preconds[j].predicate]);
+	    for (k = 0; k < garity[a->pseudo_action->preconds[j].predicate]; k++) {
+	      if (a->pseudo_action->preconds[j].args[k] >= 0)
+		printf(" %s", gconstants[a->pseudo_action->preconds[j].args[k]]);
+	      else
+		printf(" %s", gconstants[a->inst_table[DECODE_VAR(a->pseudo_action->preconds[j].args[k])]]);
+	    }
+	  }
+	}
+      }
+    }
+    printf("\n\n");
+
   }
 
 }
 
 
 
-int fact_adress( void )
+unsigned long int fact_adress( void )
 
 {
 
-  int r = 0, b = 1, i;
+  unsigned long int r = 0;
+  int b = 1, i;
 
   for ( i = garity[lp] - 1; i > -1; i-- ) {
     r += b * largs[i];
@@ -587,7 +1287,7 @@ void make_name_inst_table_from_NormOperator( Action *a, NormOperator *o, EasyTem
 
   int i, r = 0, m = 0;
 
-  for ( i = 0; i < o->operator->number_of_real_params; i++ ) {
+  for ( i = 0; i < o->l_operator->number_of_real_params; i++ ) {
     if ( o->num_removed_vars > r &&
 	 o->removed_vars[r] == i ) {
       /* this var has been removed in NormOp;
@@ -615,7 +1315,7 @@ void make_name_inst_table_from_PseudoAction( Action *a, PseudoAction *pa )
 
   int i;
 
-  for ( i = 0; i < pa->operator->number_of_real_params; i++ ) {
+  for ( i = 0; i < pa->l_operator->number_of_real_params; i++ ) {
     a->name_inst_table[i] = pa->inst_table[i];
   }
 
@@ -643,25 +1343,93 @@ void make_name_inst_table_from_PseudoAction( Action *a, PseudoAction *pa )
  ***********************************************************/
 
 
+/*
+ * DEA - University of Brescia
+ */
+
+/**
+ * Raggruppa i predicati derivati in fondo all'array dei relevant facts
+ **
+ * Put all derived facts at the end of the relevent facts array
+ **/
+
+void optimize_dp_facts_position( void ) {
+
+  unsigned long int adr;
+  int i, j, k;
+  indexed_int_list *tmp;
+  Fact fi, fj;
+
+  i = 0;
+  j = gnum_relevant_facts - 1;
 
 
+  /**
+   * L'indice i procede in avanti, j all'indietro. Quando i punta ad un fatto
+   * derivato e j ad uno di base, scambio la posizione dei due fatti
+   **
+   * The index "i" goes forward in the array, "j" goes backward. When "i" point to
+   * a derived fact and "j" point to a base fact, exchange facts position
+   **/
+  while (i < j) {
+
+    for (i = i; (i < j) && (gpredicates_type[grelevant_facts[i].predicate] != IS_DERIVED); i++);
+    for (j = j; (j > i) && (gpredicates_type[grelevant_facts[j].predicate] != IS_BASE); j--);
+
+    if (i < j) {
+
+      fi = grelevant_facts[i];
+      fj = grelevant_facts[j];
+
+      grelevant_facts[i] = fj;
+      grelevant_facts[j] = fi;
+
+      lp = fi.predicate;
+      for (k = 0; k < garity[lp]; k++)
+	largs[k] = fi.args[k];
+      adr = fact_adress();
+      retrieve_fact_index(lp, adr, &tmp);
+      tmp -> item = j;
+
+      lp = fj.predicate;
+      for (k = 0; k < garity[lp]; k++)
+	largs[k] = fj.args[k];
+      adr = fact_adress();
+      retrieve_fact_index(lp, adr, &tmp);
+      tmp -> item = i;
+      
+    }
+    
+    i++;
+    j--;
+    
+  }
+  
+}
 
 
-
+/*
+ * End of DEA
+ */
 
 
 /* counts effects for later allocation
  */
 int lnum_effects;
 
+/* counts conditional effects for later allocation
+ */
+int lnum_cond_effects;
 
 
 
 
-
-
-
-
+/**
+ * Aggiungo ai relevant facts i fatti derivati (la parte riguardante i fatti
+ * di base � in collect_facts())
+ **
+ * Add the derived facts to the relevant facts array built by collect_facts()
+ **/
 void collect_relevant_facts( void )
 
 {
@@ -669,77 +1437,20 @@ void collect_relevant_facts( void )
   Action *a;
   NormOperator *no;
   NormEffect *ne;
-  int i, j, adr;
+  unsigned long int adr;
+  int i, j;
   PseudoAction *pa;
   PseudoActionEffect *pae;
+  Facts *add_initial;
+  Fact tmp_fact;
+  int k, real_precs;
+  Bool changed;
 
-  /* mark all deleted facts; such facts, that are also pos, are relevant.
-   */
-  for ( a = gactions; a; a = a->next ) {
-    if ( a->norm_operator ) {
-      no = a->norm_operator;
+#ifdef __TEST_PD__
+  int l;
+#endif
 
-      for ( ne = no->effects; ne; ne = ne->next ) {
-	for ( i = 0; i < ne->num_dels; i++ ) {
-	  lp = ne->dels[i].predicate;
-	  for ( j = 0; j < garity[lp]; j++ ) {
-	    largs[j] = ( ne->dels[i].args[j] >= 0 ) ?
-	      ne->dels[i].args[j] : a->inst_table[DECODE_VAR( ne->dels[i].args[j] )];
-	  }
-	  adr = fact_adress();
-
-	  lneg[lp][adr] = 1;
-	  if ( lpos[lp][adr] &&
-	       !luse[lp][adr] ) {
-	    luse[lp][adr] = 1;
-	    lindex[lp][adr] = gnum_relevant_facts;
-	    if ( gnum_relevant_facts == MAX_RELEVANT_FACTS ) {
-	      printf("\nincrease MAX_RELEVANT_FACTS! (current value: %d)\n\n",
-		     MAX_RELEVANT_FACTS);
-	      exit( 1 );
-	    }
-	    grelevant_facts[gnum_relevant_facts].predicate = lp;
-	    for ( j = 0; j < garity[lp]; j++ ) {
-	      grelevant_facts[gnum_relevant_facts].args[j] = largs[j];
-	    }
-	    lindex[lp][adr] = gnum_relevant_facts;
-	    gnum_relevant_facts++;
-	  }
-	}
-      }
-    } else {
-      pa = a->pseudo_action;
-
-      for ( pae = pa->effects; pae; pae = pae->next ) {
-	for ( i = 0; i < pae->num_dels; i++ ) {
-	  lp = pae->dels[i].predicate;
-	  for ( j = 0; j < garity[lp]; j++ ) {
-	    largs[j] = pae->dels[i].args[j];
-	  }
-	  adr = fact_adress();
-
-	  lneg[lp][adr] = 1;
-	  if ( lpos[lp][adr] &&
-	       !luse[lp][adr] ) {
-	    luse[lp][adr] = 1;
-	    lindex[lp][adr] = gnum_relevant_facts;
-	    if ( gnum_relevant_facts == MAX_RELEVANT_FACTS ) {
-	      printf("\nincrease MAX_RELEVANT_FACTS! (current value: %d)\n\n",
-		     MAX_RELEVANT_FACTS);
-	      exit( 1 );
-	    }
-	    grelevant_facts[gnum_relevant_facts].predicate = lp;
-	    for ( j = 0; j < garity[lp]; j++ ) {
-	      grelevant_facts[gnum_relevant_facts].args[j] = largs[j];
-	    }
-	    lindex[lp][adr] = gnum_relevant_facts;
-	    gnum_relevant_facts++;
-	  }
-	}
-      }
-    }
-  }
-
+  
   if ( gcmd_line.display_info == 119 ) {
     printf("\n\nfacts selected as relevant:\n\n");
     for ( i = 0; i < gnum_relevant_facts; i++ ) {
@@ -748,28 +1459,232 @@ void collect_relevant_facts( void )
     }
   }
 
+  changed = TRUE;
+  
+  while (changed) {
+    changed = FALSE;
+
+   
+    for (a = gdpactions; a; a = a->next) {
+
+      if ( a->norm_operator ) {
+	no = a->norm_operator;
+	
+	if (no->effects == NULL)
+	    continue;
+
+	/*
+	 * DEA - University of Brescia
+	 */
+
+	/**
+	 * Controllo che il predicato derivato abbia delle precondizioni che possono
+	 * essere false (in caso contrario il suo effetto � tautologicamente vero
+	 * e va aggiunto allo stato iniziale)
+	 **
+	 * Check if this derived predicate has some preconditions that can be false.
+	 * On the contrary its effect is always true and can be added to the initial
+	 * state
+	 **/
+
+
+	real_precs = no->num_preconds;
+	for (k = 0; k  < no->num_preconds; k++) {
+	  tmp_fact.predicate = lp = no->preconds[k].predicate;
+	  for ( j = 0; j < garity[lp]; j++ ) {
+	    tmp_fact.args[j] = largs[j] = ( no->preconds[k].args[j] >= 0 ) ?
+	      no->preconds[k].args[j] : a->inst_table[DECODE_VAR( no->preconds[k].args[j] )];
+	  }
+
+	  
+	  adr = fact_adress();
+	  if (check_bit_in_bit_table(nlneg, lp, adr)) {
+	    real_precs--;
+	  }
+	}
+
+
+	for (ne = no->effects; ne && !real_precs; ne = ne->next)
+
+	  {
+	    for ( i = 0; i < ne->num_adds; i++ ) {
+	      tmp_fact.predicate = lp = ne->adds[i].predicate;
+	      for ( j = 0; j < garity[lp]; j++ ) {
+		tmp_fact.args[j] = largs[j] = ( ne->adds[i].args[j] >= 0 ) ?
+		  ne->adds[i].args[j] : a->inst_table[DECODE_VAR( ne->adds[i].args[j] )];
+	      }
+	      
+	      adr = fact_adress();
+
+
+	      /**
+	       * Se ho trovato almeno una precondizione che pu� essere falsa, continuo
+	       **
+	       * If there's some preconditions than can be false, check next derived predicate
+	       **/
+	      if (check_bit_in_bit_table(nlneg, lp, adr))
+		continue;
+
+	      /**
+	       * Altrimenti aggiungo il fatto derivato allo stato iniziale 
+	       **
+	       * Otherwise add this derived fact to the initial state
+	       **/
+	    
+
+
+	      /**
+	       * Non ho raggiunto il fixpoint...
+	       **
+	       * This is not the fizpoint...
+	       **/
+
+	      changed = TRUE;	
+
+	      
+
+#ifdef __TEST_PD__
+	      l = retrieve_fact_index(lp, adr, NULL);
+	      printf("\nElimino %s\n", gpredicates[grelevant_facts[l].predicate]);
+	      for (k = 0; k < garity[grelevant_facts[l].predicate]; k++)
+		printf(" %s", gconstants[grelevant_facts[l].args[k]]);
+
+
+#endif	    
+	      
+	      insert_bit_in_bit_table(nlneg, lp, adr);
+	      add_initial = new_Facts();
+	      memcpy(add_initial->fact, &tmp_fact, sizeof(Fact));
+	      add_initial->next = ginitial;
+	      ginitial = add_initial;
+	      
+	    }	   
+	  }
+      }
+      else {
+	pa = a->pseudo_action;
+	
+	if (pa->effects == NULL)
+	  continue;
+
+	real_precs = pa->num_preconds;
+	for (k = 0; k  < pa->num_preconds; k++) {
+	  tmp_fact.predicate = lp = pa->preconds[k].predicate;
+	  for ( j = 0; j < garity[lp]; j++ ) {
+	    tmp_fact.args[j] = largs[j] = ( pa->preconds[k].args[j] >= 0 ) ?
+	      pa->preconds[k].args[j] : a->inst_table[DECODE_VAR( pa->preconds[k].args[j] )];
+	  }
+	  
+	  adr = fact_adress();
+	  if (check_bit_in_bit_table(nlneg, lp, adr))
+	    real_precs--;
+	}
+	
+
+	for (pae = pa->effects; pae && !real_precs; pae = pae->next)
+
+	  {
+	    for ( i = 0; i < pae->num_adds; i++ ) {
+	      tmp_fact.predicate = lp = pae->adds[i].predicate;
+	      for ( j = 0; j < garity[lp]; j++ ) {
+		tmp_fact.args[j] = largs[j] = pae->adds[i].args[j];
+	      }
+	      
+	      adr = fact_adress();
+	      
+
+	      if (check_bit_in_bit_table(nlneg, lp, adr))
+
+		continue;
+	      
+	      changed = TRUE;
+
+#ifdef __TEST_PD__   
+	      l = retrieve_fact_index(lp, adr, NULL);
+	      printf("\nElimino %s\n", gpredicates[grelevant_facts[l].predicate]);
+	      for (k = 0; k < garity[grelevant_facts[l].predicate]; k++)
+		printf(" %s", gconstants[grelevant_facts[l].args[k]]);
+#endif	    
+
+	      insert_bit_in_bit_table(nlneg, lp, adr);
+	      add_initial = new_Facts();
+	      memcpy(add_initial->fact, &tmp_fact, sizeof(Fact));
+	      add_initial->next = ginitial;
+	      ginitial = add_initial;
+	    }
+	  }
+      }
+    }
+  }
+
+
+
+  if ( gcmd_line.display_info == 119 ) {
+    printf("\n\nfacts selected as relevant:\n\n");
+    for ( i = 0; i < gnum_relevant_facts; i++ ) {
+      printf("\n%d: ", i);
+      print_Fact( &(grelevant_facts[i]) );
+
+
+      lp = grelevant_facts[i].predicate;
+      for (j = 0; j < garity[lp]; j++)
+	largs[j] = grelevant_facts[i].args[j];
+      
+      adr = fact_adress();
+
+      if (check_bit_in_bit_table(nlneg, lp, adr))
+	printf(" ALWAYS TRUE");
+    }
+  }
+
+
+
   lnum_effects = 0;
+ 
+
+  if (GpG.derived_predicates)
+    optimize_dp_facts_position();
+ 
+  /*
+   * End of DEA
+   */
 
   create_final_goal_state();
   create_final_initial_state();
   create_final_actions();
 
   if ( gcmd_line.display_info == 120 ) {
-    printf("\n\nfinal domain representation is:\n\n");  
+    printf("\n\nfinal domain representation is:\n\n");
     for ( i = 0; i < gnum_operators; i++ ) {
       printf("\n\n------------------operator %s-----------\n\n", goperators[i]->name);
       for ( a = gactions; a; a = a->next ) {
 	if ( ( !a->norm_operator &&
 	       !a->pseudo_action ) ||
 	     ( a->norm_operator && 
-	       a->norm_operator->operator != goperators[i] ) ||
+	       a->norm_operator->l_operator != goperators[i] ) ||
 	     ( a->pseudo_action &&
-	       a->pseudo_action->operator != goperators[i] ) ) {
+	       a->pseudo_action->l_operator != goperators[i] ) ) {
 	  continue;
 	}
 	print_Action( a );
       }
     }
+
+    for ( i = 0; i < gnum_derived_predicates; i++ ) {
+      printf("\n\n------------------derived predicate %s-----------\n\n", gderivedpred[i]->name);
+      for ( a = gdpactions; a; a = a->next ) {
+	if ( ( !a->norm_operator &&
+	       !a->pseudo_action ) ||
+	     ( a->norm_operator && 
+	       a->norm_operator->l_operator != gderivedpred[i] ) ||
+	     ( a->pseudo_action &&
+	       a->pseudo_action->l_operator != gderivedpred[i] ) ) {
+	  continue;
+	}
+	print_Action( a );
+      }
+    }
+
     printf("\n\n--------------------GOAL REACHED ops-----------\n\n");
     for ( a = gactions; a; a = a->next ) {
       if ( !a->norm_operator &&
@@ -777,7 +1692,7 @@ void collect_relevant_facts( void )
 	print_Action( a );
       }
     }
-   
+
     printf("\n\nfinal initial state is:\n\n");
     for ( i = 0; i < ginitial_state.num_F; i++ ) {
       print_ft_name( ginitial_state.F[i] );
@@ -799,7 +1714,8 @@ void create_final_goal_state( void )
 {
 
   WffNode *w, *ww;
-  int m, i, adr;
+  unsigned long int adr;
+  int m, i;
   Action *tmp;
 
 /*
@@ -827,16 +1743,26 @@ void create_final_goal_state( void )
 /*
  * DEA - University of Brescia
  */
-    if (GpG.inst_duplicate_param == FALSE)
-      printf("\n%s: create_final_goal_state(): goal can be simplified to FALSE. \n    Please run %s with option  '-same_objects' \n\n", NAMEPRG, NAMEPRG);
+    if (!GpG.inst_duplicate_param)
+      {
+#ifdef __MY_OUTPUT__
+	printf("\n%s: create_final_goal_state(): goal can be simplified to FALSE. \n    Please run %s with option  '-inst_with_contraddicting_objects' \n\n", NAMEPRG, NAMEPRG);
+#else
+	printf("\nGoals of the planning problem can not be reached.\nPlease try to run with '-inst_with_contraddicting_objects'\n\n");
+#endif
+      }
     else
-      printf("\n%s: create_final_goal_state(): goal can be simplified to FALSE.\n    No plan will solve it\n\n", NAMEPRG);
-    //    printf("\nff: goal can be simplified to FALSE. No plan will solve it\n\n");
+      {
+	printf("\n%s: create_final_goal_state(): goal can be simplified to FALSE.\n    No plan will solve it\n\n", NAMEPRG);
+	
+      } 
 
-/*
- * End of DEA
- */
+    store_plan(-1.0);
 
+    /*
+     * End of DEA
+     */
+   
     exit( 1 );
   }
 
@@ -851,6 +1777,7 @@ void create_final_goal_state( void )
     gnum_relevant_facts++;
     for ( w = ggoal->sons; w; w = w->next ) {
       tmp = new_Action();
+      tmp->suspected = FALSE;
       if ( w->connective == AND ) {
 	m = 0;
 	for ( ww = w->sons; ww; ww = ww->next ) m++;
@@ -862,7 +1789,8 @@ void create_final_goal_state( void )
 	    largs[i] = ww->fact->args[i];
 	  }
 	  adr = fact_adress();
-	  tmp->preconds[tmp->num_preconds++] = lindex[lp][adr];
+	  //tmp->preconds[tmp->num_preconds++] = lindex[lp][adr];
+	  tmp->preconds[tmp->num_preconds++] = retrieve_fact_index(lp, adr, NULL);
 	}
       } else {
 	tmp->preconds = ( int * ) calloc( 1, sizeof( int ) );
@@ -872,7 +1800,8 @@ void create_final_goal_state( void )
 	  largs[i] = w->fact->args[i];
 	}
 	adr = fact_adress();
-	tmp->preconds[0] = lindex[lp][adr];
+	//tmp->preconds[0] = lindex[lp][adr];
+	tmp->preconds[0] = retrieve_fact_index(lp, adr, NULL);
       }
       tmp->effects = ( ActionEffect * ) calloc( 1, sizeof( ActionEffect ) );
       tmp->num_effects = 1;
@@ -898,7 +1827,8 @@ void create_final_goal_state( void )
 	largs[i] = w->fact->args[i];
       }
       adr = fact_adress();
-      ggoal_state.F[ggoal_state.num_F++] = lindex[lp][adr];
+      //ggoal_state.F[ggoal_state.num_F++] = lindex[lp][adr];
+      ggoal_state.F[ggoal_state.num_F++] = retrieve_fact_index(lp, adr, NULL);
     }
     break;
   case ATOM:
@@ -908,7 +1838,8 @@ void create_final_goal_state( void )
       largs[i] = ggoal->fact->args[i];
     }
     adr = fact_adress();
-    ggoal_state.F[0] = lindex[lp][adr];
+    //ggoal_state.F[0] = lindex[lp][adr];
+    ggoal_state.F[0] = retrieve_fact_index(lp, adr, NULL);
     break;
   default:
     printf("\n\nwon't get here: non ATOM,AND,OR in fully simplified goal\n\n");
@@ -930,7 +1861,8 @@ int  set_relevants_in_wff( WffNode **w )
 {
 
   WffNode *i;
-  int j, adr;
+  unsigned long int adr;
+  int j;
 
   switch ( (*w)->connective ) {
   case AND:
@@ -948,13 +1880,30 @@ int  set_relevants_in_wff( WffNode **w )
     }
     adr = fact_adress();
 
-    if ( !lneg[lp][adr] ) {
+    /*
+    if ( !lneg[lp][adr] )
+    */
+    if (check_bit_in_bit_table(nlneg, lp, adr)) {
       (*w)->connective = TRU;
       free( (*w)->fact );
       (*w)->fact = NULL;
       break;
     }
-    if ( !lpos[lp][adr] ) {
+    
+    /*
+    if ( !lpos[lp][adr] )
+    */ 
+
+    if (!check_bit_in_bit_table(lpos, lp, adr)) {
+
+      if (DEBUG3)
+	{
+	  printf("\nNOT POSSIBLY POSITIVE FACT : %s", gpredicates[lp]);
+	  
+	  for (j = 0; j <  garity[lp]; j++)
+	    printf(" %s", gconstants[largs[j]]);
+	}
+
       (*w)->connective = FAL;
       free( (*w)->fact );
       (*w)->fact = NULL;
@@ -962,15 +1911,20 @@ int  set_relevants_in_wff( WffNode **w )
     }
     break;
   default:
-    printf("\n\nwon't get here: non NOT,OR,AND in goal set relevants\n\n");
+    if (!GpG.non_strips_domain)
+      {
+	printf("\n\nwon't get here: non NOT,OR,AND in goal set relevants\n\n");
+	break;
+      }
+    else
 /*
  * DEA - University of Brescia
  */
-    return 1;
+      return 1;
     //    exit( 1 );
-/*
- * End of DEA
- */
+ /*
+  * End of DEA
+  */
   }
 /*
  * DEA - University of Brescia
@@ -989,7 +1943,10 @@ void create_final_initial_state( void )
 {
 
   Facts *f;
-  int i, adr;
+  unsigned long int adr;
+  int i, j;
+  token_list tok;
+
 
   for ( f = ginitial; f; f = f->next ) {
     lp = f->fact->predicate;
@@ -998,7 +1955,27 @@ void create_final_initial_state( void )
     }
     adr = fact_adress();
 
-    if ( !lneg[lp][adr] ) {/* non deleted ini */
+    /*
+    if ( !lneg[lp][adr] )
+    */
+    
+    if (check_bit_in_bit_table(nlneg, lp, adr)) {
+      /* non deleted ini */
+      sprintf(temp_name, "(%s", gpredicates[lp]);
+      for (j = 0; j < garity[lp]; j++)
+	{
+	  sprintf(&temp_name[strlen(temp_name)], " %s", gconstants[largs[j]]);
+	}
+      sprintf(&temp_name[strlen(temp_name)], ")");
+      tok = (token_list)calloc(1,sizeof(token_list_elt));
+      tok->item=NULL;
+      tok->index=-1;
+      tok->item =(char *) calloc ( strlen(temp_name)+1, sizeof(char) );
+      strcpy( tok->item, temp_name);
+
+
+      tok->next = inertial_facts;
+      inertial_facts = tok;
       continue;
     }
 
@@ -1007,7 +1984,9 @@ void create_final_initial_state( void )
 	     MAX_STATE);
       exit( 1 );
     }
-    ginitial_state.F[ginitial_state.num_F++] = lindex[lp][adr];
+
+    //ginitial_state.F[ginitial_state.num_F++] = lindex[lp][adr];
+    ginitial_state.F[ginitial_state.num_F++] = retrieve_fact_index(lp, adr, NULL);
   }
  
 }
@@ -1021,241 +2000,367 @@ void create_final_actions( void )
   Action *a;
   NormOperator *no;
   NormEffect *ne;
-  int i, j, adr, h;
+  unsigned long int adr;
+  int i, j, h, count, pos;
   PseudoAction *pa;
   PseudoActionEffect *pae;
 
-  for ( a = gactions; a; a = a->next ) {
-    if ( a->norm_operator ) {
-      /* action comes from an easy template NormOp
-       */
-      no = a->norm_operator;
+  Action **a_pointer;
 
-      if ( no->num_preconds > 0 ) {
-	a->preconds = ( int * ) calloc( no->num_preconds, sizeof( int ) );
-      }
-      a->num_preconds = 0;
-      for ( i = 0; i < no->num_preconds; i++ ) {
-	lp = no->preconds[i].predicate;
-	for ( j = 0; j < garity[lp]; j++ ) {
-	  largs[j] = ( no->preconds[i].args[j] >= 0 ) ?
-	    no->preconds[i].args[j] : a->inst_table[DECODE_VAR( no->preconds[i].args[j] )];
-	}
-	adr = fact_adress();
-	
-	/* preconds are lpos in all cases due to reachability analysis
+  /*
+   * DEA - University of Brescia
+   */
+  
+
+  /**
+   * Analizza sia le azioni che i predicati derivati
+   **
+   * Switch from actions to derived predicate analisys
+   **/
+
+
+  count = 0;
+  for (a_pointer = &gactions; count < 2; a_pointer = &gdpactions, count++) {
+
+    /*
+     * End of DEA
+     */
+
+
+    for ( a = (*a_pointer); a; a = a->next ) {
+      if ( a->norm_operator ) {
+	/* action comes from an easy template NormOp
 	 */
-	if ( !lneg[lp][adr] ) {
-	  continue;
+	no = a->norm_operator;
+
+	if (no->num_or_precs > 0) {
+	  a->or_precs = (int *)calloc(no->num_or_precs, sizeof(int));
+	  a->num_or_precs = 0;
+	  for (i = 0; i < no->num_or_precs; i++) {
+	    lp = no->or_precs[i].predicate;
+	    if (lp < 0)
+	      continue;
+	    for (j = 0; j < garity[lp]; j++)
+	      largs[j] = (no->or_precs[i].args[j] >= 0)?
+		no->or_precs[i].args[j] : a->inst_table[DECODE_VAR( no->or_precs[i].args[j])];
+	    adr = fact_adress();
+	    pos = retrieve_fact_index(lp, adr, NULL);
+	    if (pos >= 0)
+	      a->or_precs[a->num_or_precs++] = pos;
+	  }
 	}
 	
-	a->preconds[a->num_preconds++] = lindex[lp][adr];
-      }
-
-      if ( a->num_effects > 0 ) {
-	a->effects = ( ActionEffect * ) calloc( a->num_effects, sizeof( ActionEffect ) );
-      }
-      a->num_effects = 0;
-      for ( ne = no->effects; ne; ne = ne->next ) {
-	if ( ne->num_conditions > 0 ) {
-	  a->effects[a->num_effects].conditions =
-	    ( int * ) calloc( ne->num_conditions, sizeof( int ) );
+	if ( no->num_preconds > 0 ) {
+	  a->preconds = ( int * ) calloc( no->num_preconds, sizeof( int ) );
 	}
-	a->effects[a->num_effects].num_conditions = 0;
-
-	for ( i = 0; i < ne->num_conditions; i++ ) {
-	  lp = ne->conditions[i].predicate;
-	  h = ( lp < 0 ) ? 2 : garity[lp];
-	  for ( j = 0; j < h; j++ ) {
-	    largs[j] = ( ne->conditions[i].args[j] >= 0 ) ?
-	      ne->conditions[i].args[j] : a->inst_table[DECODE_VAR( ne->conditions[i].args[j] )];
+	a->num_preconds = 0;
+	for ( i = 0; i < no->num_preconds; i++ ) {
+	  lp = no->preconds[i].predicate;
+	  for ( j = 0; j < garity[lp]; j++ ) {
+	    largs[j] = ( no->preconds[i].args[j] >= 0 ) ?
+	      no->preconds[i].args[j] : a->inst_table[DECODE_VAR( no->preconds[i].args[j] )];
 	  }
-	  if ( lp >= 0 ) {
-	    adr = fact_adress();
+	  adr = fact_adress();
 
-	    if ( !lpos[lp][adr] ) {/* condition not reachable: skip effect */
-	      break;
+	  /* preconds are lpos in all cases due to reachability analysis
+	   */
+
+	  /*
+	  if ( !lneg[lp][adr] )
+	  */
+
+	  if (check_bit_in_bit_table(nlneg, lp, adr)) {
+	    continue;
+	  }
+	  
+	  //a->preconds[a->num_preconds++] = lindex[lp][adr];
+	  a->preconds[a->num_preconds++] = retrieve_fact_index(lp, adr, NULL); 
+	}
+	
+	if ( a->num_effects > 0 ) {
+	  a->effects = ( ActionEffect * ) calloc( a->num_effects, sizeof( ActionEffect ) );
+	}
+	a->num_effects = 0;
+	for ( ne = no->effects; ne; ne = ne->next ) {
+	  if ( ne->num_conditions > 0 ) {
+	    a->effects[a->num_effects].conditions =
+	      ( int * ) calloc( ne->num_conditions, sizeof( int ) );
+	  }
+	  a->effects[a->num_effects].num_conditions = 0;
+	  
+	  for ( i = 0; i < ne->num_conditions; i++ ) {
+	    lp = ne->conditions[i].predicate;
+	    h = ( lp < 0 ) ? 2 : garity[lp];
+	    for ( j = 0; j < h; j++ ) {
+	      largs[j] = ( ne->conditions[i].args[j] >= 0 ) ?
+		ne->conditions[i].args[j] : a->inst_table[DECODE_VAR( ne->conditions[i].args[j] )];
 	    }
-	    if ( !lneg[lp][adr] ) {/* condition always true: skip it */
+	    if ( lp >= 0 ) {
+	      adr = fact_adress();
+	      
+	      /*
+	      if ( !lpos[lp][adr] )
+	      */
+	      
+	      if (!check_bit_in_bit_table(lpos, lp, adr)) {
+		/* condition not reachable: skip effect */
+		break;
+	       
+	      }
+	      
+	      /*
+	      if ( !lneg[lp][adr] )
+	      */ 
+	      
+	      if (check_bit_in_bit_table(nlneg, lp, adr)) {
+		/* condition always true: skip it */
+		continue;
+	      }
+	      //a->effects[a->num_effects].conditions[a->effects[a->num_effects].num_conditions++] =
+	      //lindex[lp][adr];
+	      a->effects[a->num_effects].conditions[a->effects[a->num_effects].num_conditions++] =
+		retrieve_fact_index(lp, adr, NULL);
+
+	    } else {
+	      if ( lp == -2 ) {
+		if ( largs[0] == largs[1] ) break;
+	      } else {
+		if ( largs[0] != largs[1] ) break;
+	      }
+	    }
+	  }
+	  
+	  if ( i < ne->num_conditions ) {/* found unreachable condition: free condition space */
+	    free( a->effects[a->num_effects].conditions );
+	    continue;
+	  }
+	  
+	  /* now create the add and del effects.
+	   */
+	  if ( ne->num_adds > 0 ) {
+	    a->effects[a->num_effects].adds = ( int * ) calloc( ne->num_adds, sizeof( int ) );
+	  }
+	  a->effects[a->num_effects].num_adds = 0;
+	  for ( i = 0; i < ne->num_adds; i++ ) {
+	    lp = ne->adds[i].predicate;
+	    for ( j = 0; j < garity[lp]; j++ ) {
+	      largs[j] = ( ne->adds[i].args[j] >= 0 ) ?
+		ne->adds[i].args[j] : a->inst_table[DECODE_VAR( ne->adds[i].args[j] )];
+	    }
+	    adr = fact_adress();
+	    
+	    /*
+	      if ( !lneg[lp][adr] )
+	    */
+
+	    if (check_bit_in_bit_table(nlneg, lp, adr)) {
+	      /* effect always true: skip it */
 	      continue;
 	    }
-	    a->effects[a->num_effects].conditions[a->effects[a->num_effects].num_conditions++] =
-	      lindex[lp][adr];
-	  } else {
-	    if ( lp == -2 ) {
-	      if ( largs[0] == largs[1] ) break;
-	    } else {
-	      if ( largs[0] != largs[1] ) break;
+	    
+	    //a->effects[a->num_effects].adds[a->effects[a->num_effects].num_adds++] = lindex[lp][adr];
+	    a->effects[a->num_effects].adds[a->effects[a->num_effects].num_adds++] = retrieve_fact_index(lp, adr, NULL);
+	  }
+	  
+	  if ( ne->num_dels > 0 ) {
+	    a->effects[a->num_effects].dels = ( int * ) calloc( ne->num_dels, sizeof( int ) );
+	  }
+	  a->effects[a->num_effects].num_dels = 0;
+	  for ( i = 0; i < ne->num_dels; i++ ) {
+	    lp = ne->dels[i].predicate;
+	    for ( j = 0; j < garity[lp]; j++ ) {
+	      largs[j] = ( ne->dels[i].args[j] >= 0 ) ?
+		ne->dels[i].args[j] : a->inst_table[DECODE_VAR( ne->dels[i].args[j] )];
 	    }
-	  }
-	}
+	    adr = fact_adress();
+	    
+	    /*
+	    if ( !lpos[lp][adr] ) 
+	    */ 
 
-	if ( i < ne->num_conditions ) {/* found unreachable condition: free condition space */
-	  free( a->effects[a->num_effects].conditions );
-	  continue;
-	}
-
-	/* now create the add and del effects.
-	 */
-	if ( ne->num_adds > 0 ) {
-	  a->effects[a->num_effects].adds = ( int * ) calloc( ne->num_adds, sizeof( int ) );
-	}
-	a->effects[a->num_effects].num_adds = 0;
-	for ( i = 0; i < ne->num_adds; i++ ) {
-	  lp = ne->adds[i].predicate;
-	  for ( j = 0; j < garity[lp]; j++ ) {
-	    largs[j] = ( ne->adds[i].args[j] >= 0 ) ?
-	      ne->adds[i].args[j] : a->inst_table[DECODE_VAR( ne->adds[i].args[j] )];
-	  }
-	  adr = fact_adress();
-
-	  if ( !lneg[lp][adr] ) {/* effect always true: skip it */
-	    continue;
+	    if (!check_bit_in_bit_table(lpos, lp, adr)) {
+	      /* effect always false: skip it */
+	      continue;
+	    }
+	    
+	    //a->effects[a->num_effects].dels[a->effects[a->num_effects].num_dels++] = lindex[lp][adr];
+	    a->effects[a->num_effects].dels[a->effects[a->num_effects].num_dels++] = retrieve_fact_index(lp, adr, NULL);
 	  }
 	  
-	  a->effects[a->num_effects].adds[a->effects[a->num_effects].num_adds++] = lindex[lp][adr];
+	  /* this effect is OK. go to next one in NormOp.
+	   */
+	  a->num_effects++;
+	  lnum_effects++;
+	    
+	
 	}
-
-	if ( ne->num_dels > 0 ) {
-	  a->effects[a->num_effects].dels = ( int * ) calloc( ne->num_dels, sizeof( int ) );
-	}
-	a->effects[a->num_effects].num_dels = 0;
-	for ( i = 0; i < ne->num_dels; i++ ) {
-	  lp = ne->dels[i].predicate;
-	  for ( j = 0; j < garity[lp]; j++ ) {
-	    largs[j] = ( ne->dels[i].args[j] >= 0 ) ?
-	      ne->dels[i].args[j] : a->inst_table[DECODE_VAR( ne->dels[i].args[j] )];
-	  }
-	  adr = fact_adress();
-
-	  if ( !lpos[lp][adr] ) {/* effect always false: skip it */
-	    continue;
-	  }
-	  
-	  a->effects[a->num_effects].dels[a->effects[a->num_effects].num_dels++] = lindex[lp][adr];
-	}
-
-	/* this effect is OK. go to next one in NormOp.
-	 */
-	a->num_effects++;
-	lnum_effects++;
+	continue;
       }
-      continue;
-    }
-    if ( a->pseudo_action ) {
-      /* action is result of a PseudoAction
+      if ( a->pseudo_action ) {
+	/* action is result of a PseudoAction
+	 */
+	pa = a->pseudo_action;
+
+	if (pa->num_or_precs > 0) {
+	  a->or_precs = (int *)calloc(pa->num_or_precs, sizeof(int));
+	  a->num_or_precs = 0;
+	  for (i = 0; i < pa->num_or_precs; i++) {
+	    lp = pa->or_precs[i].predicate;
+	    if (lp < 0)
+	      continue;
+	    for (j = 0; j < garity[lp]; j++)
+	      largs[j] = (pa->or_precs[i].args[j] >= 0)?
+		pa->or_precs[i].args[j] : a->inst_table[DECODE_VAR(pa->or_precs[i].args[j])];
+	    adr = fact_adress();
+	    pos = retrieve_fact_index(lp, adr, NULL);
+	    if (pos >= 0)
+	      a->or_precs[a->num_or_precs++] = pos;
+	  }
+	}
+
+	if ( pa->num_preconds > 0 ) {
+	  a->preconds = ( int * ) calloc( pa->num_preconds, sizeof( int ) );
+	}
+	a->num_preconds = 0;
+	for ( i = 0; i < pa->num_preconds; i++ ) {
+	  lp = pa->preconds[i].predicate;
+	  for ( j = 0; j < garity[lp]; j++ ) {
+	    largs[j] = pa->preconds[i].args[j];
+	  }
+	  adr = fact_adress();
+	  
+	  /* preconds are lpos in all cases due to reachability analysis
+	   */
+	  
+	  /*
+	  if ( !lneg[lp][adr] )
+	  */
+
+	  if (check_bit_in_bit_table(nlneg, lp, adr)) {
+	    continue;
+	  }
+	  
+	  //a->preconds[a->num_preconds++] = lindex[lp][adr];
+	  a->preconds[a->num_preconds++] = retrieve_fact_index(lp, adr, NULL);
+	}
+	
+	if ( a->num_effects > 0) {
+	  a->effects = ( ActionEffect * ) calloc( a->num_effects, sizeof( ActionEffect ) );
+	}
+	a->num_effects = 0;
+	for ( pae = pa->effects; pae; pae = pae->next ) {
+	  if ( pae->num_conditions > 0 ) {
+	    a->effects[a->num_effects].conditions =
+	      ( int * ) calloc( pae->num_conditions, sizeof( int ) );
+	  }
+	  a->effects[a->num_effects].num_conditions = 0;
+	  
+	  for ( i = 0; i < pae->num_conditions; i++ ) {
+	    lp = pae->conditions[i].predicate;
+	    for ( j = 0; j < garity[lp]; j++ ) {
+	      largs[j] = pae->conditions[i].args[j];
+	    }
+	    adr = fact_adress();
+	    
+
+	    /*
+	    if ( !lpos[lp][adr] )
+	    */
+
+	    if (!check_bit_in_bit_table(lpos, lp, adr)) {
+	      /* condition not reachable: skip effect */
+	      break;
+	    }
+	    
+	    /*
+	    if ( !lneg[lp][adr] )
+	    */
+
+	    if (check_bit_in_bit_table(nlneg, lp, adr)) {
+	      /* condition always true: skip it */
+	      continue;
+	    }
+	    
+	    //a->effects[a->num_effects].conditions[a->effects[a->num_effects].num_conditions++] =
+	    //lindex[lp][adr];
+	    a->effects[a->num_effects].conditions[a->effects[a->num_effects].num_conditions++] =
+	      retrieve_fact_index(lp, adr, NULL);
+
+	  }
+	  
+	  if ( i < pae->num_conditions ) {/* found unreachable condition: free condition space */
+	    free( a->effects[a->num_effects].conditions );
+	    continue;
+	  }
+	  
+	  /* now create the add and del effects.
+	   */
+	  if ( pae->num_adds > 0 ) {
+	    a->effects[a->num_effects].adds = ( int * ) calloc( pae->num_adds, sizeof( int ) );
+	  }
+	  a->effects[a->num_effects].num_adds = 0;
+	  for ( i = 0; i < pae->num_adds; i++ ) {
+	    lp = pae->adds[i].predicate;
+	    for ( j = 0; j < garity[lp]; j++ ) {
+	      largs[j] = pae->adds[i].args[j];
+	    }
+	    adr = fact_adress();
+	    
+	    /*
+	    if ( !lneg[lp][adr] )
+	    */
+	    
+	    if (check_bit_in_bit_table(nlneg, lp, adr)) {
+	      /* effect always true: skip it */
+	      continue;
+	    }
+	    
+	    //a->effects[a->num_effects].adds[a->effects[a->num_effects].num_adds++] = lindex[lp][adr];
+	    a->effects[a->num_effects].adds[a->effects[a->num_effects].num_adds++] = retrieve_fact_index(lp, adr, NULL);
+	  }
+	  
+	  if ( pae->num_dels > 0 ) {
+	    a->effects[a->num_effects].dels = ( int * ) calloc( pae->num_dels, sizeof( int ) );
+	  }
+	  a->effects[a->num_effects].num_dels = 0;
+	  for ( i = 0; i < pae->num_dels; i++ ) {
+	    lp = pae->dels[i].predicate;
+	    for ( j = 0; j < garity[lp]; j++ ) {
+	      largs[j] = pae->dels[i].args[j];
+	    }
+	    adr = fact_adress();
+	    
+	    /*
+	    if ( !lpos[lp][adr] )
+	    */
+
+	    if (!check_bit_in_bit_table(lpos, lp, adr)) {
+	      /* effect always false: skip it */
+	      continue;
+	    }
+	    
+	    // a->effects[a->num_effects].dels[a->effects[a->num_effects].num_dels++] = lindex[lp][adr];
+	    a->effects[a->num_effects].dels[a->effects[a->num_effects].num_dels++] = retrieve_fact_index(lp, adr, NULL);
+	  }
+	  
+	  /* this effect is OK. go to next one in PseudoAction.
+	   */
+	  a->num_effects++;
+	  lnum_effects++;
+	
+	}
+      }/* end of if clause for PseudoAction */
+      /* if action was neither normop, nor pseudo action determined,
+       * then it is an artificial action due to disjunctive goal
+       * conditions.
+       *
+       * these are already in final form.
        */
-      pa = a->pseudo_action;
+    }/* end for all actions ! */
 
-      if ( pa->num_preconds > 0 ) {
-	a->preconds = ( int * ) calloc( pa->num_preconds, sizeof( int ) );
-      }
-      a->num_preconds = 0;
-      for ( i = 0; i < pa->num_preconds; i++ ) {
-	lp = pa->preconds[i].predicate;
-	for ( j = 0; j < garity[lp]; j++ ) {
-	  largs[j] = pa->preconds[i].args[j];
-	}
-	adr = fact_adress();
-	
-	/* preconds are lpos in all cases due to reachability analysis
-	 */
-	if ( !lneg[lp][adr] ) {
-	  continue;
-	}
-	
-	a->preconds[a->num_preconds++] = lindex[lp][adr];
-      }
-
-      if ( a->num_effects > 0 ) {
-	a->effects = ( ActionEffect * ) calloc( a->num_effects, sizeof( ActionEffect ) );
-      }
-      a->num_effects = 0;
-      for ( pae = pa->effects; pae; pae = pae->next ) {
-	if ( pae->num_conditions > 0 ) {
-	  a->effects[a->num_effects].conditions =
-	    ( int * ) calloc( pae->num_conditions, sizeof( int ) );
-	}
-	a->effects[a->num_effects].num_conditions = 0;
-
-	for ( i = 0; i < pae->num_conditions; i++ ) {
-	  lp = pae->conditions[i].predicate;
-	  for ( j = 0; j < garity[lp]; j++ ) {
-	    largs[j] = pae->conditions[i].args[j];
-	  }
-	  adr = fact_adress();
-
-	  if ( !lpos[lp][adr] ) {/* condition not reachable: skip effect */
-	    break;
-	  }
-	  if ( !lneg[lp][adr] ) {/* condition always true: skip it */
-	    continue;
-	  }
-	  
-	  a->effects[a->num_effects].conditions[a->effects[a->num_effects].num_conditions++] =
-	    lindex[lp][adr];
-	}
-
-	if ( i < pae->num_conditions ) {/* found unreachable condition: free condition space */
-	  free( a->effects[a->num_effects].conditions );
-	  continue;
-	}
-
-	/* now create the add and del effects.
-	 */
-	if ( pae->num_adds > 0 ) {
-	  a->effects[a->num_effects].adds = ( int * ) calloc( pae->num_adds, sizeof( int ) );
-	}
-	a->effects[a->num_effects].num_adds = 0;
-	for ( i = 0; i < pae->num_adds; i++ ) {
-	  lp = pae->adds[i].predicate;
-	  for ( j = 0; j < garity[lp]; j++ ) {
-	    largs[j] = pae->adds[i].args[j];
-	  }
-	  adr = fact_adress();
-
-	  if ( !lneg[lp][adr] ) {/* effect always true: skip it */
-	    continue;
-	  }
-	  
-	  a->effects[a->num_effects].adds[a->effects[a->num_effects].num_adds++] = lindex[lp][adr];
-	}
-
-	if ( pae->num_dels > 0 ) {
-	  a->effects[a->num_effects].dels = ( int * ) calloc( pae->num_dels, sizeof( int ) );
-	}
-	a->effects[a->num_effects].num_dels = 0;
-	for ( i = 0; i < pae->num_dels; i++ ) {
-	  lp = pae->dels[i].predicate;
-	  for ( j = 0; j < garity[lp]; j++ ) {
-	    largs[j] = pae->dels[i].args[j];
-	  }
-	  adr = fact_adress();
-
-	  if ( !lpos[lp][adr] ) {/* effect always false: skip it */
-	    continue;
-	  }
-	  
-	  a->effects[a->num_effects].dels[a->effects[a->num_effects].num_dels++] = lindex[lp][adr];
-	}
-
-	/* this effect is OK. go to next one in PseudoAction.
-	 */
-	a->num_effects++;
-	lnum_effects++;
-      }
-    }/* end of if clause for PseudoAction */
-    /* if action was neither normop, nor pseudo action determined,
-     * then it is an artificial action due to disjunctive goal
-     * conditions.
-     *
-     * these are already in final form.
-     */
-  }/* endfor all actions ! */
+  } /* END FOR BOTH ACTIONS AND DERIVED PREDICATES  */
 
 }
-
-
 
 
 
@@ -1283,16 +2388,223 @@ void create_final_actions( void )
 
 
 
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Verifica se le azioni condizionali sono abilitate
+	PARAMETER	:
+	RETURN		: TRUE Effetti condizionali abilitate
+			  FALSE Effetti condizionali disabilitati
+-----------------------------------------------------------------
+*/
+int cond_eff_is_enabled()
+{
+  return(GpG.conditional_effects_enabled);
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Calcola il numero di effetti condizionali
+			  che utilizzano i fatti
+	PARAMETER	: void
+	RETURN		: void
+-----------------------------------------------------------------
+*/
+void calc_num_conditional_fact()
+{
+	CondEfConn	*cef;
+	int		i;
+
+	for (cef = gcondef_conn; cef < &gcondef_conn[gnum_condef_conn]; cef++) {
+		for ( i = 0; i < cef->num_PC; i++ )
+			gcondft_conn[cef->PC[i]].num_PC++;
+		for ( i = 0; i < cef->num_A; i++ )
+			gcondft_conn[cef->A[i]].num_A++;
+		for ( i = 0; i < cef->num_D; i++ )
+			gcondft_conn[cef->D[i]].num_D++;
+	}
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: alloca lo spazio per la struttura gcondft_conn
+	PARAMETER	: void
+	RETURN		: void
+-----------------------------------------------------------------
+*/
+void new_conditional_fact()
+{
+	CondFtConn	*cft;
+
+	for (cft = gcondft_conn; cft < &gcondft_conn[gnum_condft_conn]; cft++ ) {
+		if (cft->num_PC)
+			cft->PC = (int *)calloc(cft->num_PC, sizeof(int));
+		cft->num_PC = 0;
+		if (cft->num_A)
+			cft->A = (int *)calloc(cft->num_A, sizeof(int));
+		cft->num_A = 0;
+		if (cft->num_D)
+			cft->D = (int *)calloc(cft->num_D, sizeof(int));
+		cft->num_D = 0;
+	}
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: crea la struttura gcondft_conn
+	PARAMETER	: void
+	RETURN		: void
+-----------------------------------------------------------------
+*/
+void create_conditional_fact()
+{
+	CondEfConn	*cef;
+	int		j;
+
+	calc_num_conditional_fact();
+	new_conditional_fact();
+
+	for (cef = gcondef_conn; cef < &gcondef_conn[gnum_condef_conn]; cef++) {
+		for ( j = 0; j < cef->num_PC; j++ )
+			gcondft_conn[cef->PC[j]].PC[gcondft_conn[cef->PC[j]].num_PC++] = cef - gcondef_conn;
+		for ( j = 0; j < cef->num_A; j++ )
+			gcondft_conn[cef->A[j]].A[gcondft_conn[cef->A[j]].num_A++] = cef - gcondef_conn;
+		for ( j = 0; j < cef->num_D; j++ )
+			gcondft_conn[cef->D[j]].D[gcondft_conn[cef->D[j]].num_D++] = cef - gcondef_conn;
+	}
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Calcola il numero di effetti condizionali
+	PARAMETER	: void
+	RETURN		: void
+-----------------------------------------------------------------
+*/
+void calc_num_cond_action(void)
+{
+	Action		*a;
+	ActionEffect	*e;
+
+	if (cond_eff_is_enabled()) {
+		for (lnum_cond_effects = 0, a = gactions; a; a = a->next)
+			for (e = a->effects; e <= &(a->effects[a->num_effects - 1]); e++)
+				if (e->conditions)
+					lnum_cond_effects++;
+	} else
+		lnum_cond_effects = 0;
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Crea un effetto in EfConn
+	PARAMETER	: *ce	CondEfConn in cui inserire
+			   nc	Numero precondizioni
+			   na	Numero effetti additivi
+			   nd	Numero effetti cancellanti
+	RETURN		: void
+-----------------------------------------------------------------
+*/
+void new_ef_conn(EfConn *e, int nc, int na, int nd)
+{
+	int	tmpnum;
+
+	tmpnum = get_num_of_effects_of(e, AT_END_TIME, 1);
+	e->A = (int *)calloc(na + tmpnum, sizeof(int));
+	e->D = (int *)calloc(nd, sizeof(int));
+
+	tmpnum = get_num_of_effects_of(e, AT_START_TIME, 1);
+	if (tmpnum) {
+		if (e->sf == NULL)
+			e->sf = new_SpecialFacts();
+		e->sf->A_start = (int *)calloc(tmpnum, sizeof (int));
+	}
+
+	tmpnum = get_num_of_effects_of(e, AT_START_TIME, 0);
+	if (tmpnum) {
+		if (e->sf == NULL)
+			e->sf = new_SpecialFacts();
+		e->sf->D_start =(int *)calloc(tmpnum, sizeof (int));
+	}
+
+	tmpnum = get_num_of_preconds_of(e, AT_START_TIME);
+	e->PC = (int *)calloc(nc + tmpnum, sizeof(int));
+//	e->PC = (int *)calloc(e->num_conditions + a->num_preconds + tmpnum, sizeof(int));
+
+	tmpnum = get_num_of_preconds_of(e, OVER_ALL_TIME);
+	if (tmpnum) {
+		if (e->sf == NULL)
+			e->sf = new_SpecialFacts();
+		e->sf->PC_overall = (int *)calloc(tmpnum, sizeof(int));
+	}
+
+	tmpnum = get_num_of_preconds_of(e, AT_END_TIME);
+	if (tmpnum) {
+		if (e->sf == NULL)
+			e->sf = new_SpecialFacts();
+		e->sf->PC_end = (int *)calloc(tmpnum, sizeof(int));
+	}
+	
+	e->suspected = FALSE;
+
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Crea un effetto condizionali in CondEfConn
+	PARAMETER	: *ce	CondEfConn in cui inserire
+			   nc	Numero condizioni
+			   na	Numero effetti additivi
+			   nd	Numero effetti cancellanti
+	RETURN		: void
+-----------------------------------------------------------------
+*/
+void new_condef_conn(CondEfConn *ce, int nc, int na, int nd)
+{
+	int	tmpnum;
+
+	tmpnum = get_num_of_effects_of(&gef_conn[ce->op], AT_END_TIME, 1);
+	ce->A = (int *)calloc(na + tmpnum, sizeof(int));
+
+	tmpnum = get_num_of_preconds_of(&gef_conn[ce->op], AT_START_TIME);
+	ce->PC = (int *)calloc(nc + tmpnum, sizeof(int));
+
+	ce->D = (int *)calloc(nd, sizeof(int));
+
+	ce->plop = gef_conn[ce->op].plop;
+}
+
+/*
+-----------------------------------------------------------------
+	DESCRIPTION	: Verifica se un effetto di una azione �
+			  condizionale (se abilitato)
+	PARAMETER	: *a	Azione
+			   effect Effetto
+	RETURN		: TRUE Effetto condizionale
+			  FALSE Non � effetto condizionale
+-----------------------------------------------------------------
+*/
+int is_implied_effect(Action *a, int effect)
+{
+	if (a->num_effects == 1)
+		return(FALSE);
+
+	if ((cond_eff_is_enabled()) && (a->effects[effect].num_conditions))
+		return(TRUE);
+	else
+		return(FALSE);
+}
 
 void build_connectivity_graph( void )
-
 {
 
-  int i, j, k, l, n_op, n_ef, m, na, nd;
+  int i, j, k, l, n_op, n_ef, n_cef, m, na, nd;
   Action *a;
   int *same_effects, sn;
   Bool *had_effects;
   ActionEffect *e, *e_;
+  int num;
+  int *fact;
+  EfConn *to_build = NULL;
 
 
 /*
@@ -1300,7 +2612,6 @@ void build_connectivity_graph( void )
  */
   //  struct timeb tp;
 
-  int tmpnum;
   int sizeofgop, sizeofgef, sizeofgft;
 
   sizeofgop = 0;
@@ -1325,11 +2636,16 @@ void build_connectivity_graph( void )
 /*
  * End of DEA
  */
+  calc_num_cond_action();
   gnum_op_conn = gnum_actions;
+  gnum_condft_conn = gnum_ft_conn;
   gft_conn = ( FtConn * ) calloc( gnum_ft_conn, sizeof( FtConn ) );
   gop_conn = ( OpConn * ) calloc( gnum_op_conn, sizeof( OpConn ) );
   gef_conn = ( EfConn * ) calloc( lnum_effects, sizeof( EfConn ) );
+  gcondft_conn = ( CondFtConn * ) calloc( gnum_condft_conn, sizeof( CondFtConn ) );
+  gcondef_conn = ( CondEfConn * ) calloc( lnum_cond_effects, sizeof( CondEfConn ) );
   gnum_ef_conn = 0;
+  gnum_condef_conn = 0;
 
   same_effects = ( int * ) calloc( lnum_effects, sizeof( int ) );
   had_effects = ( Bool * ) calloc( lnum_effects, sizeof( Bool ) );
@@ -1338,7 +2654,16 @@ void build_connectivity_graph( void )
     gft_conn[i].num_PC = 0;
     gft_conn[i].num_A = 0;
     gft_conn[i].num_D = 0;
-
+    gft_conn[i].num_dp_A = 0;
+    gft_conn[i].num_dp_D = 0;
+    gft_conn[i].num_dp_PC = 0;
+    gft_conn[i].dp_PC = NULL;
+    gft_conn[i].dp_A = NULL;
+    gft_conn[i].dp_D = NULL;
+    gft_conn[i].fact_type = IS_BASE;
+    gft_conn[i].tmd_facts_array = NULL;
+    gft_conn[i].num_tmd_facts_array = 0;
+   
 /*
  * DEA - University of Brescia
  */
@@ -1353,21 +2678,34 @@ void build_connectivity_graph( void )
     gop_conn[i].num_E = 0;
   }
 
-  for ( i = 0; i < gnum_ef_conn; i++ ) {
+
+  /*
+    EfConns reset
+  */
+  for ( i = 0; i < lnum_effects; i++ ) {
     gef_conn[i].num_PC = 0;
+    gef_conn[i].num_or_PC = 0;
+    gef_conn[i].or_PC = NULL;
     gef_conn[i].num_A = 0;
     gef_conn[i].num_D = 0;
     gef_conn[i].num_I = 0;
+    gef_conn[i].timed_PC = NULL;
+    gef_conn[i].suspected = FALSE;
+    gef_conn[i].is_numeric = gef_conn[i].has_numeric_precs = FALSE;
+    gef_conn[i].metric_vars = NULL;
   }
 
+  gfirst_suspected_ef_conn = 0;
 
   n_op = 0;
   n_ef = 0;
+  n_cef = 0;
   for ( a = gactions; a; a = a->next ) {
 
     gop_conn[n_op].action = a;
 
     gop_conn[n_op].E = ( int * ) calloc( a->num_effects, sizeof( int ) );
+    gop_conn[n_op].I = ( int * ) calloc( a->num_effects, sizeof( int ) );
     for ( i = 0; i < a->num_effects; i++ ) {
       had_effects[i] = FALSE;
     }
@@ -1377,8 +2715,16 @@ void build_connectivity_graph( void )
       }
       had_effects[i] = TRUE;
       e = &(a->effects[i]);
-      gop_conn[n_op].E[gop_conn[n_op].num_E++] = n_ef;
-      gef_conn[n_ef].op = n_op;
+      if (is_implied_effect(a, i))
+	gop_conn[n_op].I[gop_conn[n_op].num_I++] = n_cef;
+      else
+	gop_conn[n_op].E[gop_conn[n_op].num_E++] = n_ef;
+
+      to_build = &gef_conn[n_ef];
+      to_build->op = n_op;
+
+      to_build->num_or_PC = a->num_or_precs;
+      to_build->or_PC = a->or_precs;
 
       sn = 0;
       for ( j = i + 1; j < a->num_effects; j++ ) {
@@ -1415,163 +2761,194 @@ void build_connectivity_graph( void )
 /*
  * DEA - University of Brescia
  */
-      tmpnum = get_num_of_effects_of (n_ef, AT_END_TIME, 1);
-      //      gef_conn[n_ef].A = (int *) calloc (na, sizeof (int));
-      gef_conn[n_ef].A = ( int * ) calloc( na + tmpnum, sizeof( int ) );
-
-      tmpnum = get_num_of_effects_of (n_ef, AT_START_TIME, 1);
-      if (tmpnum)
-	gef_conn[n_ef].sf->A_start = (int *) calloc (tmpnum, sizeof (int));
-      /*cancellanti */
-      tmpnum = get_num_of_effects_of (n_ef, AT_START_TIME, 0);
-      if (tmpnum)
-	gef_conn[n_ef].sf->D_start =(int *) calloc (tmpnum, sizeof (int));
+      if (is_implied_effect(a, i)) {		// creazione nuovo effetto condizionale (se esiste)
+//	gcondef_conn[n_cef].ef = n_ef;
+	gcondef_conn[n_cef].ef = n_op;		// n operator = n_effect
+	gcondef_conn[n_cef].op = n_op;
+	new_condef_conn(&gcondef_conn[n_cef], e->num_conditions, na, nd);
+      } else {
+	new_ef_conn(to_build, e->num_conditions + a->num_preconds, na, nd);
+      }
 /*
  * End of DEA
  */
-      gef_conn[n_ef].D = ( int * ) calloc( nd, sizeof( int ) );
-      for ( j = 0; j < e->num_adds; j++ ) {
-	for ( k = 0; k < gef_conn[n_ef].num_A; k++ ) {
-	  if ( gef_conn[n_ef].A[k] == e->adds[j] ) break;
+      fact = is_implied_effect(a, i) ? gcondef_conn[n_cef].A : to_build->A;
+      for ( num = 0, j = 0; j < e->num_adds; j++ ) {
+	for ( k = 0; k < num; k++ ) {
+	  if ( fact[k] == e->adds[j] ) break;
 	}
-	if ( k < gef_conn[n_ef].num_A ) continue;
-	gef_conn[n_ef].A[gef_conn[n_ef].num_A++] = e->adds[j];
+	if ( k < num ) continue;
+	if (is_implied_effect(a, i))
+	  gcondef_conn[n_cef].A[gcondef_conn[n_cef].num_A++] = e->adds[j];
+	else
+	  to_build->A[to_build->num_A++] = e->adds[j];
+	num++;
       }
-      for ( j = 0; j < e->num_dels; j++ ) {
-	for ( k = 0; k < gef_conn[n_ef].num_D; k++ ) {
-	  if ( gef_conn[n_ef].D[k] == e->dels[j] ) break;
+      fact = is_implied_effect(a, i) ? gcondef_conn[n_cef].D : to_build->D;
+      for ( num = 0, j = 0; j < e->num_dels; j++ ) {
+	for ( k = 0; k < num; k++ ) {
+	  if ( fact[k] == e->dels[j] ) break;
 	}
-	if ( k < gef_conn[n_ef].num_D ) continue;
-	gef_conn[n_ef].D[gef_conn[n_ef].num_D++] = e->dels[j];
+	if ( k < num ) continue;
+	if (is_implied_effect(a, i))
+	  gcondef_conn[n_cef].D[gcondef_conn[n_cef].num_D++] = e->dels[j];
+	else
+	  to_build->D[to_build->num_D++] = e->dels[j];
+	num++;
       }
       for ( j = 0; j < sn; j++ ) {
 	e_ = &(a->effects[same_effects[j]]);
+	fact = is_implied_effect(a, i) ? gcondef_conn[n_cef].A : to_build->A;
+	num = is_implied_effect(a, i) ? gcondef_conn[n_cef].num_A : to_build->num_A;
 	for ( l = 0; l < e_->num_adds; l++ ) {
-	  for ( k = 0; k < gef_conn[n_ef].num_A; k++ ) {
-	    if ( gef_conn[n_ef].A[k] == e_->adds[l] ) break;
+	  for ( k = 0; k < num; k++ ) {
+	    if ( fact[k] == e_->adds[l] ) break;
 	  }
-	  if ( k < gef_conn[n_ef].num_A ) continue;
-	  gef_conn[n_ef].A[gef_conn[n_ef].num_A++] = e_->adds[l];
+	  if ( k < num ) continue;
+	  if (is_implied_effect(a, i))
+	    gcondef_conn[n_cef].A[gcondef_conn[n_cef].num_A++] = e_->adds[l];
+	  else
+	    to_build->A[to_build->num_A++] = e_->adds[l];
+	  num++;
 	}
+	fact = is_implied_effect(a, i) ? gcondef_conn[n_cef].D : to_build->D;
+	num = is_implied_effect(a, i) ? gcondef_conn[n_cef].num_D : to_build->num_D;
 	for ( l = 0; l < e_->num_dels; l++ ) {
-	  for ( k = 0; k < gef_conn[n_ef].num_D; k++ ) {
-	    if ( gef_conn[n_ef].D[k] == e_->dels[l] ) break;
+	  for ( k = 0; k < num; k++ ) {
+	    if ( fact[k] == e_->dels[l] ) break;
 	  }
-	  if ( k < gef_conn[n_ef].num_D ) continue;
-	  gef_conn[n_ef].D[gef_conn[n_ef].num_D++] = e_->dels[l];
+	  if ( k < num ) continue;
+	  if (is_implied_effect(a, i))
+	    gcondef_conn[n_cef].D[gcondef_conn[n_cef].num_D++] = e_->dels[l];
+	  else
+	    to_build->D[to_build->num_D++] = e_->dels[l];
+	  num++;
 	}
       }
       a->effects[i].ef_conn_pos = n_ef;
+      if (is_implied_effect(a, i))
+	a->effects[i].condef_conn_pos = n_cef;
+      else
+	a->effects[i].condef_conn_pos = -1;
+
       for ( j = 0; j < sn; j++ ) {
 	had_effects[same_effects[j]] = TRUE;
 	a->effects[same_effects[j]].ef_conn_pos = n_ef;
       }
-
-/*
- * DEA - University of Brescia
- */
-      tmpnum = get_num_of_preconds_of(n_ef,AT_START_TIME);
-
-      // gef_conn[n_ef].PC = (int *) calloc (e->num_conditions + a->num_preconds, sizeof (int));
-      gef_conn[n_ef].PC = ( int * ) calloc( e->num_conditions + a->num_preconds + tmpnum, sizeof( int ) );
-
-      /*alloco lo spazio anche per le condizioni overall */
-      tmpnum = get_num_of_preconds_of (n_ef, OVER_ALL_TIME);
-      if (tmpnum)
-	gef_conn[n_ef].sf->PC_overall = (int *) calloc (tmpnum, sizeof (int));
-      /*alloco lo spazio anche per le condizioni at end */
-      tmpnum = get_num_of_preconds_of (n_ef, AT_END_TIME);
-      if (tmpnum)
-	gef_conn[n_ef].sf->PC_end = (int *) calloc (tmpnum, sizeof (int));
-/*
- * End of DEA
- */
-      for ( j = 0; j < a->num_preconds; j++ ) {
-	for ( k = 0; k < gef_conn[n_ef].num_PC; k++ ) {
-	  if ( gef_conn[n_ef].PC[k] == a->preconds[j] ) break;
-	}
-	if ( k < gef_conn[n_ef].num_PC ) continue;
-	gef_conn[n_ef].PC[gef_conn[n_ef].num_PC++] = a->preconds[j];
-      }
+   
+      if (!is_implied_effect(a, i))
+	for ( j = 0; j < a->num_preconds; j++ ) {
+	  for ( k = 0; k < to_build->num_PC; k++ ) {
+	    if ( to_build->PC[k] == a->preconds[j] ) break;
+	  }
+	  if ( k < to_build->num_PC ) continue;
+	  to_build->PC[to_build->num_PC++] = a->preconds[j];
+        }
+      fact = is_implied_effect(a, i) ? gcondef_conn[n_cef].PC : to_build->PC;
+      num = is_implied_effect(a, i) ? 0 : to_build->num_PC;
       for ( j = 0; j < e->num_conditions; j++ ) {
-	for ( k = 0; k < gef_conn[n_ef].num_PC; k++ ) {
-	  if ( gef_conn[n_ef].PC[k] == e->conditions[j] ) break;
+	for ( k = 0; k < num; k++ ) {
+	  if ( fact[k] == e->conditions[j] ) break;
 	}
-	if ( k < gef_conn[n_ef].num_PC ) continue;
-	gef_conn[n_ef].PC[gef_conn[n_ef].num_PC++] = e->conditions[j];
+	if ( k < num ) continue;
+	if (is_implied_effect(a, i))
+	  gcondef_conn[n_cef].PC[gcondef_conn[n_cef].num_PC++] = e->conditions[j];
+	else
+	  to_build->PC[to_build->num_PC++] = e->conditions[j];
+	num++;
       }
-      
-      n_ef++;
-      gnum_ef_conn++;
-    }/* ende all a->effects */
 
+      if (is_implied_effect(a, i)) {
+	n_cef++;
+	gnum_condef_conn++;
+      } else {
+
+	if (a->suspected)
+	  {
+	    gef_conn[n_ef].suspected = TRUE;
+	    if (!gfirst_suspected_ef_conn)
+	      gfirst_suspected_ef_conn = n_ef;
+	  }
+
+	n_ef++;
+	gnum_ef_conn++;
+	
+      }
+    }/* ende all a->effects */
 
     /* setup implied effects info
      */
-    if ( a->num_effects > 1 ) {
-      m = 0;
-      for ( i = a->effects[0].ef_conn_pos; i < n_ef - 1; i++ ) {
-	for ( j = i+1; j < n_ef; j++ ) {
-	  /* i ==> j ? */
-	  for ( k = 0; k < gef_conn[j].num_PC; k++ ) {
-	    for ( l = 0; l < gef_conn[i].num_PC; l++ ) {
-	      if ( gef_conn[i].PC[l] == gef_conn[j].PC[k] ) break;
+   
+    if (cond_eff_is_enabled()) {
+	gef_conn[n_ef - 1].I = gop_conn[n_op].I;
+	gef_conn[n_ef - 1].num_I = gop_conn[n_op].num_I;
+    } else {
+      if ( a->num_effects > 1 ) {
+        m = 0;
+        for ( i = a->effects[0].ef_conn_pos; i < n_ef - 1; i++ ) {
+	  for ( j = i+1; j < n_ef; j++ ) {
+	    // i ==> j ?
+	    for ( k = 0; k < gef_conn[j].num_PC; k++ ) {
+	      for ( l = 0; l < gef_conn[i].num_PC; l++ ) {
+	        if ( gef_conn[i].PC[l] == gef_conn[j].PC[k] ) break;
+	      }
+	      if ( l == gef_conn[i].num_PC ) break;
 	    }
-	    if ( l == gef_conn[i].num_PC ) break;
-	  }
-	  if ( k == gef_conn[j].num_PC ) {
-	    gef_conn[i].num_I++;
-	  }
-	  /* j ==> i ? */
-	  for ( k = 0; k < gef_conn[i].num_PC; k++ ) {
-	    for ( l = 0; l < gef_conn[j].num_PC; l++ ) {
-	      if ( gef_conn[j].PC[l] == gef_conn[i].PC[k] ) break;
+	    if ( k == gef_conn[j].num_PC ) {
+	      gef_conn[i].num_I++;
 	    }
-	    if ( l == gef_conn[j].num_PC ) break;
-	  }
-	  if ( k == gef_conn[i].num_PC ) {
-	    gef_conn[j].num_I++;
-	  }
-	}
-      }
-      for ( i = a->effects[0].ef_conn_pos; i < n_ef; i++ ) {
-	gef_conn[i].I = ( int * ) calloc( gef_conn[i].num_I, sizeof( int ) );
-	gef_conn[i].num_I = 0;
-      }    
-      for ( i = a->effects[0].ef_conn_pos; i < n_ef - 1; i++ ) {
-	for ( j = i+1; j < n_ef; j++ ) {
-	  /* i ==> j ? */
-	  for ( k = 0; k < gef_conn[j].num_PC; k++ ) {
-	    for ( l = 0; l < gef_conn[i].num_PC; l++ ) {
-	      if ( gef_conn[i].PC[l] == gef_conn[j].PC[k] ) break;
+	    // j ==> i ?
+	    for ( k = 0; k < gef_conn[i].num_PC; k++ ) {
+	      for ( l = 0; l < gef_conn[j].num_PC; l++ ) {
+	        if ( gef_conn[j].PC[l] == gef_conn[i].PC[k] ) break;
+	      }
+	      if ( l == gef_conn[j].num_PC ) break;
 	    }
-	    if ( l == gef_conn[i].num_PC ) break;
-	  }
-	  if ( k == gef_conn[j].num_PC ) {
-	    gef_conn[i].I[gef_conn[i].num_I++] = j;
-	  }
-	  /* j ==> i ? */
-	  for ( k = 0; k < gef_conn[i].num_PC; k++ ) {
-	    for ( l = 0; l < gef_conn[j].num_PC; l++ ) {
-	      if ( gef_conn[j].PC[l] == gef_conn[i].PC[k] ) break;
+	    if ( k == gef_conn[i].num_PC ) {
+	      gef_conn[j].num_I++;
 	    }
-	    if ( l == gef_conn[j].num_PC ) break;
 	  }
-	  if ( k == gef_conn[i].num_PC ) {
-	    gef_conn[j].I[gef_conn[j].num_I++] = i;
+        }
+        for ( i = a->effects[0].ef_conn_pos; i < n_ef; i++ ) {
+	  gef_conn[i].I = ( int * ) calloc( gef_conn[i].num_I, sizeof( int ) );
+	  gef_conn[i].num_I = 0;
+        }
+        for ( i = a->effects[0].ef_conn_pos; i < n_ef - 1; i++ ) {
+	  for ( j = i+1; j < n_ef; j++ ) {
+	    // i ==> j ?
+	    for ( k = 0; k < gef_conn[j].num_PC; k++ ) {
+	      for ( l = 0; l < gef_conn[i].num_PC; l++ ) {
+	        if ( gef_conn[i].PC[l] == gef_conn[j].PC[k] ) break;
+	      }
+	      if ( l == gef_conn[i].num_PC ) break;
+	    }
+	    if ( k == gef_conn[j].num_PC ) {
+	      gef_conn[i].I[gef_conn[i].num_I++] = j;
+	    }
+	    // j ==> i ?
+	    for ( k = 0; k < gef_conn[i].num_PC; k++ ) {
+	      for ( l = 0; l < gef_conn[j].num_PC; l++ ) {
+	        if ( gef_conn[j].PC[l] == gef_conn[i].PC[k] ) break;
+	      }
+	      if ( l == gef_conn[j].num_PC ) break;
+	    }
+	    if ( k == gef_conn[i].num_PC ) {
+	      gef_conn[j].I[gef_conn[j].num_I++] = i;
+	    }
 	  }
-	}
+        }
       }
     }
 
     /* first sweep: only count the space we need for the fact arrays !
      */
+   
     if ( a->num_effects > 0 ) {
       for ( i = a->effects[0].ef_conn_pos; i < n_ef; i++ ) {
 	for ( j = 0; j < gef_conn[i].num_PC; j++ ) {
 	  gft_conn[gef_conn[i].PC[j]].num_PC++;
 	}
- 	for ( j = 0; j < gef_conn[i].num_A; j++ ) {
+	for ( j = 0; j < gef_conn[i].num_A; j++ ) {
 	  gft_conn[gef_conn[i].A[j]].num_A++;
 	}
 	for ( j = 0; j < gef_conn[i].num_D; j++ ) {
@@ -1579,7 +2956,8 @@ void build_connectivity_graph( void )
 	}
       }
     }
-
+  
+  
     n_op++;
   }
 
@@ -1598,11 +2976,25 @@ void build_connectivity_graph( void )
     gft_conn[ggoal_state.F[i]].is_global_goal = TRUE;
   }
 
-  for ( i = 0; i < gnum_ef_conn; i++ ) {
+  if (!gfirst_suspected_ef_conn)
+    gfirst_suspected_ef_conn = gnum_ef_conn;
+
+  for ( i = 0; i < gfirst_suspected_ef_conn; i++ ) {
+    
     for ( j = 0; j < gef_conn[i].num_PC; j++ ) {
       gft_conn[gef_conn[i].PC[j]].PC[gft_conn[gef_conn[i].PC[j]].num_PC++] = i;
     }
     for ( j = 0; j < gef_conn[i].num_A; j++ ) {
+
+      /*
+       * Non inserisco l'azione tra quelle che supportano l'effetto se esso compare
+       * anche nelle precondizioni dell'azione e se il dominio � strips 
+       * (quindi precondizioni at-start e effetti at-end)
+       */
+      if (!GpG.non_strips_domain 
+	  && is_fact_in_preconditions(i, gef_conn[i].A[j]))
+	continue;
+      
       gft_conn[gef_conn[i].A[j]].A[gft_conn[gef_conn[i].A[j]].num_A++] = i;
     }
     for ( j = 0; j < gef_conn[i].num_D; j++ ) {
@@ -1610,9 +3002,10 @@ void build_connectivity_graph( void )
     }
   }
 
+  create_conditional_fact();
+
   free( same_effects );
   free( had_effects );
-
   if ( gcmd_line.display_info == 121 ) {
     printf("\n\ncreated connectivity graph as follows:");
 
@@ -1631,6 +3024,9 @@ void build_connectivity_graph( void )
       for ( j = 0; j < gop_conn[i].num_E; j++ ) {
 	printf("\neffect %d", gop_conn[i].E[j]);
       }
+      for ( j = 0; j < gop_conn[i].num_I; j++ ) {
+	printf("\nimplied effect %d", gop_conn[i].I[j]);
+      }
 /*
  * DEA - University of Brescia
  */
@@ -1639,7 +3035,7 @@ void build_connectivity_graph( void )
  * End of DEA
  */
     }
-    
+
     printf("\n\n-------------------EFFECT ARRAY:----------------------");
     for ( i = 0; i < gnum_ef_conn; i++ ) {
 /*
@@ -1669,12 +3065,42 @@ void build_connectivity_graph( void )
       }
       printf("\n----------IMPLIEDS:");
       for ( j = 0; j < gef_conn[i].num_I; j++ ) {
-	printf("\nimplied effect %d of op %d: ", 
-	       gef_conn[i].I[j], gef_conn[gef_conn[i].I[j]].op);
-	print_op_name( gef_conn[gef_conn[i].I[j]].op );
+        if (cond_eff_is_enabled()) {
+	  printf("\nimplied effect %d of op %d: ",
+	         gef_conn[i].I[j], gef_conn[i].op);
+	  print_op_name( gef_conn[i].op );
+	} else {
+	  printf("\nimplied effect %d of op %d: ",
+	         gef_conn[i].I[j], gef_conn[gef_conn[i].I[j]].op);
+	  print_op_name( gef_conn[gef_conn[i].I[j]].op );
+	}
       }
     }
-    
+
+    printf("\n\n----------------CONDITIONAL EFFECT ARRAY:-------------------");
+    for ( i = 0; i < gnum_condef_conn; i++ ) {
+      printf("\n\nimplied effect %d of op: %d (base ef: %d) ",
+		i,
+		gcondef_conn[i].op,
+		gcondef_conn[i].ef);
+      print_op_name( gcondef_conn[i].op );
+      printf("\n----------PCS:");
+      for ( j = 0; j < gcondef_conn[i].num_PC; j++ ) {
+	printf("\n");
+	print_ft_name( gcondef_conn[i].PC[j] );
+      }
+      printf("\n----------ADDS:");
+      for ( j = 0; j < gcondef_conn[i].num_A; j++ ) {
+	printf("\n");
+	print_ft_name( gcondef_conn[i].A[j] );
+      }
+      printf("\n----------DELS:");
+      for ( j = 0; j < gcondef_conn[i].num_D; j++ ) {
+	printf("\n");
+	print_ft_name( gcondef_conn[i].D[j] );
+      }
+    }
+
     printf("\n\n----------------------FT ARRAY:-----------------------------");
     for ( i = 0; i < gnum_ft_conn; i++ ) {
 /*
@@ -1710,10 +3136,52 @@ void build_connectivity_graph( void )
  * End of DEA
  */
     }
-  }
+    printf("\n\n------------------CONDITIONAL FT ARRAY:---------------------");
+    for ( i = 0; i < gnum_condft_conn; i++ ) {
 /*
  * DEA - University of Brescia
  */
+      printf ("\n ----------------- \n\n %d FT: ", i);
+/*
+ * End of DEA
+ */
+      print_ft_name( i );
+      printf("\n----------PRE COND OF:");
+      for ( j = 0; j < gcondft_conn[i].num_PC; j++ ) {
+	printf("\nimplied effect %d", gcondft_conn[i].PC[j]);
+      }
+      printf("\n----------ADD BY:");
+      for ( j = 0; j < gcondft_conn[i].num_A; j++ ) {
+	printf("\nimplied effect %d", gcondft_conn[i].A[j]);
+      }
+      printf("\n----------DEL BY:");
+      for ( j = 0; j < gcondft_conn[i].num_D; j++ ) {
+	printf("\nimplied effect %d", gcondft_conn[i].D[j]);
+      }
+/*
+ * DEA - University of Brescia
+ */
+      printf ("\nSIZE= %d", sizeof (gcondft_conn[i]) + sizeof (int) * (gcondft_conn[i].num_PC - 1) +
+	      sizeof (int) * (gcondft_conn[i].num_A - 1) + sizeof (int) * (gcondft_conn[i].num_D - 1));
+/*
+ * End of DEA
+ */
+    }
+
+
+
+  printf("Connection graph 1\n");
+
+
+  }
+
+
+
+
+/*
+ * DEA - University of Brescia
+ */
+
   gnum_ef_block = gnum_ef_conn / 32 + 1;
   
   for (i = 0; i < gnum_ft_conn; i++)
@@ -1722,21 +3190,31 @@ void build_connectivity_graph( void )
   for (i = 0; i < gnum_ef_conn; i++)
     gef_conn[i].position = i;
   
+  gextended_ef_conn = max_num_efconn = gnum_ef_conn;
+  gextended_ft_conn = max_num_ftconn = gnum_ft_conn;
+
+  if ((gnum_ef_conn > MAX_EF_MUTEX_SIZE) && (!GpG.lowmemory)) {
+    if (DEBUG0) 
+      printf("\nSwitch to lowmemory mode...\n");
+    GpG.lowmemory = TRUE;
+  }
   
   if (DEBUG0)
     {
       
-      printf ("Number of actions   : %7d", gnum_ef_conn);
-      printf ("\nNumber of facts     : %7d", gnum_ft_conn);
+      printf ("Number of actions             : %7d", gnum_ef_conn);
+      printf ("\nNumber of conditional actions : %7d", gnum_condef_conn);
+      printf ("\nNumber of facts               : %7d", gnum_ft_conn);
       fflush(stdout);
     }
-  
+
   if (gcmd_line.display_info == 121)
     {
       printf ("\nDim. azioni    (gop_conn): %7d", sizeofgop);
       printf ("\nDim. 'effetti' (gef_conn): %7d", sizeofgef);
       printf ("\nDim. fatti     (gft_conn): %7d", sizeofgft);
     }
+
  /*
  * End of DEA
  */
@@ -1750,11 +3228,12 @@ void build_connectivity_graph( void )
  * DEA - University of Brescia
  */
 
-int
+unsigned long int
 fact_adress1 (void)
 {
 
-  int r = 0, b = 1, i;
+  unsigned long int r = 0;
+  int b = 1, i;
 
   for (i = garity[lp1] - 1; i > -1; i--)
     {
@@ -1764,10 +3243,561 @@ fact_adress1 (void)
 
   return r;
 
+} 
+
+
+
+void build_timed_initial_literals(void)
+{
+  WffNode *tmp, *tf;
+  Fact *timed;
+  int i, n, a, d;
+  unsigned long int adr;
+  
+  ginitial_timed = (TimedFtConn *)calloc(gnum_timed_initial, sizeof(TimedFtConn));
+
+  n = 0;
+  for (tmp = timed_wff; tmp; tmp = tmp->next)
+    {
+      ginitial_timed[n].time = tmp->value;
+
+      ginitial_timed[n].num_A = ginitial_timed[n].num_D = 0;
+      for (tf = tmp->sons; tf; tf = tf->next) 
+	{
+	  if (tf->connective == ATOM)
+	    { 
+	      ginitial_timed[n].num_A++;
+	      if (tf->NOT_p >= 0)
+		ginitial_timed[n].num_D++;
+	    }
+	  else //NOT - with son -> ATOM
+	    {
+	      ginitial_timed[n].num_D++;
+	    }
+	}
+
+      if (ginitial_timed[n].num_A > 0)
+	ginitial_timed[n].A = (int *)calloc(ginitial_timed[n].num_A, sizeof(int));
+      else
+	ginitial_timed[n].A = NULL;
+      
+      if (ginitial_timed[n].num_D > 0)
+	ginitial_timed[n].D = (int *)calloc(ginitial_timed[n].num_D, sizeof(int));
+      else
+	ginitial_timed[n].D = NULL;
+
+      a = d = 0;
+      for (tf = tmp->sons; tf; tf = tf->next) 
+	{
+	  timed = tf->fact;
+
+	  if (tf->connective == ATOM)
+	    {
+      
+	      lp = timed->predicate;
+	      for (i = 0; i < garity[lp]; i++)
+		largs[i] = timed->args[i];
+	      
+	      adr = fact_adress();
+	      
+	      ginitial_timed[n].A[a++] = retrieve_fact_index(lp, adr, NULL);
+	      
+	      if (tf->NOT_p >= 0)
+		{
+		  lp = tf->NOT_p;
+		  adr = fact_adress();
+		  ginitial_timed[n].D[d++] = retrieve_fact_index(lp, adr, NULL);
+		}
+	    }
+	  else //NOT - with son -> ATOM 
+	    {
+	      timed = tf->son->fact;
+	      
+	      lp = timed->predicate;
+	      for (i = 0; i < garity[lp]; i++)
+		largs[i] = timed->args[i];
+
+	      adr = fact_adress();
+	      ginitial_timed[n].D[d++] = retrieve_fact_index(lp, adr, NULL);
+	    }
+	}
+
+      n++;
+    }
 }
+
+
+
+
+
+int compare_time(const void *a, const void *b) 
+{
+
+  if (((TimedFtConn *)a)->time < ((TimedFtConn *)b)->time)
+    return -1;
+  else if (((TimedFtConn *)a)->time > ((TimedFtConn *)b)->time)
+    return 1;
+  
+  return 0;
+  
+}
+
+
+int compare_time_and_position(const void *a, const void *b)
+{
+  if (((Timed_fct *)a)->position < ((Timed_fct *)b)->position)
+    return -1;
+  else if (((Timed_fct *)a)->position == ((Timed_fct *)b)->position)
+    {
+      if (((Timed_fct *)a)->start_time < ((Timed_fct *)b)->start_time)
+	return -1;
+      else if  (((Timed_fct *)a)->start_time > ((Timed_fct *)b)->start_time)
+	return 1;
+      else
+	return 0;
+    }
+    
+  return 1;
+}
+
+
+
+
+
+
+/**
+ * Costruisce la matrice dei timed facts (gtimed_fct_vect). Ogni riga corrisponde ad un timed fact distinto
+ * ogni colonna corrisponde ad un diverso intervallo. Gli intervalli (colonne) sono ordinati temporalmente. 
+ * Aggiorna gft_conn marcando i fatti timed con IS_TIMED e setta il bitarray GpG.has_timed_preconds
+ * marcando i bit corrispondenti ad azione che hanno preconditioni timed.
+ **
+ * Build timed facts intervals matrix. Each row is a different timed fact, each column is a different time
+ * interval. Intervals are temporarily ordered. Update the gft_conn array: mark the timed facts with the
+ * flag IS_TIMED. Set the bitarray GpG.has_timed_preconds that contains the actions with timed preconditions.
+ **/
+void make_timed_fct_vector( void ) {
+
+  int i, j, k, l, num, num_timed, num_diff, complete, next;
+  int *facts = NULL;
+  int *timed_bitarray;
+
+  Timed_fct tmp, *timed_vect;
+
+  build_timed_initial_literals();
+
+  qsort(ginitial_timed, gnum_timed_initial, sizeof(TimedFtConn), compare_time);
+  
+  // Alloco e resetto il bitvector per marcare i fatti timed
+  GpG.fact_is_timed = (int *)calloc(gnum_ft_block, sizeof(int));
+  assert(GpG.fact_is_timed);
+  memset(GpG.fact_is_timed, 0, gnum_ft_block * sizeof(int));
+
+  // Conto i timed facts
+  facts = (int *)calloc(gnum_ft_block, sizeof(int));
+  memset(facts, 0, gnum_ft_block * sizeof(int));
+
+  num = num_diff = complete = 0;
+  next = 1;
+
+  for (i = 0; i < gnum_timed_initial; i++) 
+    {
+      num += ginitial_timed[i].num_A;
+      for (j = 0; j < ginitial_timed[i].num_A; j++)
+	{
+	  if (!GET_BIT(facts, ginitial_timed[i].A[j])) 
+	    {
+	      SET_BIT(facts, ginitial_timed[i].A[j]);
+	      num_diff++;
+	    }
+	}
+      for (j = 0; j < ginitial_timed[i].num_D; j++) 
+	{
+	  if (!GET_BIT(facts, ginitial_timed[i].D[j])) 
+	    {
+	      SET_BIT(facts, ginitial_timed[i].D[j]);
+	      num++;
+	      num_diff++;
+	    }
+	}
+    }
+  free(facts);
+
+  /**
+     Alloco memoria per il vettore degli intervalli
+     **
+     Allocate memory for intervals vector
+  **/
+  timed_vect = (Timed_fct *)calloc(num + 1, sizeof(Timed_fct));
+  memset(timed_vect, 0, (num + 1) * sizeof(Timed_fct));
+
+  num_timed = 0;
+
+
+  // Per ogni azione fittizia (Timed fact)
+  for (i = 0; i < gnum_timed_initial; i++) 
+    {
+      // Per ogni effetto additivo
+      for (j = 0; j < ginitial_timed[i].num_A; j++) 
+	{
+	  for (k = complete; k < num_timed; k++)
+	    if ((ginitial_timed[i].A[j] == timed_vect[k].position) &&
+		(ginitial_timed[i].time < timed_vect[k].end_time) &&
+		(timed_vect[k].start_time < 0))
+	      break;
+	  // Completo le informazioni dell'intervallo
+	  if (k < num_timed) 
+	    {
+	      if (k == next)
+		{
+		  complete++;
+		  next++;
+		}
+	      timed_vect[k].start_time = ginitial_timed[i].time;
+	      timed_vect[k].duration = timed_vect[k].end_time - timed_vect[k].start_time;
+	    }
+	  // Oppure creo un nuovo intervallo e salvo lo start_time
+	  else 
+	    {
+	      // Marco questo fatto come TIMED
+	      gft_conn[ginitial_timed[i].A[j]].fact_type = IS_TIMED;
+	      SET_BIT(GpG.fact_is_timed, ginitial_timed[i].A[j]);
+	      tmp.position = ginitial_timed[i].A[j];
+	      tmp.start_time = ginitial_timed[i].time;
+	      tmp.end_time = -1;
+	      tmp.duration = -1;
+	      tmp.levels = NULL;
+	      tmp.num_act_PC = 0;
+	      tmp.slack = MAXFLOAT;
+	      timed_vect[num_timed++] = tmp;
+	    }
+	}
+      // Per ogni effetto cancellante
+      for (j = 0; j < ginitial_timed[i].num_D; j++) 
+	{
+	  for (k = complete; k < num_timed; k++)
+	    if ((ginitial_timed[i].D[j] == timed_vect[k].position) &&
+		(ginitial_timed[i].time > timed_vect[k].start_time)
+		&& (timed_vect[k].end_time < 0))
+	      break;
+	  // Completo le informazioni dell'intervallo
+	  if (k < num_timed) 
+	    {
+	      if (k==next)
+		{
+		  complete++;
+		  next++;
+		}
+	      timed_vect[k].end_time = ginitial_timed[i].time;
+	      timed_vect[k].duration = timed_vect[k].end_time - timed_vect[k].start_time;
+	    }
+	  // Oppure creo un nuovo intervallo e salvo l'end_time
+	  else 
+	    {
+	      // Marco questo fatto come TIMED
+	      gft_conn[ginitial_timed[i].D[j]].fact_type = IS_TIMED;
+	      SET_BIT(GpG.fact_is_timed, ginitial_timed[i].D[j]);
+	      tmp.position = ginitial_timed[i].D[j];
+	      tmp.end_time = ginitial_timed[i].time;
+	      tmp.start_time = -1;
+	      tmp.duration = -1;
+	      tmp.levels = NULL;
+	      tmp.num_act_PC = 0;
+	      tmp.slack = MAXFLOAT;
+	      timed_vect[num_timed++] = tmp;
+	    }
+	}
+
+    }
+
+  if (num_timed != num)
+    /**
+       Il numero di timed fact � diverso da quello definito facendo il parsing
+       **
+       Wrong timed fact number
+    **/
+    printf("Error : count %d timed facts but %d expected.", num_timed, num);
+  
+  qsort(timed_vect, num_timed, sizeof(Timed_fct), compare_time_and_position);
+  
+  // Costruisco la matrice definitiva 
+  gnum_timed_facts = num_diff;
+  gtimed_fct_vect = (Timed_fct **)calloc(num_diff, sizeof(Timed_fct *));
+  gtimed_fct_bitarray = (int **) calloc (num_diff, sizeof(int *));
+
+  memset(gtimed_fct_vect, 0, num_diff * sizeof(Timed_fct *));
+  memset(gtimed_fct_bitarray, 0, num_diff * sizeof(int *));
+
+  gnum_tmd_interval = (int *)calloc(num_diff, sizeof(int));
+  memset(gnum_tmd_interval, 0, num_diff * sizeof(int));
+
+  gnum_tmd_interval_block = (int *)calloc(num_diff, sizeof(int));
+  memset(gnum_tmd_interval_block, 0, num_diff * sizeof(int));
+
+  ginterval_idx = (int *)calloc(gnum_ft_conn, sizeof(int));
+  memset(ginterval_idx, -1, gnum_ft_conn * sizeof(int));
+  i = 0;
+  k = 0;
+  while (i < num_timed) 
+    {
+      j = timed_vect[i].position;
+      gtimed_fct_vect[k] = &timed_vect[i];
+
+      ginterval_idx[timed_vect[i].position] = k;
+      for (i = i + 1, l = 1; (i < num_timed) && (timed_vect[i].position == j); i++, l++);
+      gnum_tmd_interval[k] = l;
+
+      gnum_tmd_interval_block[k] = l / 32 + 1;
+
+	// Alloco bit_array per intervalli a cui e' associata almeno un'azione del grafo
+      timed_bitarray = (int *)calloc(gnum_tmd_interval_block[k], sizeof(int));
+      memset(timed_bitarray, 0, gnum_tmd_interval_block[k] * sizeof(int)); 
+
+      gtimed_fct_bitarray[k] = timed_bitarray;
+
+      k++;
+      if (i >= num_timed)
+	break;
+    }
+  
+  if (DEBUG3) {
+    for (i = 0; i < gnum_timed_facts; i++) 
+      {
+	j = gtimed_fct_vect[i][0].position;
+	
+	if (gft_conn[j].fact_type != IS_TIMED)
+	  {
+	    printf("\n\nError");
+	    exit(1);
+	  }
+	
+	printf("\n\nTimed fact : %s\nTemporal intervals : ", print_ft_name_string(j, temp_name));
+	for (k = 0; k < NUM_INTERVALS(j); k++)
+	  printf("[%d] : %.2f - %.2f", k, gtimed_fct_vect[i][k].start_time, gtimed_fct_vect[i][k].end_time);
+      } 
+  }
+  
+  /**
+     Alloco il vettore PC_int su cui effettuare temporaneamente 
+     tutte le modifiche sugli intervalli
+     **
+     Allocate the PC_int vector (used for intervals analisys during local search)
+  **/
+  temp_PC_int = (int *)calloc(gnum_timed_facts, sizeof(int));
+
+  /**
+     Inizializzo il bitarray delle azioni che hanno dei timed nelle precondizioni
+     **
+     Set a bitarray containing all actions with timed preconditions
+  **/
+  GpG.has_timed_preconds = (int *)calloc(gnum_ef_block, sizeof(int));
+  assert(GpG.has_timed_preconds);
+  memset(GpG.has_timed_preconds, 0, gnum_ef_block * sizeof(int));
+
+  for (i = 0; i < gnum_timed_facts; i++) 
+    {
+      j = gtimed_fct_vect[i][0].position;
+      
+      if (DEBUG5)
+	printf("\n\nTimed fact %s is precondition of actions", print_ft_name_string(j, temp_name));
+      
+      /**
+	 Per tutte le azioni che hanno questo timed fact come precondizione
+	 Setto a 1 il bit corrispondente in GpG.has_timed_preconds
+	 **
+	 For each action that use this timed fact as a precondition, set a 
+	 bit in ghe GpG.has_timed_preconds bitarray
+      **/
+      for (k = 0; k < gft_conn[j].num_PC; k++) 
+	{
+	  SET_BIT(GpG.has_timed_preconds, gft_conn[j].PC[k]);
+	  
+	  if (DEBUG5) 
+	    {
+	      printf("\n        ");
+	      print_op_name(gft_conn[j].PC[k]);
+	    }
+	}
+    }
+}
+
+
+
+/**
+ * Costruisce la rappresentazione finale dei predicati derivati, ovverlo l'array gdp_conn, e aggiorna
+ * gft_conn marcando i fatti corrispondenti a predicati derivati con IS_DERIVED
+ **
+ * Build the final representation for derived predicates
+**/
+void create_final_derived_predicates() {
+  int i, j, num_base;
+  Action *a;
+  IntList **prec_ft;
+  IntList **eff_ft, **neff_ft;
+  IntList *tmp;
+
+  if (DEBUG2)
+    {
+      printf("\n\nCreate final derived predicates rules...");
+      fflush(stdout);
+    }
+
+  prec_ft = (IntList **) calloc (gnum_ft_conn, sizeof(IntList *));
+  memset(prec_ft, 0, gnum_ft_conn * sizeof(IntList *));
+
+  eff_ft = (IntList **) calloc (gnum_ft_conn, sizeof(IntList *));
+  memset(eff_ft, 0, gnum_ft_conn * sizeof(IntList *));
+
+  neff_ft = (IntList **) calloc (gnum_ft_conn, sizeof(IntList *));
+  memset(neff_ft, 0, gnum_ft_conn * sizeof(IntList *));
+
+  gdp_conn = (DpConn *) calloc (gnum_dp_actions, sizeof(DpConn));
+  memset(gdp_conn, 0, gnum_dp_actions * sizeof(DpConn));
+
+  gnum_dp_conn = 0;
+
+  num_base = gnum_ft_conn;
+
+  for (a = gdpactions, i = 0; a; a = a -> next) {
+
+    /**
+       Per ogni azione fittizia costruita per rappresentare i predicati derivati
+       (regola completamente istanziata)
+       **
+       For each action built for representing a derived predicate...
+    **/
+
+    if (a -> effects -> num_adds == 0) 
+      continue;
+
+    gnum_dp_conn++;
+
+    gdp_conn[i].act = a;
+
+    if (DEBUG1) {
+      printf("\nFatto derivato: %s", a->name);
+    }
+
+    gdp_conn[i].op = i;
+    gdp_conn[i].add = a -> effects -> adds[0];
+    gft_conn[gdp_conn[i].add].fact_type = IS_DERIVED;
+    
+    if (gdp_conn[i].add < num_base)
+      num_base = gdp_conn[i].add;
+
+    if (gft_conn[gdp_conn[i].add].num_PC)
+      {
+	GpG.derived_pred_in_preconds = TRUE;
+	GpG.save_action_cost_list = TRUE;
+      }
+
+    gft_conn[gdp_conn[i].add].num_dp_A++;
+    tmp = (IntList *) malloc (sizeof(IntList));
+    tmp -> item = i;
+    tmp -> next = eff_ft[gdp_conn[i].add];
+    eff_ft[gdp_conn[i].add] = tmp;
+
+#ifdef __MY_OUTPUT__
+    if (a -> effects -> num_adds != 1) 
+      printf("Warning : derived predicates with%seffects found%s", (!a->effects->num_adds)?" no ":" more than one ",
+	     (!a->effects->num_adds)?".":" : effects could be ignored.");
+#endif
+
+    if (a -> effects -> num_dels) {
+      gdp_conn[i].del = a -> effects -> dels[0];
+      gft_conn[gdp_conn[i].del].fact_type = IS_DERIVED;
+
+      if (gft_conn[gdp_conn[i].del].num_PC)
+	 GpG.derived_pred_in_preconds = TRUE;
+
+      gft_conn[gdp_conn[i].del].num_dp_D++;
+      tmp = (IntList *) malloc (sizeof(IntList));
+      tmp -> item = i;
+      tmp -> next = neff_ft[gdp_conn[i].del];
+      neff_ft[gdp_conn[i].del] = tmp;
+    }
+    else
+      gdp_conn[i].del = -1;
+
+    gdp_conn[i].num_PC = a -> num_preconds;
+    gdp_conn[i].PC = (int *)calloc(a -> num_preconds, sizeof(int));
+
+    for (j = 0; j < a -> num_preconds; j++) {
+      gdp_conn[i].PC[j] = a -> preconds[j];
+      gft_conn[gdp_conn[i].PC[j]].num_dp_PC++;
+      tmp = (IntList *) malloc (sizeof(IntList));
+      tmp -> item = i;
+      tmp -> next = prec_ft[gdp_conn[i].PC[j]];
+      prec_ft[gdp_conn[i].PC[j]] = tmp;
+    }
+
+#ifdef __TEST_PD__
+    printf("\n\nDerived operators %d", i);
+    printf("\n* preconditions :");
+    for (j = 0; j < gdp_conn[i].num_PC; j++)
+      printf("\n%s [%d]", print_ft_name_string(gdp_conn[i].PC[j], temp_name), j);
+    printf("\n* effects :");
+    if (gdp_conn[i].add >= 0)
+      printf("\nADD : %s [%d]", print_ft_name_string(gdp_conn[i].add, temp_name), gdp_conn[i].add);
+    if (gdp_conn[i].del >= 0)
+      printf("\nDEL : %s [%d]", print_ft_name_string(gdp_conn[i].del, temp_name), gdp_conn[i].del);
+#endif    
+    
+    i++;
+
+  }
+
+
+  /* Update gft_conn structure */
+  for (i = 0; i < gnum_ft_conn; i++) { 
+    if (gft_conn[i].num_dp_PC)	
+      gft_conn[i].dp_PC = (int *) calloc (gft_conn[i].num_dp_PC, sizeof(int));
+    if (gft_conn[i].num_dp_A)
+      gft_conn[i].dp_A = (int *) calloc (gft_conn[i].num_dp_A, sizeof(int));
+    if (gft_conn[i].num_dp_D)
+      gft_conn[i].dp_D = (int *) calloc (gft_conn[i].num_dp_D, sizeof(int));
+    for (tmp = prec_ft[i], j = 0; tmp; tmp = tmp -> next, j++) 
+      gft_conn[i].dp_PC[j] = tmp -> item;
+    for (tmp = eff_ft[i], j = 0; tmp; tmp = tmp -> next, j++)
+      gft_conn[i].dp_A[j] = tmp -> item;
+    for (tmp = neff_ft[i], j = 0; tmp; tmp = tmp -> next, j++)
+      gft_conn[i].dp_D[j] = tmp -> item;
+  }
+
+  /* Free allocated data */
+  for (i = 0; i < gnum_ft_conn; i++) {
+    free_intlist(prec_ft[i]);
+    free_intlist(eff_ft[i]);
+    free_intlist(neff_ft[i]);
+  }
+  free(prec_ft);
+  free(eff_ft);
+  free(neff_ft);
+
+  gnum_dp_block = (gnum_dp_conn >> 5) + 1;
+
+  gnum_base_ft_conn = num_base;
+  gnum_base_ft_block = (num_base >> 5) + 1;
+
+  if (GpG.derived_pred_in_preconds)
+    GpG.save_action_cost_list = TRUE;
+
+#ifdef __TEST_PD__ 
+  printf("\n******* FACTS *******\n");
+  for (i = 0; i < gnum_ft_conn; i++) {
+    printf("\nFATTO %4d : ", i);
+    printf("%15s :: %s", print_ft_name_string(i, temp_name), (gft_conn[i].fact_type == IS_BASE)?"BASE":"DERIVED");
+  }
+  printf("\n*********************\n");
+#endif
+
+  if (!gnum_dp_conn)
+    GpG.derived_predicates = FALSE;
+
+  printf ("\nNumber of rules               : %7d", gnum_dp_conn);
+
+}
+
 
 /*
  * End of DEA
  */
-
-

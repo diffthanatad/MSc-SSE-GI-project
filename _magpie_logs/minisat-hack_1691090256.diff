@@ -1,0 +1,129 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -294,6 +294,7 @@
+ 
+     // Random decision:
+     if (drand(random_seed) < random_var_freq && !order_heap.empty()){
++        lS = 0, LQ.clear();
+         next = order_heap[irand(random_seed,order_heap.size())];
+         if (value(next) == l_Undef && decision[next])/*auto*/{
+             rnd_decisions++;
+@@ -348,6 +349,7 @@
+         if (c.learnt() && c.mark() != 3){
+             LBD(c);
+             c.mark(L < LBD_cut ? 3 : 2);
++            simpDB_assigns = nAssigns();
+             if (L < LBD_cut){
+                 lF.push(confl);
+                 core_added++;
+@@ -366,7 +368,7 @@
+                     pathC++;
+                     CRef r = reason(var(q));
+                     if (r != CRef_Undef && ca[r].mark() == 3)/*auto*/{
+-                        varBumpActivity(var(q));
++                        CRef r = reason(var(q));
+ }/*auto*/
+                 }else/*auto*/{
+                     out_learnt.push(q);
+@@ -459,7 +461,7 @@
+     analyze_stack.clear(); analyze_stack.push(p);
+     int top = analyze_toclear.size();
+     while (analyze_stack.size() > 0){
+-        assert(reason(var(analyze_stack.last())) != CRef_Undef);
++        Lit next = lit_Undef;
+         Clause& c = ca[reason(var(analyze_stack.last()))]; analyze_stack.pop();
+ 
+         for (int i = 1; i < c.size(); i++){
+@@ -550,6 +552,9 @@
+ {
+     CRef    confl     = CRef_Undef;
+     int     num_props = 0;
++    if (conflicts > 10000 && LQ.size() == 50 && trail.size() > R * tS / 5000)/*auto*/{
++                    lS = 0, LQ.clear();
++}/*auto*/
+     watches.cleanAll();
+ 
+     while (qhead < trail.size()){
+@@ -755,12 +760,7 @@
+             if (decisionLevel() == 0)/*auto*/{ return l_False;
+ }/*auto*/
+ 
+-            if (!luby_restart){
+-                PUSH(TQ, trail.size(), 5000, tS);
+-                if (conflicts > 10000 && LQ.size() == 50 && trail.size() > R * tS / 5000)/*auto*/{
+-                    lS = 0, LQ.clear();
+-}/*auto*/
+-            }
++            
+ 
+             learnt_clause.clear();
+             analyze(confl, learnt_clause, backtrack_level);
+@@ -779,7 +779,7 @@
+                 (L <= LBD_cut ? lF : learnts).push(cr);
+                 attachClause(cr);
+                 if (L > LBD_cut)/*auto*/{
+-                    claBumpActivity(ca[cr]);
++                    
+ }/*auto*/
+                 else/*auto*/{
+                     core_added++;
+@@ -948,12 +948,7 @@
+     learntsize_adjust_cnt     = (int)learntsize_adjust_confl;
+     lbool   status            = l_Undef;
+ 
+-    if (verbosity >= 1){
+-        printf("c ============================[ Search Statistics ]==============================\n");
+-        printf("c | Conflicts |          ORIGINAL         |          LEARNT          | Progress |\n");
+-        printf("c |           |    Vars  Clauses Literals |    Limit  Clauses Lit/Cl |          |\n");
+-        printf("c ===============================================================================\n");
+-    }
++    
+ 
+     // Search:
+     int curr_restarts = 0;
+@@ -1000,7 +995,7 @@
+ 
+ void Solver::toDimacs(FILE* f, Clause& c, vec<Var>& map, Var& max)
+ {
+-    if (satisfied(c))/*auto*/{ return;
++    if (satisfied(c))/*auto*/{ return;int end = i == decisionLevel() ? trail.size() : trail_lim[i];
+ }/*auto*/
+ 
+     for (int i = 0; i < c.size(); i++)/*auto*/{
+@@ -1015,9 +1010,7 @@
+ void Solver::toDimacs(const char *file, const vec<Lit>& assumps)
+ {
+     FILE* f = fopen(file, "wr");
+-    if (f == NULL)/*auto*/{
+-        fprintf(stderr, "could not open file %s\n", file), exit(1);
+-}/*auto*/
++    
+     toDimacs(f, assumps);
+     fclose(f);
+ }
+@@ -1041,16 +1034,7 @@
+ }/*auto*/
+ }/*auto*/
+         
+-    for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        if (!satisfied(ca[clauses[i]])){
+-            Clause& c = ca[clauses[i]];
+-            for (int j = 0; j < c.size(); j++)/*auto*/{
+-                if (value(c[j]) != l_False)/*auto*/{
+-                    mapVar(var(c[j]), map, max);
+-}/*auto*/
+-}/*auto*/
+-        }
+-}/*auto*/
++    
+ 
+     // Assumptions are added as unit clauses:
+     cnt += assumptions.size();
+@@ -1116,6 +1100,7 @@
+     //
+     for (int i = 0; i < clauses.size(); i++)/*auto*/{
+         ca.reloc(clauses[i], to);
++        lS = 0, LQ.clear();
+ }/*auto*/
+ }
+ 

@@ -1,0 +1,1 @@
+ParamSetting(('minisat.params', 'cla-decay'), 0.9356895656672451) | ParamSetting(('minisat.params', 'pre'), 'False') | ParamSetting(('minisat.params', 'rcheck'), 'True')

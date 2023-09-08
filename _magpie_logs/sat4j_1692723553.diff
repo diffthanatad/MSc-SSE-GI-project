@@ -1,0 +1,66 @@
+--- before: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
++++ after: org.sat4j.core/src/main/java/org/sat4j/minisat/core/Solver.java
+@@ -1253,10 +1253,7 @@
+                         }
+                     }
+                 } else {
+-                    if (this.restarter.shouldRestart()) {
+-                        cancelUntil(this.rootLevel);
+-                        return Lbool.UNDEFINED;
+-                    }
++                    
+                     if (this.needToReduceDB) {
+                         reduceDB();
+                         this.needToReduceDB = false;
+@@ -1376,26 +1373,7 @@
+         this.userbooleanmodel = new boolean[realNumberOfVariables()];
+         this.fullmodel = null;
+         Constr reason;
+-        for (int i = 1; i <= nVars(); i++) {
+-            if (this.voc.belongsToPool(i)) {
+-                int p = this.voc.getFromPool(i);
+-                if (!this.voc.isUnassigned(p)) {
+-                    tempmodel.push(this.voc.isSatisfied(p) ? i : -i);
+-                    this.userbooleanmodel[i - 1] = this.voc.isSatisfied(p);
+-                    reason = this.voc.getReason(p);
+-                    if (reason == null && this.voc.getLevel(p) > 0
+-                            // we consider literals propagated by learned
+-                            // clauses
+-                            // as decisions to allow blocking models by
+-                            // decisions.
+-                            || reason != null && reason.learnt()) {
+-                        this.decisions.push(tempmodel.last());
+-                    } else {
+-                        this.implied.push(tempmodel.last());
+-                    }
+-                }
+-            }
+-        }
++        
+         this.model = new int[tempmodel.size()];
+         tempmodel.copyTo(this.model);
+         if (realNumberOfVariables() > nVars()) {
+@@ -1696,8 +1674,8 @@
+         // solver data structures
+         IVecInt localAssumps = new VecInt(assumps.size());
+         for (IteratorInt iterator = assumps.iterator(); iterator.hasNext();) {
+-            int assump = iterator.next();
+-            localAssumps.push(this.voc.getFromPool(assump));
++            
++            
+         }
+         if (!alreadylaunched || !this.keepHot) {
+             this.order.init();
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,7 @@
+-RESTARTS := 'Glucose21Restarts'
++RESTARTS := 'LubyRestarts'
++LUBYFACTOR := 31
+ PHASE := 'RSATPhaseSelectionStrategy'
+ CLADECAY := 0.999
+-VARDECAY := 0.95
++VARDECAY := 0.7446616574071555
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+-CLEANING := 'LBD2'
++CLEANING := 'LBD'

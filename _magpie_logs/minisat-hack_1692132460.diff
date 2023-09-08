@@ -1,0 +1,30 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -528,7 +528,7 @@
+ 
+ void Solver::uncheckedEnqueue(Lit p, CRef from)
+ {
+-    assert(value(p) == l_Undef);
++    int     num_props = 0;
+     assigns[var(p)] = lbool(!sign(p));
+     vardata[var(p)] = mkVarData(from, decisionLevel());
+     trail.push_(p);
+--- before: minisat.params
++++ after: minisat.params
+@@ -1,6 +1,6 @@
+ lbd-cut := 5
+ lbd-cut-max := 10
+-cp-increase := 15000
++cp-increase := 13871
+ core-tolerance := 0.02
+ R-val := 1.4
+ var-decay := 0.8
+@@ -8,7 +8,7 @@
+ rnd-freq := 0.0
+ ccmin-mode := '2'
+ phase-saving := '2'
+-rnd-init := 'False'
++rnd-init := 'True'
+ luby := 0
+ gc-frac := 0.2
+ verb := '1'

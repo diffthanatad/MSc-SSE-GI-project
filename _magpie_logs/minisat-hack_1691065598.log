@@ -1,0 +1,307 @@
+2023-08-03 13:26:41,622	[DEBUG]	==== CONFIG ====
+[magpie]
+import = 
+seed = 
+log_dir = _magpie_logs
+work_dir = _magpie_work
+local_original_copy = False
+local_original_name = __original__
+output_encoding = ascii
+edit_retries = 10
+default_timeout = 30
+default_lengthout = 1e6
+diff_method = unified
+
+[software]
+path = code/minisat-hack
+target_files = 
+	core/Solver.cc.xml
+	minisat.params
+program = BasicProgram
+engine_rules = 
+	*.params : ConfigFileParamsEngine
+	*.xml : SrcmlEngine
+	* : LineEngine
+engine_config = 
+	*.params : [params]
+	*.xml : [srcml]
+setup_cmd = ./compile.sh
+setup_timeout = 
+setup_lengthout = 
+compile_cmd = ./compile.sh
+compile_timeout = 16
+compile_lengthout = 
+test_cmd = 
+test_timeout = 
+test_lengthout = 
+run_cmd = perf stat run-sh/validate_9.sh
+run_timeout = 1593
+run_lengthout = 
+fitness = perf_instructions
+
+[srcml]
+rename = 
+	stmt: break continue decl_stmt do expr_stmt for goto if return switch while
+	number: literal_number
+focus = block stmt operator_comp operator_arith number
+internodes = block
+process_pseudo_blocks = True
+process_literals = True
+process_operators = True
+
+[params]
+timing = test run
+cli_prefix = --
+cli_glue = =
+cli_boolean = show
+cli_boolean_prefix_true = 
+cli_boolean_prefix_false = no-
+silent_prefix = @
+silent_suffix = $
+
+[search]
+protocol = BasicProtocol
+algorithm = ValidTest
+possible_edits = 
+	StmtReplacement
+	StmtInsertion
+	StmtDeletion
+warmup = 1
+warmup_strategy = last
+max_steps = 
+max_time = 
+target_fitness = 
+cache_maxsize = 40
+cache_keep = 0.2
+
+[search.ls]
+delete_prob = 0.5
+max_neighbours = 
+when_trapped = continue
+accept_fail = False
+tabu_length = 10
+
+[search.gp]
+pop_size = 10
+delete_prob = 0.5
+offspring_elitism = 0.1
+offspring_crossover = 0.5
+offspring_mutation = 0.4
+uniform_rate = 0.5
+
+[search.ga]
+pop_size = 10
+elitism_size = 2
+cxpb_chrm = 0.5
+cxpb_gene = 0.5
+mutpb_chrm = 0.2
+mutpb_gene = 0.1
+gi_delete_prob = 0.5
+gi_create_prob = 0.5
+tournament_size = 3
+
+[search.pso]
+pop_size = 10
+speed_min = -3
+speed_max = 3
+c1 = 1.49
+c2 = 1.49
+
+
+2023-08-03 13:26:41,623	[INFO]	==== WARMUP ====
+2023-08-03 13:45:16,465	[INFO]	WARM    SUCCESS               1880742308915           
+2023-08-03 13:45:16,466	[INFO]	INITIAL SUCCESS               1880742308915           
+2023-08-03 13:45:16,466	[INFO]	==== START: ValidTest ====
+2023-08-03 13:45:16,649	[DEBUG]	CLEAN_PATCH: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 464), ('core/Solver.cc.xml', 'stmt', 309)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 45)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 270), ('core/Solver.cc.xml', 'stmt', 268)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 335), ('core/Solver.cc.xml', 'stmt', 0)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 309)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 314), ('core/Solver.cc.xml', 'stmt', 5)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 315)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 362)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 409), ('core/Solver.cc.xml', 'stmt', 385))
+2023-08-03 13:45:16,649	[DEBUG]	CLEAN_SIZE: 9 (was 9)
+2023-08-03 13:59:26,652	[DEBUG]	StmtInsertion(('core/Solver.cc.xml', '_inter_block', 464), ('core/Solver.cc.xml', 'stmt', 309)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 45)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 270), ('core/Solver.cc.xml', 'stmt', 268)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 335), ('core/Solver.cc.xml', 'stmt', 0)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 309)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 314), ('core/Solver.cc.xml', 'stmt', 5)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 315)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 362)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 409), ('core/Solver.cc.xml', 'stmt', 385))
+2023-08-03 13:59:26,653	[INFO]	1       SUCCESS              *1463605488125 (77.82%) [9 edit(s)] 
+2023-08-03 13:59:26,673	[DEBUG]	--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -174,7 +174,7 @@
+ 
+     for (i = j = 0, p = lit_Undef; i < ps.size(); i++)/*auto*/{
+         if (value(ps[i]) == l_True || ps[i] == ~p)/*auto*/{
+-            return true;
++            
+ }/*auto*/
+         else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+             ps[j++] = p = ps[i];
+@@ -511,6 +511,7 @@
+                 assert(level(x) > 0);
+                 out_conflict.push(~trail[i]);
+             }else{
++                checkGarbage();
+                 Clause& c = ca[reason(x)];
+                 for (int j = 1; j < c.size(); j++)/*auto*/{
+                     if (level(var(c[j])) > 0)/*auto*/{
+@@ -743,23 +744,20 @@
+     int         conflictC = 0;
+     vec<Lit>    learnt_clause;
+     starts++;
++    model.clear();
+ 
+     for (;;){
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+             conflicts++; conflictC++;
+-            if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+-                var_decay += 0.01;
+-}/*auto*/
++            
+             if (decisionLevel() == 0)/*auto*/{ return l_False;
+ }/*auto*/
+ 
+             if (!luby_restart){
+-                PUSH(TQ, trail.size(), 5000, tS);
+-                if (conflicts > 10000 && LQ.size() == 50 && trail.size() > R * tS / 5000)/*auto*/{
+-                    lS = 0, LQ.clear();
+-}/*auto*/
++                static IntOption    opt_cp_increase        (_cat, "cp-increase", "cp-increase", 15000, IntRange(5000, 50000));
++                
+             }
+ 
+             learnt_clause.clear();
+@@ -797,21 +795,7 @@
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+-            if (conflicts % 5000 == 0){
+-                //learntsize_adjust_confl *= learntsize_adjust_inc;
+-                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+-                //max_learnts             *= learntsize_inc;
+-
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
+-            }
++            static unsigned LBD_cut, core_added = 0;
+ 
+         }else{
+             // NO CONFLICT
+@@ -850,12 +834,16 @@
+ }/*auto*/
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+-                    LBD_cut = (int32_t)opt_lbd_cut + adjust;
++                    
+                 }
+                 core_added = 0;
+             }
+ 
+             Lit next = lit_Undef;
++
++            if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
++                var_decay += 0.01;
++}/*auto*/
+             /*while (decisionLevel() < assumptions.size()){
+                 // Perform user provided assumption:
+                 Lit p = assumptions[decisionLevel()];
+
+2023-08-03 13:59:26,692	[INFO]	==== END ====
+2023-08-03 13:59:26,692	[INFO]	Reason: validation end
+2023-08-03 13:59:26,692	[INFO]	
+2023-08-03 13:59:26,693	[INFO]	==== REPORT ====
+2023-08-03 13:59:26,693	[INFO]	Termination: validation end
+2023-08-03 13:59:26,693	[INFO]	Log file: /cs/student/projects1/sse/2022/tsongpet/MSc-SSE-GI-project/_magpie_logs/minisat-hack_1691065598.log
+2023-08-03 13:59:26,712	[INFO]	Patch file: _magpie_logs/minisat-hack_1691065598.patch
+2023-08-03 13:59:26,712	[INFO]	Diff file: _magpie_logs/minisat-hack_1691065598.diff
+2023-08-03 13:59:26,712	[INFO]	Best fitness: 1463605488125
+2023-08-03 13:59:26,712	[INFO]	Best patch: StmtInsertion(('core/Solver.cc.xml', '_inter_block', 464), ('core/Solver.cc.xml', 'stmt', 309)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 45)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 270), ('core/Solver.cc.xml', 'stmt', 268)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 335), ('core/Solver.cc.xml', 'stmt', 0)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 309)) | StmtReplacement(('core/Solver.cc.xml', 'stmt', 314), ('core/Solver.cc.xml', 'stmt', 5)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 315)) | StmtDeletion(('core/Solver.cc.xml', 'stmt', 362)) | StmtInsertion(('core/Solver.cc.xml', '_inter_block', 409), ('core/Solver.cc.xml', 'stmt', 385))
+2023-08-03 13:59:26,712	[INFO]	Diff:
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -174,7 +174,7 @@
+ 
+     for (i = j = 0, p = lit_Undef; i < ps.size(); i++)/*auto*/{
+         if (value(ps[i]) == l_True || ps[i] == ~p)/*auto*/{
+-            return true;
++            
+ }/*auto*/
+         else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+             ps[j++] = p = ps[i];
+@@ -511,6 +511,7 @@
+                 assert(level(x) > 0);
+                 out_conflict.push(~trail[i]);
+             }else{
++                checkGarbage();
+                 Clause& c = ca[reason(x)];
+                 for (int j = 1; j < c.size(); j++)/*auto*/{
+                     if (level(var(c[j])) > 0)/*auto*/{
+@@ -743,23 +744,20 @@
+     int         conflictC = 0;
+     vec<Lit>    learnt_clause;
+     starts++;
++    model.clear();
+ 
+     for (;;){
+         CRef confl = propagate();
+         if (confl != CRef_Undef){
+             // CONFLICT
+             conflicts++; conflictC++;
+-            if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
+-                var_decay += 0.01;
+-}/*auto*/
++            
+             if (decisionLevel() == 0)/*auto*/{ return l_False;
+ }/*auto*/
+ 
+             if (!luby_restart){
+-                PUSH(TQ, trail.size(), 5000, tS);
+-                if (conflicts > 10000 && LQ.size() == 50 && trail.size() > R * tS / 5000)/*auto*/{
+-                    lS = 0, LQ.clear();
+-}/*auto*/
++                static IntOption    opt_cp_increase        (_cat, "cp-increase", "cp-increase", 15000, IntRange(5000, 50000));
++                
+             }
+ 
+             learnt_clause.clear();
+@@ -797,21 +795,7 @@
+             claDecayActivity();
+ 
+             //if (--learntsize_adjust_cnt == 0){
+-            if (conflicts % 5000 == 0){
+-                //learntsize_adjust_confl *= learntsize_adjust_inc;
+-                //learntsize_adjust_cnt    = (int)learntsize_adjust_confl;
+-                //max_learnts             *= learntsize_inc;
+-
+-                if (verbosity >= 1)/*auto*/{
+-                    printf("c | %9d | %7d %8d %8d | %8d %8d %6.0f | %6.3f %% | %d %d | %d %.1f (%.1f) %.1f (%.1f) %d (%d-%d) %d %.2f\n", 
+-                           (int)conflicts, 
+-                           (int)dec_vars - (trail_lim.size() == 0 ? trail.size() : trail_lim[0]), nClauses(), (int)clauses_literals, 
+-                           (int)lF.size()/*max_learnts*/, nLearnts(), (double)learnts_literals/(lF.size()+nLearnts()), progressEstimate()*100,
+-                           starts, conflicts / starts,
+-                           luby_restart, K, (double)opt_K, R, (double)opt_R, LBD_cut, (int32_t)opt_lbd_cut, (int32_t)opt_lbd_cut_max,
+-                           (int32_t)opt_cp_increase, (double)opt_core_tolerance);
+-}/*auto*/
+-            }
++            static unsigned LBD_cut, core_added = 0;
+ 
+         }else{
+             // NO CONFLICT
+@@ -850,12 +834,16 @@
+ }/*auto*/
+                     if (adjust == 0)/*auto*/{ K = (double)opt_K;
+ }/*auto*/
+-                    LBD_cut = (int32_t)opt_lbd_cut + adjust;
++                    
+                 }
+                 core_added = 0;
+             }
+ 
+             Lit next = lit_Undef;
++
++            if (conflicts % 5000 == 0 && var_decay < 0.95)/*auto*/{
++                var_decay += 0.01;
++}/*auto*/
+             /*while (decisionLevel() < assumptions.size()){
+                 // Perform user provided assumption:
+                 Lit p = assumptions[decisionLevel()];
+

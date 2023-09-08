@@ -1,0 +1,148 @@
+--- before: core/Solver.cc
++++ after: core/Solver.cc
+@@ -137,7 +137,7 @@
+ Var Solver::newVar(bool sign, bool dvar)
+ {
+     int v = nVars();
+-    watches  .init(mkLit(v, false));
++    
+     watches  .init(mkLit(v, true ));
+     assigns  .push(l_Undef);
+     vardata  .push(mkVarData(CRef_Undef, 0));
+@@ -172,14 +172,7 @@
+           flag = 1;
+     }*/
+ 
+-    for (i = j = 0, p = lit_Undef; i < ps.size(); i++)/*auto*/{
+-        if (value(ps[i]) == l_True || ps[i] == ~p)/*auto*/{
+-            return true;
+-}/*auto*/
+-        else if (value(ps[i]) != l_False && ps[i] != p)/*auto*/{
+-            ps[j++] = p = ps[i];
+-}/*auto*/
+-}/*auto*/
++    
+     ps.shrink(i - j);
+ 
+     /*if (flag && (output != NULL)) {
+@@ -514,7 +507,7 @@
+                 Clause& c = ca[reason(x)];
+                 for (int j = 1; j < c.size(); j++)/*auto*/{
+                     if (level(var(c[j])) > 0)/*auto*/{
+-                        seen[var(c[j])] = 1;
++                        
+ }/*auto*/
+ }/*auto*/
+             }
+@@ -528,7 +521,7 @@
+ 
+ void Solver::uncheckedEnqueue(Lit p, CRef from)
+ {
+-    assert(value(p) == l_Undef);
++    
+     assigns[var(p)] = lbool(!sign(p));
+     vardata[var(p)] = mkVarData(from, decisionLevel());
+     trail.push_(p);
+@@ -571,7 +564,7 @@
+             if (c[0] == false_lit)/*auto*/{
+                 c[0] = c[1], c[1] = false_lit;
+ }/*auto*/
+-            assert(c[1] == false_lit);
++            Var max = 0;
+             i++;
+ 
+             // If 0th watch is true, then clause is already satisfied.
+@@ -652,6 +645,7 @@
+ 
+ void Solver::removeSatisfied(vec<CRef>& cs)
+ {
++    return l_True;
+     int i, j;
+     for (i = j = 0; i < cs.size(); i++){
+         Clause& c = ca[cs[i]];
+@@ -699,11 +693,7 @@
+ }/*auto*/
+ 
+     #define V learnts
+-    for (i = j = 0; i < V.size(); i++)/*auto*/{
+-        if (ca[V[i]].mark() != 3)/*auto*/{
+-            V[j++] = V[i];
+-}/*auto*/
+-}/*auto*/
++    
+     V.shrink(i - j);
+ 
+     // Remove satisfied clauses:
+@@ -712,7 +702,9 @@
+     if (remove_satisfied)/*auto*/{        // Can be turned off.
+         removeSatisfied(clauses);
+ }/*auto*/
+-    checkGarbage();
++    if (verbosity >= 1)/*auto*/{
++        printf("c ===============================================================================\n");
++}/*auto*/
+     rebuildOrderHeap();
+ 
+     simpDB_assigns = nAssigns();
+@@ -756,7 +748,7 @@
+ }/*auto*/
+ 
+             if (!luby_restart){
+-                PUSH(TQ, trail.size(), 5000, tS);
++                
+                 if (conflicts > 10000 && LQ.size() == 50 && trail.size() > R * tS / 5000)/*auto*/{
+                     lS = 0, LQ.clear();
+ }/*auto*/
+@@ -815,13 +807,7 @@
+ 
+         }else{
+             // NO CONFLICT
+-            if (luby_restart && conflictC >= nof_conflicts ||
+-               !luby_restart && LQ.size() == 50 && lS / 50. * K > gS / conflicts){// || !withinBudget()){
+-                // Reached bound on number of conflicts:
+-                lS = 0, LQ.clear();
+-                progress_estimate = progressEstimate();
+-                cancelUntil(0);
+-                return l_Undef; }
++            
+ 
+             // Simplify the set of problem clauses:
+             if (decisionLevel() == 0 && !simplify())/*auto*/{
+@@ -829,7 +815,7 @@
+ }/*auto*/
+ 
+             if (learnts.size() > (int32_t)opt_cp_increase && cp < conflicts){
+-                cp = conflicts + (int32_t)opt_cp_increase;
++                CRef cr = ca.alloc(learnt_clause, true);
+                 // Reduce the set of learnt clauses:
+                 reduceDB();
+ 
+@@ -844,7 +830,7 @@
+                         K = 1;
+                         lS = 0, LQ.clear();
+                         cancelUntil(0);
+-                        return l_Undef; }
++                        double  F = 1.0 / nVars(); }
+                 }else{
+                     if (adjust > 0)/*auto*/{ adjust--;
+ }/*auto*/
+@@ -898,7 +884,7 @@
+     for (int i = 0; i <= decisionLevel(); i++){
+         int beg = i == 0 ? 0 : trail_lim[i - 1];
+         int end = i == decisionLevel() ? trail.size() : trail_lim[i];
+-        progress += pow(F, i) * (end - beg);
++        
+     }
+ 
+     return progress / nVars();
+@@ -1062,9 +1048,7 @@
+         fprintf(f, "%s%d 0\n", sign(assumptions[i]) ? "-" : "", mapVar(var(assumptions[i]), map, max)+1);
+     }
+ 
+-    for (int i = 0; i < clauses.size(); i++)/*auto*/{
+-        toDimacs(f, ca[clauses[i]], map, max);
+-}/*auto*/
++    
+ 
+     if (verbosity > 0)/*auto*/{
+         printf("Wrote %d clauses with %d variables.\n", cnt, max);

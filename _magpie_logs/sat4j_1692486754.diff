@@ -1,0 +1,14 @@
+--- before: sat4j.params
++++ after: sat4j.params
+@@ -1,6 +1,7 @@
+-RESTARTS := 'Glucose21Restarts'
+-PHASE := 'RSATPhaseSelectionStrategy'
+-CLADECAY := 0.999
+-VARDECAY := 0.95
++RESTARTS := 'LubyRestarts'
++LUBYFACTOR := 38
++PHASE := 'NegativeLiteralSelectionStrategy'
++CLADECAY := 0.36552669924978987
++VARDECAY := 0.9552671928036077
+ SIMP := 'EXPENSIVE_SIMPLIFICATION'
+ CLEANING := 'LBD2'

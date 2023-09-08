@@ -17,21 +17,27 @@
  
 
 %{
-#define YYDEBUG 1
-
 #ifdef YYDEBUG
-/*  extern int yydebug=1;*/
+   int yydebug = 1;
+#define YYPRINT(file, type, value)   yyprint (file, type, value)  
 #endif
 
-#define YYPRINT(file, type, value)   
+#define YYMAXDEPTH 1000000 
+#define YY_NO_UNPUT
 
+#ifndef __SUN__
+#define YYSTACK_USE_ALLOCA FALSE
+#endif
 
 #include <stdio.h>
 #include <string.h> 
-#include "ff.h"
+   /*#include "ff.h"*/
+#include "lpg.h"
 #include "memory.h"
 #include "parse.h"
 
+#define yyin fct_pddlin
+#define yytext fct_pddltext
 
 #ifndef SCAN_ERR
 #define SCAN_ERR
@@ -97,15 +103,12 @@ static char * serrmsg[] = {
 };
 
 
-//void fcterr( int errno, char *par );
-
-
 static int sact_err;
 static char *sact_err_par = NULL;
 static Bool sis_negated = FALSE;
 
-
-
+ int yylex(void);
+ int yyerror(char *msg); 
 
 /* 
  * call	bison -pfct -bscan-fct scan-fct.y
@@ -126,6 +129,8 @@ void fcterr( int errno, char *par ) {
 
 }
 
+ extern void opserr( int errno, char *par );
+ extern int supported( char *str );
 
 %}
 
@@ -181,7 +186,7 @@ void fcterr( int errno, char *par ) {
 %type <pPlNode> timed_adl_goal_description
 %type <pPlNode> timed_adl_goal_description_plus*/
 %type <pstring> function_symbol
-/*%type <pTokenList> name_star*/
+
 /*LAZZA:TOLTO%type <pTokenList> variable_star*/
 /*%type <pPlNode> timed_adl_effect*/
 /*%type <pPlNode> da_adl_effect
@@ -227,7 +232,7 @@ void fcterr( int errno, char *par ) {
 %token MINUS_TOK 
 %token MUL_TOK
 %token DIV_TOK
-/*%token EQUAL_TOK*/
+%token EQUAL_TOK
 %token GREATER_TOK
 %token LESS_THAN_TOK
 %token METRIC_TOK
@@ -238,6 +243,10 @@ void fcterr( int errno, char *par ) {
 %token PARALLEL_TOK
 %token TOTAL_TIME_TOK
 /*--PDDL2*/
+
+/*PDDL 2.2*/
+%token TIMED_EL_TOK
+/*PDDL 2.2*/
 
 
 %left MINUS_TOK PLUS_TOK	
@@ -287,7 +296,7 @@ OPEN_PAREN  BDOMAIN_TOK  NAME  CLOSE_PAREN
 { 
   if ( SAME != strcmp($3, gdomain_name) ) {
     fcterr( BADDOMAIN, NULL );
-    yyerror();
+    yyerror(NULL);
   }
 }
 ;
@@ -371,6 +380,18 @@ init_el init_el_plus
 
 init_el:
 literal_name
+|
+OPEN_PAREN TIMED_EL_TOK number literal_name CLOSE_PAREN
+{
+  /* gestisce i timed initial facts */
+  PlNode *pln;
+  $$=new_PlNode(TIMED_FACT);
+  $$->sons=$4;
+  pln = new_PlNode(ATOM);
+  pln->atom=$3;
+  $$->sons->next=pln; 
+  gnum_tmd_init_fcts++;
+} 
 |
 OPEN_PAREN EQUAL_TOK f_head num_exp CLOSE_PAREN
 {
@@ -1210,7 +1231,7 @@ NAME
 { 
   if ( !supported( $4 ) ) {
     opserr( NOT_SUPPORTED, $4 );
-    yyerror();
+    yyerror(NULL);
   }
 }
 require_key_star  CLOSE_PAREN
@@ -1225,7 +1246,7 @@ NAME
 { 
   if ( !supported( $1 ) ) {
     opserr( NOT_SUPPORTED, $1 );
-    yyerror();
+    yyerror(NULL);
   }
 }
 require_key_star
@@ -1245,19 +1266,23 @@ require_key_star
 
 
 
-int yyerror( char *msg )
+int fct_pddlerror(char *msg)
 
 {
-  fflush( stdout );
+
+  if (msg)
+    printf("\n%s", msg);
+
   fprintf(stderr,"\n%s: syntax error in line %d, '%s':\n", 
 	  gact_filename, lineno, yytext );
-
+  
   if ( sact_err_par ) {
     fprintf(stderr, "%s%s\n", serrmsg[sact_err], sact_err_par );
   } else {
     fprintf(stderr,"%s\n", serrmsg[sact_err] );
   }
-
+  fflush( stdout );
+  
   exit( 1 );
 
 }
@@ -1270,6 +1295,8 @@ void load_fct_file( char *filename )
 
   FILE *fp;/* pointer to input files */
   char tmp[MAX_LENGTH] = "";
+
+  gbracket_count = 0;
 
   /* open fact file 
    */
@@ -1289,16 +1316,19 @@ void load_fct_file( char *filename )
 
 }
 
-void yyprint (FILE *thisfile, int mytype, YYSTYPE value) 
+#ifdef YYDEBUG
+void yyprint (FILE *thisfile,int  mytype,YYSTYPE value)
+     /*     FILE *thisfile;
+	    int mytype;
+	    YYSTYPE value;
+     */
 {
-
   fprintf (thisfile, " %s", value.string);
-  
   /*
-  if (type == VAR) {
+    if (type == VAR)
     fprintf (file, " %s", value.tptr->name);
-  } else if (type == NUM) {
+    else if (type == NUM)
     fprintf (file, " %d", value.val);
-  }
   */
 }
+#endif

@@ -1,7 +1,0 @@
-CLI_PREFIX  = "/"
-CLI_GLUE    = ":"
-
-claDecay                    (0.0, 1.0)[0.999]
-initConflictBound           g[1, 1000][100]
-varDecay                    (0.0, 1.0)[0.95]
-conflictBoundIncFactor      (1.5, 4)[2]

@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'LUBYFACTOR'), 36) | ParamSetting(('sat4j.params', 'FIXEDPERIOD'), 784) | ParamSetting(('sat4j.params', 'PHASE'), 'UserFixedPhaseSelectionStrategy') | ParamSetting(('sat4j.params', 'CLADECAY'), 0.2935099398386487) | ParamSetting(('sat4j.params', 'INITCONFLICTBOUND'), 6) | ParamSetting(('sat4j.params', 'CONFLICTBOUNDINCFACTOR'), 1.6577415520941416)

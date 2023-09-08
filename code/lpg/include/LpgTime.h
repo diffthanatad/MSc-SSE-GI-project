@@ -32,27 +32,58 @@
 
 
 #ifndef __TIME_H 
-#define __TIME_H  
+#define __TIME_H       
 
-void insert_time (inform_list infAction);
-void update_time (inform_list infAction);
+void insert_time (ActNode_list infAction);
+void update_time (ActNode_list infAction);
 
 void compress_plan ();
+void compress_numeric_plan();
 
-int insert_propagation_list (inform_list infAction);
+void build_temporal_plan ();
 
-void forward_noop_propagation_time (inform_list infNoop);
-void forward_noop_remotion_time (inform_list infNoop);
-void noop_remotion_time (inform_list infNoop);
+int insert_propagation_list (ActNode_list infAction);
 
-void temporal_constraints (inform_list infAction);
+void forward_noop_propagation_time (NoopNode_list infNoop);
+void forward_noop_remotion_time (NoopNode_list infNoop);
+void noop_remotion_time (NoopNode_list infNoop);
+
+void temporal_constraints (ActNode_list infAction);
 void remove_temporal_constraints (int posAction);
-int constraint_type(int posA, int posB);
+int Econstraint_type(int posA, int levA, int posB, int levB);
+int Econstraint_type_numeric(int posA, int posB);
+int Accurate_Econstraint_type_numeric(int posA, int posB, int levA, int levB);
 
 void get_total_time_plan ();
+int get_causal_constraint_type(int posA, int levA, int posB, int levB, int ordering);
+int get_constraint_type(int posA, int levA, int posB, int levB);
 
 void reset_constraint_matrix ();
 void reset_propagation_vect ();
 
+/**
+ * Funzioni aggiunte per la gestione dei timed facts
+ **/
+float find_temporal_interval(float t, ActNode_list infact, int *first_moved);
+void update_timed_vect_data(int *PC_int, int *level, int ins_rem);
+
+void insert_unsup_timed_fact(int fact_pos, int level);
+void remove_unsup_timed_fact(FctNode_list false_tmd);
+
+float check_time_interval(float tprec, ActNode_list infact);
+void remove_all_unsup_tmd_of_act(ActNode_list infact);
+
+int fix_unsup_timed_fact(constraints_list unsup_tmd_fct, int num, float new_time);
+
+int choose_min_cost_unsup_tmd_fact ();
+int define_neighborhood_for_timed_fact (register FctNode_list tofix, float *new_time, int initialize);
+
+int check_unsup_tmd(void);
+
+void slack_fact_from_act (constraints_list fix);
+
+void insert_initial_timed_actions( void );
+
+void update_end_time_action_f(void);
 
 #endif

@@ -1,0 +1,1 @@
+ParamSetting(('sat4j.params', 'PHASE'), 'RSATLastLearnedClausesPhaseSelectionStrategy') | ParamSetting(('sat4j.params', 'CLADECAY'), 0.5605446829000174) | ParamSetting(('sat4j.params', 'SIMP'), 'SIMPLE_SIMPLIFICATION') | ParamSetting(('sat4j.params', 'CLEANING'), 'LBD')
