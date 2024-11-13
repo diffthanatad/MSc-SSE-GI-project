@@ -6,6 +6,7 @@ This repository is structured as follows:
 1. MAGPIE-OUR-VERSION: contains our version of the MAGPIE
     1. _magpie_logs: raw outputs from the experiments.
     2. magpie: the main functionalities of the MAPIE including the algorithms.
+    3. results: MiniSAT experiment results from 10 k-fold in csv format.
 2. appendix_algorithms_and_tables.pdf: contains the additional information, including are not limited to, pseudo-code of the algorithms, tables and graphs.
 
 * Our MAGPIE version for this study: https://anonymous.4open.science/r/w6hlu50lds662C/
